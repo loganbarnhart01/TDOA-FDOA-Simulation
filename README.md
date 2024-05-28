@@ -1,12 +1,3 @@
-<!--## Flight Tracker Simulator ##
-# Rincon 2024 Intern Project
-# Logan, Elizabeth, Elsa, & Kelly
-
-
-
-
-
-
-
-
-  -->
+# Flight Tracker Simulator
+Rincon 2024 Intern Project
+Kelly, Elsa, Elizabeth & Logan
