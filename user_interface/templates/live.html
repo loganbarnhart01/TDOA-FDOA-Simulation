@@ -1,12 +1,24 @@
-<!-- templates/raw_text.html -->
+<!-- template.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page for live plane data</title>
+    <title>Combined HTML</title>
+    <style>
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Ensures full height of the viewport */
+        }
+    </style>
 </head>
 <body>
-    <p>No prompting here - just have the globe with live data collected from the api rendered on this page.</p>
+    <h1>Live Flight Tracking</h1>
+    <div class="center">
+        <!-- Placeholder for Plotly HTML -->
+        {{ plotly_placeholder }}
+    </div>
 </body>
 </html>
