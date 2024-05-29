@@ -1,8 +1,5 @@
-from data_interface.database import Base
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import Boolean, Column, Integer, String, Text
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from sqlalchemy import create_engine, Boolean, Column, Integer, String, Text
 
 
 database_url="postgresql://eheidrich@/var/run/postgresql:5432/adsb_data"
@@ -12,7 +9,7 @@ Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Session i think lets you create tables + stuff, gotta read up on it, but it’s something like this:
 
-
+Base = declarative_base()
 
 class User(Base):
 	__tablename__ = "users"
@@ -28,6 +25,7 @@ class User(Base):
 	datasets = relationship("Dataset", back_populates="users")
 	elements = relationship("Element", back_populates="users") 
 
-db = Session()
+session = Session()
 # allows you to interact with the database:
-db.add(...)
+session.add(...)
+session.commit()
