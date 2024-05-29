@@ -16,7 +16,11 @@ def render_plot(data):
     #customize these?
     fig.update_traces(marker_size=20, line=dict(color="Red"))
     fig.update_geos(projection_type="orthographic")
-    fig.update_layout(width=800, height=800, margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_layout(width=800, 
+                      height=800, 
+                      margin={"r":0,"t":0,"l":0,"b":0},
+                      plot_bgcolor='lightblue',
+                      )
     
     fig_json = fig.to_json()
     return fig_json
