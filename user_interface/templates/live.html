@@ -1,10 +1,10 @@
-<!-- template.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combined HTML</title>
+    <title>Live Flight Tracking</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>  <!-- Ensure this script is included -->
     <style>
         .center {
             display: flex;
@@ -12,13 +12,34 @@
             align-items: center;
             height: 100vh; /* Ensures full height of the viewport */
         }
+        #plotly-globe {
+            width: 800px;
+            height: 800px;
+        }
     </style>
 </head>
 <body>
     <h1>Live Flight Tracking</h1>
-    <div class="center">
-        <!-- Placeholder for Plotly HTML -->
-        {{ plotly_placeholder }}
-    </div>
+    <div id="plotly-globe" class="center"></div>
+    <script>
+        function fetchGlobeData() {
+            fetch('/live-data')  // API endpoint for live data
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched Data:', data);  // Debugging: Log fetched data
+                    Plotly.react('plotly-globe', data.data, data.layout, {showLink: false});
+                })
+                .catch(error => console.error('Error: Could not fetch flight data:', error));
+        }
+
+        // Initial fetch and interval setup
+        fetchGlobeData();
+        setInterval(fetchGlobeData, 5000);  // Update every 5 seconds
+    </script>
 </body>
 </html>
