@@ -1,6 +1,6 @@
 from globe_rendering_utils import render_plot, format_globe_html
 
-data = {'lat' : [45.5231, 12.1234], 'lon' : [122.6765, 23.4567], 'mode' : 'markers'}
+data = {'lat' : [39.849312, 0], 'lon' : [0,-104.673828], 'mode' : 'markers'}
 
 globe_html = render_plot(data)
 
