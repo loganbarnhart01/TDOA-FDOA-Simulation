@@ -23,7 +23,3 @@
 * \c adsb_data eheidrich
 * \conninfo (gets the info for the url to use with sqlalchemy)
 * \q (quits postgres in terminal)
-
-* Next switch to VSCode:
-* install the microsoft postgreSQL extension
-* 
