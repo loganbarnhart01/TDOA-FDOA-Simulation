@@ -19,9 +19,14 @@ def live():
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
-    random_data = {'lat': [np.random.random() * 180 - 90 for i in range(10)], 
-                     'lon': [np.random.random() * 360 - 180 for i in range(10)], 
-                     'mode' : 'markers'}
+    #generate random path
+    path_len=10
+    start_lats = [np.random.random() * 180 - 90 for i in range(5)]
+    start_lons = [np.random.random() * 360 - 180 for i in range(5)]
+
+    random_data = {'lat': [[start_lats[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(5)], 
+                     'lon': [[start_lons[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(5)], 
+                     'mode' : 'lines+markers'}
     globe_json = render_plot( random_data )
     return globe_json
 
