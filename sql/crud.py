@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from sqlalchemy import create_engine, Boolean, Column, Integer, String, Text, Float
 
 db_url = "sqlite:///./planes.db" # or whatever the url is
 # create engine stuff here
@@ -29,5 +31,5 @@ def update_plane(db : Session, plane_data: String):
         lon = plane_data[2]
         time = plane_data[3]
         new_lat = plane_to_update.lat + lat
-        ....
+
         db.update(...)
