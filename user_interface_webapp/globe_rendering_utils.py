@@ -61,14 +61,14 @@ def render_plot(data):
                       geo=dict(
                           projection_type='orthographic',
                           showland=True,
-                          landcolor='lightgreen',
+                          landcolor='#1e1e2e',
                           showocean=True,
-                          oceancolor='lightblue',
+                          oceancolor='#cdd6f4',
                           showlakes=True,
-                          lakecolor='lightblue',
+                          lakecolor='#cdd6f4',
                           showcountries=True,
-                          countrycolor='black',
-                          bgcolor='#0d0631'
+                          countrycolor='#cdd6f4',
+                          bgcolor='#1e1e2e'
                         ),
                       showlegend=False
                       )
