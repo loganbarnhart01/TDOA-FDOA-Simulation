@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float, Boolean
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.engine import URL
+from opensky_api import OpenSkyApi
 import pandas as pd
 # Step 1: Define SQLAlchemy engine to connect to PostgreSQL database
 # Replace 'username', 'password', 'host', 'port', and 'database_name' with your actual credentials
@@ -14,40 +16,29 @@ url = URL.create(
 
 engine = create_engine(url)
 
-# engine = create_engine('postgresql://ehong:Elanlofr0gs!@@/adsb_data?host=/var/run/postgresql/')
-# Step 2: Define metadata and table structure
+Base = declarative_base()
+
 metadata = MetaData()
 table_name = 'flights'
-your_table = Table(table_name, metadata,
-					Column("ICAO24", String(255), nullable=True),
-					Column('callsign', String(255), nullable=True),
-					Column("origin_country", String(255), nullable=True),
-					Column("time_position", Float, nullable=False),
-					Column("last_contact", Float, nullable=True),
-					Column("longitude", Float, nullable=False),
-					Column('latitude', Float, nullable=False),
-					Column('baro_altitude', Float, nullable=True),
-					Column("on ground", Boolean, nullable=True),
-					Column("velocity", Float, nullable=True),
-					Column("true track", Float, nullable=True),
-					Column("vertical rate", Float, nullable=True),
-					Column("sensors", Float, nullable=True),
-					Column("geo altitude",Float, nullable=True),
-					Column("squawk", Integer, nullable=True),
-					Column("spi", Boolean, nullable=True),
-					Column("position source", Integer, nullable=True),
-					Column("category", Integer, nullable=True),
-                   )
+class Flight(Base):
+	__tablename__ = table_name
+	id = Column(Integer, primary_key=True)
+	icao24 = Column(String)
+	latitude = Column(Float)
+	longitude = Column(Float)
+	time_position = Column(Integer)
 
+Base.metadata.create_all(engine)
+api = OpenSkyApi()
+states = api.get_states().states
 
-csv_file_path = '/home/ehong/Downloads/Flight-Tracker-Simulator/flight_data/adsb_data.csv'
+state_dicts = [s.__dict__ for s in states]
 
-with open(csv_file_path, 'r') as file:
-    df = pd.read_csv(file)
+df = pd.DataFrame(state_dicts)
 
-
+df = df[['icao24', 'longitude', 'latitude', 'time_position']]
 df.to_sql(table_name,
-          con=engine,
-          index=False,
-          index_label='id',
-          if_exists='replace')
+		con=engine,
+		index=False,
+		index_label='id',
+		if_exists='replace')
