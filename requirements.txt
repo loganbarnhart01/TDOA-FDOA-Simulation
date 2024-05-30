@@ -3,3 +3,5 @@ pandas
 plotly
 requests
 sqlalchemy
+psycopg2
+pg8000
