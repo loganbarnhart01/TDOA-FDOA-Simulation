@@ -47,6 +47,7 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 import pandas as pd
 # Step 1: Define SQLAlchemy engine to connect to PostgreSQL database
 # Replace 'username', 'password', 'host', 'port', and 'database_name' with your actual credentials
+
 engine = create_engine('postgresql://eheidrich:EjhRhody8@@/adsb_data?host=/var/run/postgresql/')
 # Step 2: Define metadata and table structure
 metadata = MetaData()
