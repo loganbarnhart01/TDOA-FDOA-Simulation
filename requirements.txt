@@ -3,4 +3,6 @@ pandas
 plotly
 requests
 sqlalchemy
-psycopg2
+psycopg2-binary
+pg8000
+
