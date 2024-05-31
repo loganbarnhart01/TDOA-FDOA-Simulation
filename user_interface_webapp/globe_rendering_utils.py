@@ -82,6 +82,7 @@ def plot_state_data(fig):
                 ),
             mode="lines",
             showlegend=False,
+            hoverinfo="none",
         )
     )
 
@@ -112,6 +113,7 @@ def plot_flight_data(data, fig):
             mode='lines',
             line=line,
             showlegend=False,
+            hoverinfo= 'none',
         ))
 
         bearing = calculate_bearing(lat, lon)
