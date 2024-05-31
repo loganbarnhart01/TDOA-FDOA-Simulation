@@ -1,8 +1,6 @@
 # How to install opensky api dependencies
 
 * run `pip install -e opensky-api/`
-* `pip install pandas`
-* `python scrape_adsb_data.py`
 
 # How to install and set up postgreSQL
 
