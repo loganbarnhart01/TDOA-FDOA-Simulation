@@ -1,2 +1,4 @@
 flight_tracker/
+flight-tracker/
 __pycache__
+/opensky-api/opensky_api.egg-info

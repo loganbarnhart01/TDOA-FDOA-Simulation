@@ -4,6 +4,7 @@ Kelly, Elsa, Elizabeth & Logan
 
 # installing requirements
 
+* `pip install -e opensky-api/`
 * `pip install -r requirements.txt`
 
 
