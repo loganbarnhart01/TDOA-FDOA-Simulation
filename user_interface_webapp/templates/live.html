@@ -22,6 +22,7 @@
         .container {
             display: flex;
             height: 100vh;
+            align-items: center;
         }
         .sidebar {
             flex: .5;  /* Takes up the remaining space */
@@ -32,19 +33,34 @@
         .content {
             flex: 3;  /* Adjust the ratio as needed */
             display: flex;
-            justify-content: flex-end;  /* Align the globe to the right */
+            justify-content: center;  /* Align the globe to the right */
             align-items: center;
             padding: 20px;
         }
         #plotly-globe {
             width: 800px;
             height: 800px;
+            align-items: center;
+        }
+        button{
+            position: absolute;
+            font-family: "monospace";
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #cdd6f4;
+            color: #1e1e2e;
+            border: none;
+            box-shadow: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
+        <button onclick="window.location.href='/';">home</button>
+        <!-- <div class="sidebar">
             <h2>filter options</h2>
             <label for="option1">option 1:</label>
             <select id="option1">
@@ -65,12 +81,9 @@
                 <option value="option3-1">option 3-1</option>
                 <option value="option3-2">option 3-2</option>
                 <option value="option3-3">option 3-3</option>
-                merged paths:
-                (use "git add/rm <file>..." as appropriate to mark resolution)
-                      deleted by them: user_interface/globe.py
-                      deleted by them: user_interface/templates/live_completed.html            </select>
-        </div>
-        <div #27212bclass="content">
+            </select>
+        </div> -->
+        <div class="content">
             <div id="plotly-globe"></div>
         </div>
     </div>

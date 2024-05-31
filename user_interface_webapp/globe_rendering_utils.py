@@ -79,7 +79,8 @@ def render_plot(data):
 
     # fig.update_geos(projection_type="orthographic", showcountries=True)
     fig.update_geos(
-        fitbounds=False
+        projection_type="orthographic",
+        projection_scale=.9,
     )
     fig.update_layout(width=750, 
                       height=750, 
