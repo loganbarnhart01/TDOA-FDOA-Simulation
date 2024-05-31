@@ -21,7 +21,7 @@ def live():
 def live_data():
     #generate random path
     path_len=10
-    num_planes = 10
+    num_planes = 500
     start_lats = [np.random.random() * 180 - 90 for i in range(num_planes)]
     start_lons = [np.random.random() * 360 - 180 for i in range(num_planes)]
 
