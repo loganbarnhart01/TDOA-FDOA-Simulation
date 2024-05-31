@@ -20,7 +20,7 @@ Base = declarative_base()
 
 metadata = MetaData()
 table_name = 'flights'
-
+'''
 class Flight(Base):
 	__tablename__ = table_name
 	icao24 = Column(String, primary_key=True)
@@ -28,7 +28,7 @@ class Flight(Base):
 	longitude = Column(String)
 	time_position = Column(Integer)
 	on_ground = Column(Boolean)
-
+'''
 Base.metadata.create_all(engine)
 api = OpenSkyApi()
 states = api.get_states().states
