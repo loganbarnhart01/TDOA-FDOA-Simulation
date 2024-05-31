@@ -4,9 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page for uploading dataset</title>
+    <title>CSV file upload</title>
 </head>
 <body>
-    <p>We prompt the user to upload their which they would like visualized here!</p>
+<!--Prompt user to upload data -->
+<header> LiveFly Geo</header>
+<h2>Upload ADS-B Data</h2>
+<h4>Accepted file types: </h4>
+<h5>.csv</h5> 
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <label for="fileUpload">Upload ABD-S Data:</label>
+    <input type="file" id="fileUpload" name="fileUpload" accept=".csv,.xlsx,.xls">
+    <button type="submit">Submit</button>
+</form>
 </body>
 </html>
+
+
+<!--Modify font types and text sizes and colors-->
