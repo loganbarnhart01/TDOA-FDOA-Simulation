@@ -21,12 +21,12 @@ def live():
 def live_data():
     #generate random path
     path_len=10
-    start_lats = [np.random.random() * 180 - 90 for i in range(1000)]
-    start_lons = [np.random.random() * 360 - 180 for i in range(1000)]
+    num_planes = 10
+    start_lats = [np.random.random() * 180 - 90 for i in range(num_planes)]
+    start_lons = [np.random.random() * 360 - 180 for i in range(num_planes)]
 
-    random_data = {'lat': [[start_lats[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(1000)], 
-                     'lon': [[start_lons[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(1000)], 
-                     'mode' : 'lines+markers'}
+    random_data = {'lat': [[start_lats[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(num_planes)], 
+                     'lon': [[start_lons[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(num_planes)]}
     globe_json = render_plot( random_data )
     return globe_json
 
