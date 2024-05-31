@@ -9,8 +9,8 @@ import pandas as pd
 
 url = URL.create(
     drivername="postgresql",
-    username="ehong",
-    password="Elanlofr0gs!",
+    username="eheidrich",
+    password="EjhRhody8@!",
     host="/var/run/postgresql/",
     database="adsb_data"
 )
@@ -26,6 +26,8 @@ table_name = 'flights'
 Base = declarative_base()
 
 def data_collector():
+	Base.metadata.create_all(engine)
+
 	while True:
 		api = OpenSkyApi()
 		states = api.get_states().states
