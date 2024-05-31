@@ -8,8 +8,8 @@ import pandas as pd
 
 url = URL.create(
     drivername="postgresql",
-    username="ehong",
-    password="Elanlofr0gs!",
+    username="eheidrich",
+    password="EjhRhody8@!",
     host="/var/run/postgresql/",
     database="adsb_data"
 )
