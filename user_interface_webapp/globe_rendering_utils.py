@@ -25,8 +25,6 @@ def render_plot(data):
     texts = [f"ICAO: {icao}<br>IATA: {iata}<br>Airport Name: {name}<br>Latitude: {lat}<br>Longitude: {lon}" 
             for lat, lon, icao, iata, name in zip(latitudes, longitudes, icaos, iatas, airport_names)]
 
-    fig = go.Figure()
-
     # Scattergeo for airport data
     fig.add_trace(go.Scattergeo(
         lat=latitudes,
