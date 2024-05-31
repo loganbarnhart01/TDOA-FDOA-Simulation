@@ -3,7 +3,7 @@ import numpy as np
 from plotly import graph_objects as go
 import csv
 
-def render_plot(data):
+def render_live_plot(data):
     """
     Renders globe for given data:
 
@@ -23,10 +23,64 @@ def render_plot(data):
 
     fig = plot_flight_data(data, fig)
 
-    # fig = plot_error(fig, 39.7392, -104.9903, 3, units='mi')
+    fig = fig_style(fig)
     
     fig_json = fig.to_json()
     return fig_json
+
+def render_tdoa_plot(data):
+    emitter_lat, emitter_lon = data['emitter']
+    reciever_lats, reciever_lons = data['receivers']
+
+    fig = go.Figure()
+
+    fig = plot_state_data(fig)
+
+    fig = plot_emitter(fig, emitter_lat, emitter_lon)
+
+    fig = plot_recievers(fig, reciever_lats, reciever_lons)
+
+    fig = fig_style(fig)
+
+    fig_json = fig.to_json()
+
+    return fig_json
+
+def plot_emitter(fig, lat, lon):
+    
+    marker = dict(
+        size = 20,
+        color = '#ffc300',
+        symbol = 'asterisk-open',
+    )
+    
+    fig.add_trace(go.Scattergeo(
+            lat=lat,
+            lon=lon,
+            mode='markers',
+            marker=marker,
+            showlegend=False,
+        ))
+    
+    return fig
+
+def plot_recievers(fig, lat, lon):
+
+    marker = dict(
+        size = 20,
+        color = '#ffc300',
+        symbol = 'circle-open-dot',
+    )
+
+    fig.add_trace(go.Scattergeo(
+            lat=lat,
+            lon=lon,
+            mode='markers',
+            marker=marker,
+            showlegend=False,
+        ))
+    
+    return fig
 
 def plot_airport_data(fig):
     file_path = "flight_data/iata-icao-lat-lon.csv"
@@ -128,32 +182,6 @@ def plot_flight_data(data, fig):
             marker=marker,
             showlegend=False,
         ))
-
-
-    # fig.update_geos(projection_type="orthographic", showcountries=True)
-    fig.update_geos(
-        projection_type="orthographic",
-        projection_scale=.9,
-    )
-    fig.update_layout(width=750, 
-                      height=750, 
-                      margin={"r":0,"t":0,"l":0,"b":0},
-                      uirevision='constant',
-                      geo=dict(
-                          projection_type='orthographic',
-                          showland=True,
-                          landcolor='#1e1e2e',
-                          showocean=True,
-                          oceancolor='#cdd6f4',
-                          showlakes=True,
-                          lakecolor='#cdd6f4',
-                          showcountries=True,
-                          countrycolor='#cdd6f4',
-                          bgcolor='#1e1e2e',
-                        #   showstates=True
-                        ),
-                      showlegend=False
-                      )
     
     return fig
 
@@ -236,3 +264,31 @@ def parse_icao_lat_lon(file_path):
             # append latitude, longitude, ICAO, and IATA to airport_data list
             airport_data.append((float(latitude), float(longitude), icao, iata, airport))
     return airport_data
+
+def fig_style(fig):
+    fig.update_geos(
+        projection_type="orthographic",
+        projection_scale=.9,
+    )
+    fig.update_layout(width=750, 
+                      height=750, 
+                      margin={"r":0,"t":0,"l":0,"b":0},
+                      uirevision='constant',
+                      autosize=True,
+                      geo=dict(
+                          projection_type='orthographic',
+                          showland=True,
+                          landcolor='#1e1e2e',
+                          showocean=True,
+                          oceancolor='#cdd6f4',
+                          showlakes=True,
+                          lakecolor='#cdd6f4',
+                          showcountries=True,
+                          countrycolor='#cdd6f4',
+                          bgcolor='#1e1e2e',
+                        #   showstates=True
+                        ),
+                      showlegend=False
+                      )
+    
+    return fig
