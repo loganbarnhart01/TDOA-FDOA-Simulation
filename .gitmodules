@@ -1,3 +1,0 @@
-[submodule "opensky-api"]
-	path = flight_data/opensky-api
-	url = https://github.com/openskynetwork/opensky-api
