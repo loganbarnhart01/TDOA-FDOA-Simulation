@@ -14,7 +14,18 @@ def render_plot(data):
     returns:
         html for plotly globe with template
     """
+    fig = go.Figure()
+    
+    fig = plot_airport_data(fig)
 
+    fig = plot_flight_data(data, fig)
+
+    fig = plot_error(fig, 39.7392, -104.9903, 3, units='mi')
+    
+    fig_json = fig.to_json()
+    return fig_json
+
+def plot_airport_data(fig):
     file_path = "flight_data/iata-icao-lat-lon.csv"
     airport_data = parse_icao_lat_lon(file_path)
 
@@ -24,8 +35,6 @@ def render_plot(data):
     # Create text for each data point containing all information
     texts = [f"ICAO: {icao}<br>IATA: {iata}<br>Airport Name: {name}<br>Latitude: {lat}<br>Longitude: {lon}" 
             for lat, lon, icao, iata, name in zip(latitudes, longitudes, icaos, iatas, airport_names)]
-
-    fig = go.Figure()
 
     # Scattergeo for airport data
     fig.add_trace(go.Scattergeo(
@@ -40,6 +49,9 @@ def render_plot(data):
         )
     ))
 
+    return fig
+
+def plot_flight_data(data, fig):
     latitude = data['lat']
     longitude = data['lon']
 
@@ -61,7 +73,8 @@ def render_plot(data):
             lat=lat,
             lon=lon,
             mode='lines',
-            line=line
+            line=line,
+            showlegend=False,
         ))
 
         bearing = calculate_bearing(lat, lon)
@@ -74,6 +87,7 @@ def render_plot(data):
             lon=[lon[-1]],
             mode='markers',
             marker=marker,
+            showlegend=False,
         ))
 
 
@@ -102,8 +116,36 @@ def render_plot(data):
                       showlegend=False
                       )
     
-    fig_json = fig.to_json()
-    return fig_json
+    return fig
+
+def plot_error(fig, lat, lon, r, units='mi'):
+    lat_rad, lon_rad = np.radians(lat), np.radians(lon)
+    num_pts = 50
+    
+    if units == 'mi':
+        R = 3959
+    if units == 'km':
+        R=6371
+
+    circle_angles = np.linspace(0, 2*np.pi, num_pts)
+
+    circle_lats = np.arcsin(np.sin(lat_rad) * np.cos(r/R) + np.cos(lat_rad) * np.sin(r/R) * np.cos(circle_angles))
+    circle_lons = lon_rad + np.arctan2(np.sin(circle_angles) * np.sin(r/R)* np.cos(lat_rad), np.cos(r/R) - np.sin(lat_rad) * np.sin(circle_lats))
+        
+    circle_lats = np.degrees(circle_lats)
+    circle_lons = np.degrees(circle_lons)
+
+    fig.add_trace( go.Scattergeo(
+        lat=circle_lats,
+        lon=circle_lons,
+        mode='lines',
+        fill='toself',
+        fillcolor= 'rgba(255, 17, 17, 0.2)',
+        line = dict(color='rgba(255, 17, 17, 0.2)')
+    ))
+
+    return fig
+
 
 
 def calculate_bearing(lat, lon):
