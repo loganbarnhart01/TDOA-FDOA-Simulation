@@ -47,11 +47,11 @@ def render_plot(data):
 
     #Line customization    
     marker = dict(
-        size = 20,
+        size = 10,
         color = '#ffc300',
     )
     line = dict(
-        width = 3,
+        width = 1,
         color = '#ffc300'
     )
 
