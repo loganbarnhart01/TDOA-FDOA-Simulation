@@ -1,3 +1,4 @@
+import requests
 import numpy as np
 from plotly import graph_objects as go
 import csv
@@ -16,11 +17,13 @@ def render_plot(data):
     """
     fig = go.Figure()
     
-    fig = plot_airport_data(fig)
+    # fig = plot_airport_data(fig)
+
+    fig = plot_state_data(fig)
 
     fig = plot_flight_data(data, fig)
 
-    fig = plot_error(fig, 39.7392, -104.9903, 3, units='mi')
+    # fig = plot_error(fig, 39.7392, -104.9903, 3, units='mi')
     
     fig_json = fig.to_json()
     return fig_json
@@ -50,6 +53,40 @@ def plot_airport_data(fig):
     ))
 
     return fig
+
+def plot_state_data(fig):
+    states_geojson = requests.get(
+    "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_1_states_provinces_lines.geojson"
+).json()
+
+    fig = fig.add_trace(go.Scattergeo(
+            lat=[
+                v
+                for sub in [
+                    np.array(f["geometry"]["coordinates"])[:, 1].tolist() + [None]
+                    for f in states_geojson["features"]
+                ]
+                for v in sub
+            ],
+            lon=[
+                v
+                for sub in [
+                    np.array(f["geometry"]["coordinates"])[:, 0].tolist() + [None]
+                    for f in states_geojson["features"]
+                ]
+                for v in sub
+            ],
+            line=dict(
+                width=1,
+                color='#cdd6f4',
+                ),
+            mode="lines",
+            showlegend=False,
+        )
+    )
+
+    return fig
+
 
 def plot_flight_data(data, fig):
     latitude = data['lat']
