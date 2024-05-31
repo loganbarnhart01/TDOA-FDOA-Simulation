@@ -1,4 +1,5 @@
 <!-- templates/index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Button Redirect Example</title>
     <style>
+        /* Your existing styles */
         body {
             display: flex;
             justify-content: center;
@@ -19,6 +21,9 @@
         .button-container {
             display: flex;
             flex-direction: column;
+            margin-left: 20px;
+            margin-top: 10px;
+            opacity: 0; /* Initially set opacity to 0 */
         }
         .button-container a {
             text-decoration: none;
@@ -27,22 +32,33 @@
             padding: 20px;
             margin: 10px;
             font-size: 20px;
-            margin-right: 50px;
             color: #1e1e2e;
             background-color: #cdd6f4;
             border: none;
             cursor: pointer;
             text-align: center;
             text-decoration-color: #cdd6f4;
+            animation: fadeInUp 1s forwards; /* Apply fadeInUp animation */
         }
         .button:hover {
             background-color: #575d64;
         }
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
         .title {
-            font-size: 40px;
-            margin-bottom: 20px;
-            text-align: center;
-            margin-right: 450px
+            font-size: 60px;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        .subtitle {
+            font-size: 30px;
+            text-align: left;
+            animation: fade-in-no-slide 10.0s forwards;
         }
         .letter {
             display: inline-block;
@@ -54,27 +70,52 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fade-in-no-slide {
+            from { opacity: 0; }
+            to { opacity: 1;  }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(100px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
     </style>
 </head>
 <body>
-    <div class="title">
-        <span class="letter" style="animation-delay: 0s;">g</span>
-        <span class="letter" style="animation-delay: 0.2s;">l</span>
-        <span class="letter" style="animation-delay: 0.4s;">e</span>
-        <span class="letter" style="animation-delay: 0.6s;">e</span>
-        <span class="letter" style="animation-delay: 0.8s;">k</span>
+    <div class="title-container">
+        <div class="title">
+            <span class="letter" style="animation-delay: 0s;">g</span>
+            <span class="letter" style="animation-delay: 0.15s;">e</span>
+            <span class="letter" style="animation-delay: 0.30s;">o</span>
+            <span class="letter" style="animation-delay: 0.45s;">l</span>
+            <span class="letter" style="animation-delay: 0.60s;">e</span>
+            <span class="letter" style="animation-delay: 0.75s;">e</span>
+            <span class="letter" style="animation-delay: 0.90s;">k</span>
+        </div>
+        <div class="subtitle" id="sub-title"> 
+            <span class="subtitle-animation" style="animation-delay: 1.00s;" >ADS-B data visualization</span>
+        </div>
     </div>
 
-    <div class="button-container">
+    <div class="button-container" id="buttonContainer">
         <a href="/upload">
-            <div class="button">upload ads-b data</div>
+            <div class="button">upload ADS-B data</div>
         </a>
         <a href="/live">
             <div class="button">live data</div>
         </a>
         <a href="/tdoa-sim">
-            <div class="button">tdoa-simulator</div>
+            <div class="button">simulate TDOA</div>
         </a>
     </div>
+
+    <script>
+        // JavaScript to trigger the animation when the page loads
+        window.onload = function() {
+            document.getElementById('buttonContainer').style.opacity = 1;
+            
+            document.getElementById('sub-title').style.opacity = 0.5;
+        };
+    </script>
 </body>
-</html>
+</html> -->
