@@ -1,14 +1,13 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Boolean
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import URL
-from table import Flight
 
 max_count = 500
 
 url = URL.create(
     drivername="postgresql",
-    username="eheidrich",
-    password="EjhRhody8@!",
+    username="ehong",
+    password="Elanlofr0gs!",
     host="/var/run/postgresql/",
     database="adsb_data"
 )
@@ -20,6 +19,33 @@ Session = sessionmaker(bind=engine)
 db = Session()
 
 
+Base = declarative_base()
+
+class Flight(Base):
+	__tablename__ = 'flights'
+	icao24 = Column(String, primary_key=True)
+	latitude = Column(String)
+	longitude = Column(String)
+	time_position = Column(Integer)
+	on_ground = Column(Boolean)
+	
+def create_table():
+	url = URL.create(
+    drivername="postgresql",
+    username="ehong",
+    password="Elanlofr0gs!",
+    host="/var/run/postgresql/",
+    database="adsb_data"
+)
+
+	engine = create_engine(url)
+
+	Session = sessionmaker(bind=engine)
+
+	db = Session()
+	
+	Base.metadata.drop_all(engine)
+	Base.metadata.create_all(engine)
 
 def create_flight(icao24, latitude, longitude, time_position, on_ground):
 	

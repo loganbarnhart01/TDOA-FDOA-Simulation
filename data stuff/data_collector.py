@@ -3,12 +3,10 @@ from opensky_api import OpenSkyApi
 import time
 import pandas as pd
 import crud
-import table
 
 
 def data_collector():
-	table.create_table()
-
+	crud.create_table()
 	while True:
 		api = OpenSkyApi()
 		states = api.get_states().states
