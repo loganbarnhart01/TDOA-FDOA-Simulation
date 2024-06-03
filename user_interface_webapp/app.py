@@ -1,13 +1,12 @@
-import time
-from flask import Flask, render_template, request
-import numpy as np
-from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
-import requests
-from data_stuff.crud import Flight
 import logging
+
+from flask import Flask, render_template, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
+
+from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
+from data_stuff.crud import Flight
 
 url = URL.create(
     drivername="postgresql",
