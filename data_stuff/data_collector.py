@@ -1,5 +1,8 @@
 # make table in sql
 from opensky_api import OpenSkyApi
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Boolean
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.engine import URL
 import time
 import pandas as pd
 import crud
@@ -18,17 +21,17 @@ class Plane:
 	def update(self, prob= 0.1):
 		if np.random.random() < prob:
 			self.direction = np.random.random() * 2*np.pi
-		self.latitude = max(min((self.latitude[-1] + np.sin(self.direction)), 90), -90)
-		self.longitude = (self.longitude[-1] + np.cos(self.direction)) % 360 - 180
+		self.latitude = max(min((self.latitude + np.sin(self.direction)), 90), -90)
+		self.longitude = (self.longitude + np.cos(self.direction)) % 360 - 180
 		self.time_position += 1
 		self.on_ground = False
 
-def create_planes(num_planes=500):
+def create_planes(num_planes=10):
 	planes = []
 	for i in range(num_planes):
 		lat = np.random.random() * 180 - 90
 		lon = np.random.random() * 360 - 180
-		planes.append(Plane(i, lat, lon, 0, False))
+		planes.append(Plane(i, lat, lon, 1, False))
 
 	return planes
 
@@ -38,16 +41,31 @@ def update_planes(planes):
 
 	return planes
 
-def data_collector():
-	crud.create_table()
-	while True:
-		api = OpenSkyApi()
-		states = api.get_states().states
-
-		for s in states:
-			crud.create_flight(s.icao24, str(s.latitude), str(s.longitude), s.time_position, s.on_ground)
-
-		time.sleep(10)
-
+def data_collector(fake_data=False):
 	
-data_collector()
+	crud.create_table()
+
+	if fake_data:
+		
+		planes = create_planes()
+		for plane in planes:
+			crud.create_flight(str(plane.icao24), str(plane.latitude), str(plane.longitude), plane.time_position, plane.on_ground)
+		
+		while True:
+			planes = update_planes(planes)
+			
+			for plane in planes:
+				crud.create_flight(str(plane.icao24), str(plane.latitude), str(plane.longitude), plane.time_position, plane.on_ground)
+
+			time.sleep(10)
+
+	else:
+		while True:
+			api = OpenSkyApi()
+			states = api.get_states().states
+			for s in states:
+				crud.create_flight(s.icao24, str(s.latitude), str(s.longitude), s.time_position, s.on_ground)
+				
+			time.sleep(10)
+
+data_collector(fake_data=False)

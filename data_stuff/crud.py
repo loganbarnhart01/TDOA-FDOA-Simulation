@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import URL
 
-max_count = 500
+max_count = 10 
 
 url = URL.create(
     drivername="postgresql",
@@ -17,7 +17,6 @@ engine = create_engine(url)
 Session = sessionmaker(bind=engine)
 
 db = Session()
-
 
 Base = declarative_base()
 
@@ -36,20 +35,16 @@ def create_table():
     password="Elanlofr0gs!",
     host="/var/run/postgresql/",
     database="adsb_data"
-)
+	)
 
 	engine = create_engine(url)
-
-	Session = sessionmaker(bind=engine)
-
-	db = Session()
 	
 	Base.metadata.drop_all(engine)
 	Base.metadata.create_all(engine)
 
 def create_flight(icao24, latitude, longitude, time_position, on_ground):
-	
 	query = db.query(Flight).filter_by(icao24 = icao24).first()
+
 	if on_ground:
 		if query:
 			delete_flight(icao24)
@@ -89,9 +84,18 @@ def update_flight(icao24, latitude, longitude, time_position):
 			flight.longitude = ','.join(curr_lon)
 		
 		flight.time_position = time_position
+		db.commit()
 		
 
 def delete_flight(icao24):
 	flight = db.query(Flight).filter_by(icao24 = icao24).first()
 	if flight:
 		db.delete(flight)
+		db.commit()
+
+def read_flights():
+	lats = db.query(Flight.latitude).all()
+	longs = db.query(Flight.longitude).all()
+	data = {'lat': [list(map(float, lat[0].split(','))) for lat in lats], 'lon': [list(map(float, lon[0].split(','))) for lon in longs]}
+
+	return data
