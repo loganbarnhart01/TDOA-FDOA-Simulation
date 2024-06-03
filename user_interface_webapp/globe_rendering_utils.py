@@ -170,9 +170,12 @@ def plot_flight_data(data, fig):
             hoverinfo= 'none',
         ))
 
-        bearing = calculate_bearing(lat, lon)
-        direction = triangle_orientation(bearing)
-        marker['symbol'] = 'triangle' + direction
+        if len(lat) == 1:
+            marker['symbol'] = 'triangle-up'
+        else:        
+            bearing = calculate_bearing(lat, lon)
+            direction = triangle_orientation(bearing)
+            marker['symbol'] = 'triangle' + direction
 
 
         fig.add_trace(go.Scattergeo(

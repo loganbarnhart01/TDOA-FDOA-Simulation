@@ -1,9 +1,37 @@
+import time
 from flask import Flask, render_template, request
 import numpy as np
-from globe_rendering_utils import render_live_plot, render_tdoa_plot
+from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
 import requests
+from data_stuff.crud import Flight
+import logging
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import URL
+
+url = URL.create(
+    drivername="postgresql",
+    username="ehong",
+    password="Elanlofr0gs!",
+    host="/var/run/postgresql/",
+    database="adsb_data"
+)
+
+engine = create_engine(url)
+
+Session = sessionmaker(bind=engine)
+
+db = Session()
+
+def read_flights():
+	lats = db.query(Flight.latitude).all()
+	longs = db.query(Flight.longitude).all()
+	data = {'lat': [list(map(float, lat[0].split(','))) for lat in lats], 'lon': [list(map(float, lon[0].split(','))) for lon in longs]}
+
+	return data
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
 def home():
@@ -19,15 +47,9 @@ def live():
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
-    #generate random path
-    path_len=10
-    num_planes = 500
-    start_lats = [np.random.random() * 180 - 90 for i in range(num_planes)]
-    start_lons = [np.random.random() * 360 - 180 for i in range(num_planes)]
-
-    random_data = {'lat': [[start_lats[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(num_planes)], 
-                     'lon': [[start_lons[j] + np.random.random() * 10 - 5 for i in range(path_len)] for j in range(num_planes)]}
-    globe_json = render_live_plot( random_data )
+    data = read_flights()
+    app.logger.debug(f"Latitude: {data['lat'][0]}, \nLongitude: {data['lon'][0]}")
+    globe_json = render_live_plot( data )
     return globe_json
 
 @app.route('/tdoa-sim', methods=['GET'])
@@ -42,3 +64,4 @@ def tdoa_data():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
