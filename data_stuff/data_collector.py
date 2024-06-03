@@ -1,11 +1,10 @@
 # make table in sql
 from opensky_api import OpenSkyApi
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Boolean
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.engine import URL
 import time
-import pandas as pd
+
 import crud
+from data_stuff.database_utils import create_table
+from data_stuff.plane import create_planes, update_planes
 
 import numpy as np
 
@@ -43,7 +42,7 @@ def update_planes(planes):
 
 def data_collector(fake_data=False):
 	
-	crud.create_table()
+	create_table()
 
 	if fake_data:
 		
