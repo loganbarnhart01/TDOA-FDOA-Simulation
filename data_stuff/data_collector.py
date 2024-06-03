@@ -30,9 +30,13 @@ def create_planes(num_planes=500):
 		lon = np.random.random() * 360 - 180
 		planes.append(Plane(i, lat, lon, 0, False))
 
+	return planes
+
 def update_planes(planes):
 	for p in planes:
 		p.update()
+
+	return planes
 
 def data_collector():
 	crud.create_table()
