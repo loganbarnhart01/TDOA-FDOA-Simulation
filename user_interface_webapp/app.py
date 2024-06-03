@@ -1,33 +1,24 @@
 import logging
+import os
+import requests
+from dotenv import load_dotenv
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
 
 from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
-from data_stuff.crud import Flight
 
-url = URL.create(
-    drivername="postgresql",
-    username="ehong",
-    password="Elanlofr0gs!",
-    host="/var/run/postgresql/",
-    database="adsb_data"
-)
+from data_stuff.crud import read_flights
+from data_stuff.database_utils import create_url
 
+load_dotenv()
+
+url = create_url()
 engine = create_engine(url)
-
 Session = sessionmaker(bind=engine)
-
 db = Session()
-
-def read_flights():
-	lats = db.query(Flight.latitude).all()
-	longs = db.query(Flight.longitude).all()
-	data = {'lat': [list(map(float, lat[0].split(','))) for lat in lats], 'lon': [list(map(float, lon[0].split(','))) for lon in longs]}
-
-	return data
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -60,6 +51,22 @@ def tdoa_data():
     input_data = request.json
     globe_json = render_tdoa_plot(input_data)
     return globe_json
+
+@app.route('/get-elevation', methods=["POST"])
+def get_elevation():
+    app.logger.debug("ELEVATION REQUEST RECEIVED \n")
+    data = request.json
+    lat, lon = data['latitude'], data['longitude']
+    
+    api_key = os.getenv( 'GOOGLE_API_KEY' )
+    url = f'https://maps.googleapis.com/maps/api/elevation/json?locations={lat}%2C{lon}&key={api_key}'
+    
+    response = requests.get(url)
+    elevation = response.json()['results'][0]['elevation']
+
+    app.logger.debug(f"Elevation: {elevation:.0f}\n")
+
+    return jsonify({'elevation' : elevation})
 
 if __name__ == "__main__":
     app.run(debug=True)

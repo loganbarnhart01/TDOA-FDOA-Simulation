@@ -3,6 +3,10 @@ import numpy as np
 from plotly import graph_objects as go
 import csv
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def render_live_plot(data):
     """
     Renders globe for given data:
@@ -28,17 +32,21 @@ def render_live_plot(data):
     fig_json = fig.to_json()
     return fig_json
 
-def render_tdoa_plot(data):
+def render_tdoa_plot(data):    
     emitter_lat, emitter_lon = data['emitter']
-    reciever_lats, reciever_lons = data['receivers']
+    emitter_alt = data['em_altitude']
+    receiver_lats, receiver_lons = data['receivers']
+    receiver_altitudes = data['rec_altitudes']
 
     fig = go.Figure()
 
     fig = plot_state_data(fig)
 
-    fig = plot_emitter(fig, emitter_lat, emitter_lon)
+    fig = plot_airport_data(fig)
 
-    fig = plot_recievers(fig, reciever_lats, reciever_lons)
+    fig = plot_emitter(fig, emitter_lat, emitter_lon, emitter_alt)
+
+    fig = plot_receivers(fig, receiver_lats, receiver_lons, receiver_altitudes)
 
     fig = fig_style(fig)
 
@@ -46,38 +54,42 @@ def render_tdoa_plot(data):
 
     return fig_json
 
-def plot_emitter(fig, lat, lon):
-    
+def plot_emitter(fig, lat, lon, alt):    
     marker = dict(
         size = 20,
         color = '#ffc300',
         symbol = 'asterisk-open',
     )
     
+    label = f'Altitude: {int(alt[0][0])} m.'
+
     fig.add_trace(go.Scattergeo(
             lat=lat,
             lon=lon,
             mode='markers',
             marker=marker,
             showlegend=False,
+            text=label,
         ))
     
     return fig
 
-def plot_recievers(fig, lat, lon):
-
+def plot_receivers(fig, lat, lon, alts):
     marker = dict(
         size = 20,
         color = '#ffc300',
         symbol = 'circle-open-dot',
     )
 
+    labels = [f'Altitude: {alt:.0f}' for alt in alts]
+
     fig.add_trace(go.Scattergeo(
             lat=lat,
             lon=lon,
             mode='markers',
             marker=marker,
             showlegend=False,
+            text=labels,
         ))
     
     return fig

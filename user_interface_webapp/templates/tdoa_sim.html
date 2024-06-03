@@ -31,9 +31,9 @@
             box-shadow: none;
             padding: 10px;
             margin: 10px 0;
-            width: 120px;  /* Matching width to inputs for consistency */
+            width: 104px;  /* Matching width to inputs for consistency */
             cursor: pointer;
-            display: block;  /* To take full width of the container */
+            display: inline-block;  /* To take full width of the container */
         }
         #homeButton {
             position: absolute;
@@ -74,6 +74,8 @@
                 <input type="text" id="emm_lat" placeholder="latitude">
                 <br>
                 <input type="text" id="emm_lon" placeholder="longitude">
+                <br>
+                <input type="text" id="emm_alt" placeholder="altitude (m)">
                 <h3>receiver 1:</h3>
                 <input type="text" id="rec1_lat" placeholder="latitude">
                 <br>
@@ -86,7 +88,9 @@
                 <input type="text" id="rec3_lat" placeholder="latitude">
                 <br>
                 <input type="text" id="rec3_lon" placeholder="longitude">
+                <br>
                 <button type="button" onclick="submitData()">calculate</button>
+                <button type="button" onclick="clearFields()">clear</button>
             </form>
         </div>
         <div class="content">
@@ -95,11 +99,15 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            submitData(); // Calls submitData as soon as the DOM is fully loaded.
+            submitData();
         });
-        function submitData(data){
+    
+        async function submitData() {
+            console.log("submitting data")
+            
             const emm_lat = document.getElementById('emm_lat').value;
             const emm_lon = document.getElementById('emm_lon').value;
+            const emm_alt = document.getElementById('emm_alt').value;
             const rec1_lat = document.getElementById('rec1_lat').value;
             const rec1_lon = document.getElementById('rec1_lon').value;
             const rec2_lat = document.getElementById('rec2_lat').value;
@@ -107,39 +115,73 @@
             const rec3_lat = document.getElementById('rec3_lat').value;
             const rec3_lon = document.getElementById('rec3_lon').value;
 
+            let rec1_alt = 0, rec2_alt = 0, rec3_alt = 0; 
+    
+            if (validateForm()){
+                rec1_alt = await fetchElevation(rec1_lat, rec1_lon);
+                rec2_alt = await fetchElevation(rec2_lat, rec2_lon);
+                rec3_alt = await fetchElevation(rec3_lat, rec3_lon);
+            }
+
             const tdoaData = {
-                emitter: [[emm_lat], 
-                          [emm_lon]
-                         ],
+                emitter: [[emm_lat], [emm_lon]],
+                em_altitude: [[emm_alt]],
                 receivers: [
                     [rec1_lat, rec2_lat, rec3_lat],
                     [rec1_lon, rec2_lon, rec3_lon]
-                ]
+                ],
+                rec_altitudes: [rec1_alt, rec2_alt, rec3_alt]
             };
-
+    
             fetch('/tdoa-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(tdoaData)
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
             })
+            .then(response => response.json())
             .then(plotData => {
-                // Assuming plotData is in the format { data: [], layout: {}}
                 Plotly.react('plotly-globe', plotData.data, plotData.layout, {showLink: false});
-                Plotly.relayout('plotly-globe', {
-                    'geo.projection.rotation.lon': emm_lon,
-                    'geo.projection.rotation.lat': emm_lat,
-                });
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+        }
+
+        function clearFields() {
+            document.getElementById('emm_lat').value = '';
+            document.getElementById('emm_lon').value = '';
+            document.getElementById('emm_alt').value = '';
+            document.getElementById('rec1_lat').value = '';
+            document.getElementById('rec1_lon').value = '';
+            document.getElementById('rec2_lat').value = '';
+            document.getElementById('rec2_lon').value = '';
+            document.getElementById('rec3_lat').value = '';
+            document.getElementById('rec3_lon').value = '';
+            submitData();
+        }
+
+        function validateForm() {
+            console.log("validating form")
+            const fields = ['emm_lat', 'emm_lon', 'emm_alt', 'rec1_lat', 'rec1_lon', 'rec2_lat', 'rec2_lon', 'rec3_lat', 'rec3_lon'];
+            for (let field of fields) {
+                if (document.getElementById(field).value === '') {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function fetchElevation(latitude, longitude) {
+            const response = await fetch('/get-elevation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({latitude, longitude})
+
+            })
+            const data = await response.json();
+            return data.elevation
         }
     </script>
 </body>
