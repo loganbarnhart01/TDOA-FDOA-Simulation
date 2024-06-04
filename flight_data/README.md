@@ -13,11 +13,11 @@
 
 * now you're in postgres, do the following:
 * CREATE DATABASE adsb_data;
-* CREATE USER <username> WITH PASSWORD '<password>';
-* ALTER ROLE <username> SET client_encoding TO 'utf8';
-* ALTER ROLE <username> SET default_transaction_isolation TO 'read committed';
-* ALTER ROLE <username> SET timezone TO 'UTC';
-* GRANT ALL PRIVILEGES ON DATABASE <database_name> TO <username>;
-* \c adsb_data eheidrich
-* \conninfo (gets the info for the url to use with sqlalchemy)
+* CREATE USER username WITH PASSWORD 'password';
+* ALTER ROLE username SET client_encoding TO 'utf8';
+* ALTER ROLE username SET default_transaction_isolation TO 'read committed';
+* ALTER ROLE username SET timezone TO 'UTC';
+* GRANT ALL PRIVILEGES ON DATABASE database_name TO username;
+* \c adsb_data username (this command you run without ; and it transfers you to the new database you made, and tranfers you to the user you made)
+* \conninfo ( again no ; here. gets the info for the url to use with sqlalchemy)
 * \q (quits postgres in terminal)
