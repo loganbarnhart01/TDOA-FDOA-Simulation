@@ -61,15 +61,26 @@ def plot_emitter(fig, lat, lon, alt):
         symbol = 'asterisk-open',
     )
     
-    label = f'Altitude: {int(alt[0][0])} m.'
+    if alt[0][0] != '':
+        label = f'Altitude: {int(alt[0][0])} m.'
+    
 
-    fig.add_trace(go.Scattergeo(
+        fig.add_trace(go.Scattergeo(
+                lat=lat,
+                lon=lon,
+                mode='markers',
+                marker=marker,
+                showlegend=False,
+                text=label,
+            ))
+        
+    else:
+        fig.add_trace(go.Scattergeo(
             lat=lat,
             lon=lon,
             mode='markers',
             marker=marker,
             showlegend=False,
-            text=label,
         ))
     
     return fig
