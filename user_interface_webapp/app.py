@@ -38,7 +38,6 @@ def live():
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
     data = read_flights()
-    app.logger.debug(f"Latitude: {data['lat'][0]}, \nLongitude: {data['lon'][0]}")
     globe_json = render_live_plot( data )
     return globe_json
 
@@ -54,7 +53,6 @@ def tdoa_data():
 
 @app.route('/get-elevation', methods=["POST"])
 def get_elevation():
-    app.logger.debug("ELEVATION REQUEST RECEIVED \n")
     data = request.json
     lat, lon = data['latitude'], data['longitude']
     
@@ -63,8 +61,6 @@ def get_elevation():
     
     response = requests.get(url)
     elevation = response.json()['results'][0]['elevation']
-
-    app.logger.debug(f"Elevation: {elevation:.0f}\n")
 
     return jsonify({'elevation' : elevation})
 
