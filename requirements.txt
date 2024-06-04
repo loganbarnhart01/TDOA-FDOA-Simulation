@@ -6,3 +6,5 @@ sqlalchemy
 psycopg2-binary
 pg8000
 python-dotenv
+matplotlib
+geopy
