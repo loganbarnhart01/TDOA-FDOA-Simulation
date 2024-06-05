@@ -65,14 +65,14 @@ print('Ideal decoded message: ', decoded_message)
 print('Noisy decoded message: ', noisy_decoded_message)
 print('Noisy message == original message?: ', noisy_decoded_message == binary_message)
 
-plt.plot(modulated_wave[:800])
-plt.plot(noisy[:800])
+fig, ax = plt.subplots(3, 1)
+ax[0].plot(modulated_wave[:800], label = 'mod-no-noise', color = 'red')
+ax[1].plot(noisy[:800], label = 'mod-noisy', color = 'blue')
+ax[2].plot(noisy, label = 'full-signal', color= 'green')
+
+labels = [line.get_label() for axs in ax for line in axs.get_lines()]
+handles = [line for axs in ax for line in axs.get_lines()]
+fig.legend(handles, labels, loc='lower center', ncol=3)
+
+plt.tight_layout(rect = [0, 0.1, 1, 1])
 plt.show()
-# unencoded_wave = encoder.unencoded_wave(binary_message)
-
-# noisy = modulated_wave[:800] + (np.random.random(800) - .5)
-
-# plt.plot(noisy)
-# plt.plot(unencoded_wave[:800])
-# plt.plot(noisy + unencoded_wave[:800])
-# plt.show()
