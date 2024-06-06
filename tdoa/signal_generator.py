@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+#TODO: 
+# implement correlation techniques / matched filtering to 
+# let receiver recognize when it gets a signal it's looking for
+
 class ADSBEncoder:
     def __init__(self, freq=1e6 * 1090, sample_rate=1e8, bit_duration=1e-6):
         '''
@@ -23,7 +27,13 @@ class ADSBEncoder:
         self.demodulator = lambda x : np.arccos(x) / (2 * np.pi * freq)
 
 
-    def modulate(self, bits):    
+    def modulate(self, bits, noisy=False, time_delay=0):
+        '''
+            Modulates a signal and simulates a time delay until the actual signal starts, can add noise if desired
+            bits: string of bits to modulate
+            noisy: whether or not to add noise to the signal
+            time_delay: time delay in seconds to simulate before the actual signal starts
+        '''
         bits = self.preamble + bits
         num_samples = int(self.sample_rate * self.bit_duration)
         signal = np.array([])
@@ -31,6 +41,14 @@ class ADSBEncoder:
             sample_times = np.linspace(0, self.period, num_samples, endpoint=False)
             samples = self.modulator[bit](sample_times)
             signal = np.concatenate((signal, samples))
+
+        # add a time delay to the signal
+
+        time_delay_samples = int(time_delay * self.sample_rate)
+        signal = np.concatenate((np.zeros(time_delay_samples), signal))
+
+        if noisy:
+            signal += np.random.normal(0, .1, len(signal))
 
         return signal
     
@@ -48,31 +66,9 @@ class ADSBEncoder:
         bits = bits[self.preamble_length:] # remove the preamble
         
         return bits
+    
+    def find_signal_start(self, receiver_signal):
+        preamble_signal = self.modulate('', noisy=True)
+        correlation = np.correlate(receiver_signal, preamble_signal, mode='full')
+        return np.argmax(correlation), correlation
 
-encoder = ADSBEncoder()
-
-starting_message = 'Hello!'
-binary_message = ''.join(format(ord(i), '08b') for i in starting_message)
-
-modulated_wave = encoder.modulate(binary_message)
-noisy = modulated_wave + (np.random.normal(0, .1, len(modulated_wave)))
-
-decoded_message = encoder.demodulate(modulated_wave)
-noisy_decoded_message = encoder.demodulate(noisy)
-
-print('Original message: ', binary_message)
-print('Ideal decoded message: ', decoded_message)
-print('Noisy decoded message: ', noisy_decoded_message)
-print('Noisy message == original message?: ', noisy_decoded_message == binary_message)
-
-fig, ax = plt.subplots(3, 1)
-ax[0].plot(modulated_wave[:800], label = 'mod-no-noise', color = 'red')
-ax[1].plot(noisy[:800], label = 'mod-noisy', color = 'blue')
-ax[2].plot(noisy, label = 'full-signal', color= 'green')
-
-labels = [line.get_label() for axs in ax for line in axs.get_lines()]
-handles = [line for axs in ax for line in axs.get_lines()]
-fig.legend(handles, labels, loc='lower center', ncol=3)
-
-plt.tight_layout(rect = [0, 0.1, 1, 1])
-plt.show()
