@@ -1,71 +1,96 @@
 import numpy as np
 from geopy import distance
+import string
+import random
+
+from signal_generator import ADSBEncoder
 
 c = 299792458.0 # speed of light in m/s
 
 
 def main():
-    emitter = (1,1,1000)
-    receivers = [(0,1,0), (1,0,0), (1,1,0)]
-    tdoa = generate_true_2d_tdoa_data(emitter, receivers)
+    emitter = (1,1,10000)
+    receivers = [(-124,23,5309), (200,120,4980), (47,-112,5117)]
+    tdoa = generate_tdoa_data(emitter, receivers, random_emitter=True, mode='from_signals', coord_sys='cartesian')
     print(tdoa)
 
-def generate_tdoa_data(emitter, receivers, mode='random_emitter'):
-    
-    if mode == 'fake_signals':
-        return
-
-    if mode == 'random_emitter':
-        return generate_random_tdoa_data(receivers)
-    
-    if mode == 'fixed_emitter':
-        if emitter == None:
-            raise ValueError('Emitter location must be provided for mode = \'fixed_emitter\'')
+def get_distance_func(dim, coord_sys):
+    if coord_sys == 'cartesian':
+        if dim == 2:
+            return lambda x,y: np.sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2)
+        if dim == 3:
+            return lambda x,y: np.sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2 + (x[2] - y[2])**2)
         
-        if len(receivers) == 3:
-            return generate_true_2d_tdoa_data(emitter, receivers)
-        if len(receivers) >= 4:
-            return generate_true_3d_tdoa_data(emitter, receivers)
+    if coord_sys == 'latlon':
+        if dim == 2:
+            return lambda x,y: distance.distance(x,y).m
+        if dim == 3:
+            return lambda x,y: np.sqrt( (distance.distance((x[0], x[1]), (y[0], y[1])).m)**2 + (x[2] - y[2])**2)
 
+def generate_tdoa_data(emitter, receivers, random_emitter = False, mode='from_distance', coord_sys = 'cartesian'):
+    
+    if random_emitter:
+        dims = len(receivers[0])
+        
+        max_idxs = []
+        
+        for i in range(dims):
+            max_idxs.append(max(receivers, key=lambda x: np.abs(x[i]))[i])
 
-def generate_random_tdoa_data(receivers):
-    n = len(receivers)
+        emitter =  np.random.random(dims) - 0.5 * 3 * np.array(max_idxs)
 
-    tdoa = np.zeros( (n, n) )
+    if mode == 'from_signals':
+        return generate_tdoa_from_signals(emitter, receivers, coord_sys=coord_sys)
+
+    if mode == 'from_distance':
+        return generate_true_tdoa_data(emitter, receivers, coord_sys=coord_sys)
+
+def generate_tdoa_from_signals(emitter, receivers, coord_sys = 'cartesian'):
+
+    distance_func = get_distance_func(len(emitter), coord_sys)
+    distances = [distance_func(emitter, r) for r in receivers]
+    
+    times = np.array(distances)/c
+
+    encoder = ADSBEncoder()
+
+    message_length = random.randint(5, 25)
+    message = ''.join(random.choice(string.ascii_letters) for _ in range(message_length))
+    binary_message = ''.join(format(ord(i), '08b') for i in message)
+
+    # "Transmit signal", takes times[i] to go distance[i]
+    signals = [encoder.modulate(binary_message, noisy=True, time_delay = t) for t in times]
+
+    # find (index of) start of signal via cross-correlation conver to seconds using sampling rate
+    signal_start_times = []
+    for signal in signals:
+        start_time, _ = encoder.find_signal_start(signal)
+        signal_start_times.append(start_time)
+    
+    signal_start_times = np.array(signal_start_times) / encoder.sample_rate
+
+    n = len(signal_start_times)
+
+    tdoa = np.zeros( (n, n))
 
     for i in range(n):
         for j in range(i + 1, n):
-            distance = distance.distance(receivers[i], receivers[j]).m
-            max_time_diff = distance/c
-            tdoa[i,j] = np.random.random() * max_time_diff
-            tdoa[j,i] = tdoa[i,j]
+            if i == j:
+                continue
+            diff = signal_start_times[j] - signal_start_times[i]
+            tdoa[i,j] = diff
+            tdoa[j,i] = diff
 
     return tdoa
 
 
-def generate_true_2d_tdoa_data(emitter, receivers):
-    '''
-        Generates precide time difference of arrival provided with emitter and receiver locations
-        Does not consider altitude - hence 2d data
-
-        emitter: (lat, lon), position for emitter if known
-        receivers: [(lat, lon), (lat, lon), ...] = coords for [receiver0, receiver1, ...]
-        returns: matrix of tdoa values with shape (num_receivers, num_receivers)  
-                 tdoa[i,j] == tdoa[j,i] is the time difference between receiver i and j  
-    '''
-
-    if emitter:
-        assert len(emitter) == 2 
-    for r in receivers:
-        assert len(r) == 2  
-
-    emitter_lat, emitter_lon, _ = emitter
+def generate_true_tdoa_data(emitter, receivers, coord_sys='cartesian'):
+    distance_func = get_distance_func(len(emitter), coord_sys)
 
     # physical distances between receivers and emitters
     distances = []
-    for r_lat, r_lon, _ in receivers:
-        d = distance.distance((emitter_lat, emitter_lon), (r_lat, r_lon)).m
-        
+    for r in receivers:
+        d = distance_func(emitter, r)
         distances.append(d)
 
     times = np.array(distances)/c
@@ -79,53 +104,7 @@ def generate_true_2d_tdoa_data(emitter, receivers):
         for j in range(i + 1, n):
             if i == j:
                 continue
-            diff = np.abs(arrival_times[i] - arrival_times[j])
-            tdoa[i,j] = diff
-            tdoa[j,i] = diff
-    
-    return tdoa
-
-def generate_true_3d_tdoa_data(emitter, receivers):
-    '''
-        Generates precide time difference of arrival provided with emitter and receiver locations
-        Does consider altitude - hence 3d data
-
-        emitter: (lat, lon, alt), position for emitter if known
-        receivers: [(lat, lon, alt), (lat, lon, alt), ...], positions for [receiver0, receiver1, ...]
-        returns: (num_receivers, num_receivers) matrix of tdoa values. 
-                 tdoa[i,j] == tdoa[j,i] is the time difference between receiver i and j  
-    '''
-    if emitter:
-        assert len(emitter) == 2 
-    for r in receivers:
-        assert len(r) == 2  
-    
-    emitter_lat, emitter_lon, emitter_alt = emitter
-
-    # physical distances between receivers and emitters
-    distances = []
-    for r_lat, r_lon, r_alt in receivers:
-        d = distance.distance((emitter_lat, emitter_lon), (r_lat, r_lon)).m
-        alt_dist = emitter_alt - r_alt
-        distances.append(np.sqrt(d**2 + alt_dist**2))
-
-    distances = np.array(distances)
-
-    # true times for signal to travel in seconds
-    times = distances/c
-
-    # time differences in seconds
-    min_time = min(times)
-    arrival_times = times - min_time
-    n = len(arrival_times)
-    
-    tdoa = np.zeros( (n, n))
-
-    for i in range(n):
-        for j in range(i + 1, n):
-            if i == j:
-                continue
-            diff = np.abs(arrival_times[i] - arrival_times[j])
+            diff = arrival_times[j] - arrival_times[i]
             tdoa[i,j] = diff
             tdoa[j,i] = diff
     
