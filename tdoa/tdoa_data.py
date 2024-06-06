@@ -10,7 +10,7 @@ c = 299792458.0 # speed of light in m/s
 
 def main():
     emitter = (1,1,10000)
-    receivers = [(-124,23,5309), (200,120,4980), (47,-112,5117)]
+    receivers = [(0,1,0), (1,0,0), (-1,0,0)]
     tdoa = generate_tdoa_data(emitter, receivers, random_emitter=True, mode='from_signals', coord_sys='cartesian')
     print(tdoa)
 
