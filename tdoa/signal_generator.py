@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # let receiver recognize when it gets a signal it's looking for
 
 class ADSBEncoder:
-    def __init__(self, freq=1e6 * 1090, sample_rate=1e8, bit_duration=1e-6):
+    def __init__(self, freq=1e6 * 1090, sample_rate=1e8, bit_duration=1e-6, modulator = None):
         '''
             freq: frequency to transmit at in MHz - default to 1090 MHz
             sample_rate: number of samples per second - default to 10 MHz
@@ -21,14 +21,14 @@ class ADSBEncoder:
         self.period = 1 / freq
         self.sample_rate = sample_rate
         self.bit_duration = bit_duration
+        
         # # modulate using real valued BPSK
         # self.modulator = {'0': lambda x : np.cos(2*np.pi*freq * x + np.pi), 
         #                   '1': lambda x : np.cos(2*np.pi*freq * x)}
+        
         # modulate using complex valued BPSK
-        self.modulator = {'0' : lambda x : np.exp(1j * 2 * np.pi * self.freq * x + np.pi),
-                          '1' : lambda x : np.exp(1j * 2 * np.pi * self.freq * x)}
-        self.demodulator = lambda x : np.arccos(x) / (2 * np.pi * freq)
-
+        self.modulator = {'0' : lambda x : np.exp(1j * (2 * np.pi * self.freq * x + np.pi)),
+                          '1' : lambda x : np.exp(1j * (2 * np.pi * self.freq * x))} if modulator is None else modulator
 
     def modulate(self, bits, noisy=False, time_delay=0):
         '''
@@ -46,9 +46,9 @@ class ADSBEncoder:
             signal = np.concatenate((signal, samples))
 
         # add a time delay to the signal
-
-        time_delay_samples = int(time_delay * self.sample_rate)
-        signal = np.concatenate((np.zeros(time_delay_samples), signal))
+        if time_delay > 0:
+            time_delay_samples = int(time_delay * self.sample_rate)
+            signal = np.concatenate((np.zeros(time_delay_samples), signal))
 
         if noisy:
             signal += np.random.normal(0, .1, len(signal)) + 1j* np.random.normal(0, .1, len(signal))
@@ -63,7 +63,7 @@ class ADSBEncoder:
         for i in range(num_bits):
             midpoint_idx = i * num_samples_per_bit + int(num_samples_per_bit / 2)
             sample_value = signal[midpoint_idx]
-            bit = '0' if np.angle(sample_value) > np.pi/2 else '1'
+            bit = '0' if np.abs(np.angle(sample_value)) < 1/2 else '1'
             bits += bit
 
         bits = bits[self.preamble_length:] # remove the preamble

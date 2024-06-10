@@ -13,8 +13,8 @@ def main():
 
     if flag == 'test_mod_demod':
     
-        modulated_wave = encoder.modulate(binary_message)
-        noisy = modulated_wave + (np.random.normal(0, .1, len(modulated_wave)))
+        modulated_wave = encoder.modulate(binary_message, noisy=False)
+        noisy = encoder.modulate(binary_message, noisy=True)
 
         decoded_message = encoder.demodulate(modulated_wave)
         noisy_decoded_message = encoder.demodulate(noisy)
@@ -24,10 +24,12 @@ def main():
         print('Noisy decoded message: ', noisy_decoded_message)
         print('Noisy message == original message?: ', noisy_decoded_message == binary_message)
 
-        fig, ax = plt.subplots(3, 1)
-        ax[0].plot(modulated_wave[:800], label = 'mod-no-noise', color = 'red')
-        ax[1].plot(noisy[:800], label = 'mod-noisy', color = 'blue')
-        ax[2].plot(noisy, label = 'full-signal', color= 'green')
+        fig, ax = plt.subplots(5, 1)
+        ax[0].plot(modulated_wave[:800].real, label = 'mod-no-noise-real', color = 'red')
+        ax[1].plot(modulated_wave[:800].imag, label = 'mod-no-noise-imag', color = 'blue')
+        ax[2].plot(noisy[:800].real, label = 'mod-noisy-real', color = 'green')
+        ax[3].plot(noisy[:800].imag, label = 'mod-noisy-imag', color = 'orange')
+        ax[4].plot(np.abs(noisy), label = 'mag-full-noisy', color= 'purple')
 
         labels = [line.get_label() for axs in ax for line in axs.get_lines()]
         handles = [line for axs in ax for line in axs.get_lines()]
