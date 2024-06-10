@@ -8,3 +8,4 @@ pg8000
 python-dotenv
 matplotlib
 geopy
+python-dotenv
