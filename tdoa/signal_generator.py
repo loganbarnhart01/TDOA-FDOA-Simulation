@@ -21,9 +21,12 @@ class ADSBEncoder:
         self.period = 1 / freq
         self.sample_rate = sample_rate
         self.bit_duration = bit_duration
-        # modulate using BPSK
-        self.modulator = {'0': lambda x : np.cos(2*np.pi*freq * x + np.pi), 
-                          '1': lambda x : np.cos(2*np.pi*freq * x)}
+        # # modulate using real valued BPSK
+        # self.modulator = {'0': lambda x : np.cos(2*np.pi*freq * x + np.pi), 
+        #                   '1': lambda x : np.cos(2*np.pi*freq * x)}
+        # modulate using complex valued BPSK
+        self.modulator = {'0' : lambda x : np.exp(1j * 2 * np.pi * self.freq * x + np.pi),
+                          '1' : lambda x : np.exp(1j * 2 * np.pi * self.freq * x)}
         self.demodulator = lambda x : np.arccos(x) / (2 * np.pi * freq)
 
 
