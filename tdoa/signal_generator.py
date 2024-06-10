@@ -51,7 +51,7 @@ class ADSBEncoder:
         signal = np.concatenate((np.zeros(time_delay_samples), signal))
 
         if noisy:
-            signal += np.random.normal(0, .1, len(signal))
+            signal += np.random.normal(0, .1, len(signal)) + 1j* np.random.normal(0, .1, len(signal))
 
         return signal
     
@@ -63,7 +63,7 @@ class ADSBEncoder:
         for i in range(num_bits):
             midpoint_idx = i * num_samples_per_bit + int(num_samples_per_bit / 2)
             sample_value = signal[midpoint_idx]
-            bit = '1' if sample_value < 0 else '0'
+            bit = '0' if np.angle(sample_value) > np.pi/2 else '1'
             bits += bit
 
         bits = bits[self.preamble_length:] # remove the preamble
