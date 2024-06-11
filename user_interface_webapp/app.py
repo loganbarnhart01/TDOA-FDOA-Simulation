@@ -8,7 +8,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
 
-from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
+from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot #defined in globe rendering utils.py - called in appy.py
+#take dictionary with relevant info an imports it , 
+#TODO create TOGGLE to switch between plotly and non plotly globe rendering
 
 from data_stuff.crud import read_flights
 from data_stuff.database_utils import create_url
