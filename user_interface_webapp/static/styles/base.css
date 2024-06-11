@@ -1,0 +1,156 @@
+/* base style across all webpages */
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background-color: black;
+    color: blanchedalmond; 
+}
+
+header {
+    text-align: center;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+.navbar ul li {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.navbar ul li a {
+    color: blanchedalmond;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #69793E;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgb(66, 100, 69);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: blanchedalmond;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* button customs */
+button {
+    background-color: #69793E; /* Green background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 15px 32px; /* Padding */
+    text-align: center; /* Center text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Display as inline-block */
+    font-size: 16px; /* Font size */
+    margin: 4px 2px; /* Margin */
+    transition-duration: 0.4s; /* Transition animation duration */
+    cursor: pointer; /* Cursor pointer on hover */
+  }
+
+/* Footer Only */
+footer {
+    position: relative;
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: right;
+}
+
+footer span {
+    position: relative;
+}
+
+footer ul {
+    position: relative;
+    list-style-type: none;
+    padding: 0;
+}
+
+footer ul li {
+    display: inline-block;
+    margin: 0 5px;
+}
+
+footer ul li img {
+    width: 35px; /* Adjust the width of the images */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 3px; /* Add spacing between images */
+} 
+
+footer ul li:nth-child(1),
+footer ul li:nth-child(2),
+footer ul li:nth-child(3),
+footer ul li:nth-child(4) {
+    display: inline-block;
+    margin: 0 5px; /* Adjust margin as needed */
+}
+
+footer ul li:nth-child(2) img {
+    width: 45px; /* Adjust the width of the third image */
+    height: auto; 
+}
+
+footer ul li:nth-child(3) img {
+    width: 68px; /* Adjust the width of the third image */
+    height: auto; 
+}
+
+footer ul li:nth-child(5) img,
+footer ul li:nth-child(6) img {
+    display: in-line block;
+    width: 190px; /* Adjust the width of the first and second images */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 10px; /* Add spacing between the first two images and the rest */
+}
+
+
+.footer-line {
+    border-bottom: 1px solid black;
+    margin-bottom: 10px;
+}
+
+.follow-us {
+    font-size: 20px;
+    position: absolute;
+    top: -30px; 
+}
+
+/* Animation settings */
+.letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in 0.5s forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

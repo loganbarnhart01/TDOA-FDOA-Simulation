@@ -1,121 +1,54 @@
-<!-- templates/index.html -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html> <!-- tells the browser to use the most up to date version of html available -->
+<html lang="en"> 
+<head> <!-- #contains information about the document - not displayed in browser - used to set header or description (optional) */ -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>geoleek ads-b homepage</title>
-    <style>
-        /* Your existing styles */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'monospace';
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-        }
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            margin-left: 20px;
-            margin-top: 10px;
-            opacity: 0; /* Initially set opacity to 0 */
-        }
-        .button-container a {
-            text-decoration: none;
-        }
-        .button {
-            padding: 20px;
-            margin: 10px;
-            font-size: 20px;
-            color: #1e1e2e;
-            background-color: #cdd6f4;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration-color: #cdd6f4;
-            animation: fadeInUp 1s forwards; /* Apply fadeInUp animation */
-        }
-        .button:hover {
-            background-color: #575d64;
-        }
-        .title-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-right: 20px;
-            margin-bottom: 10px;
-        }
-        .title {
-            font-size: 60px;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-        .subtitle {
-            font-size: 30px;
-            text-align: left;
-            animation: fade-in-no-slide 10.0s forwards;
-        }
-        .letter {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in 0.5s forwards;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in-no-slide {
-            from { opacity: 0; }
-            to { opacity: 1;  }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(100px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-    </style>
+    <meta name="description" content="tdoa and fdoa for real time aircraft location mapping">
+    <title>geoleek</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <!-- <link href="base.css" rel="stylesheet" type="text/css"> -->
 </head>
 <body>
-    <div class="title-container">
-        <div class="title">
-            <span class="letter" style="animation-delay: 0s;">g</span>
-            <span class="letter" style="animation-delay: 0.15s;">e</span>
-            <span class="letter" style="animation-delay: 0.30s;">o</span>
-            <span class="letter" style="animation-delay: 0.45s;">l</span>
-            <span class="letter" style="animation-delay: 0.60s;">e</span>
-            <span class="letter" style="animation-delay: 0.75s;">e</span>
-            <span class="letter" style="animation-delay: 0.90s;">k</span>
-        </div>
-        <div class="subtitle" id="sub-title"> 
-            <span class="subtitle-animation" style="animation-delay: 1.00s;" >ADS-B data visualization</span>
-        </div>
-    </div>
-
-    <div class="button-container" id="buttonContainer">
-        <a href="/upload">
-            <div class="button">upload ADS-B data</div>
-        </a>
-        <a href="/live">
-            <div class="button">live data</div>
-        </a>
-        <a href="/tdoa-sim">
-            <div class="button">simulate TDOA</div>
-        </a>
-    </div>
-
-    <script>
-        // JavaScript to trigger the animation when the page loads
-        window.onload = function() {
-            document.getElementById('buttonContainer').style.opacity = 1;
+    <header>
+        <nav class="navbar">
+            <ul> <!-- /*navbar & redirects to other pages*/ -->
+                <li><li><a href="/index">Home</a></li>
+                <li><a href="/what"></a>What is geoleek?</li>
+                <li>Who Are We?</li>
+                <li>Why geoleek?</li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Track A Flight</a>
+                    <div class="dropdown-content">
+                        <a href="/live">Live TDOA/FDOA Tracking</a>
+                        <a href="/upload">Upload ADS-B Data</a>
+                        <a href="/tdoa_sim">Simulate TDOA</a>
+                    </div>
+                </li>
+                <li>Contact Us</li>
+            </ul>
+        </nav>
+        <main>
             
-            document.getElementById('sub-title').style.opacity = 0.5;
-        };
-    </script>
+        </main>
+
+        <hr>
+        <h1>geoleek</h1>
+        <button>Track a Flight ✈️</button>
+    </header>
+    <footer>
+        <span>
+            <hr class="footer-line">
+            <h5>Follow Us:</h5>
+            <ul>
+                <li><img src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub"></li>
+                <li><img src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube"></li>
+                <li><img src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook"></li>
+                <li><img src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image"></li>
+            </ul>
+            <ul>
+                <li><img src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store"></li>
+                <li><img src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store"></li>
+            </ul>
+        </span>
+    </footer>
 </body>
-</html> 
+</html>
