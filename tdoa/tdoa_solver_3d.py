@@ -3,19 +3,27 @@ import matplotlib.pyplot as plt
 import pymap3d as pm
 from scipy import optimize as op
 import random
+from geopy import distance
+from mpl_toolkits.mplot3d import Axes3D
+
 
 c = 299792458.0 # speed of light in m/s
 
-def tdoa_solver_2d():
+def tdoa_solver_3d():
 
     
     x_min = -2
     x_max = 2
     y_min = -2
     y_max = 2
-    bounds = ([3*x_min, 3*y_min], [3*x_max, 3*y_max])
+    z_min = 0
+    z_max = 2
+    bounds = ([3*x_min, 3*y_min, 3*z_min], [3*x_max, 3*y_max, 3*z_max])
+    receivers = [(x_min, y_min, z_min), (x_min, y_max, z_min), (x_max, y_min, z_min), (x_max, y_max, z_min)]
+    emitter = (0, 0, 3*z_max)
+    emitter_lat, emitter_lon, emitter_alt = emitter 
     
-    
+    '''
     r1 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
     r2 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
     r3 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
@@ -25,20 +33,16 @@ def tdoa_solver_2d():
     emitter_lat, emitter_lon = emitter
     
     
-    '''
+    
     ###################################
     test case for 2 possible solutions
     receivers = [(-131, -120), (-68, -122), (-72, -68)]
     emitter = (5, 40)
     emitter_lat, emitter_lon = emitter
-    '''
-   
-    # receivers = [(x_min, y_min), (x_min, y_max), (x_max, y_min)]
-    # emitter = (x_max*3, y_max*3)
-    # emitter_lat, emitter_lon = emitter    
-      
+    
+    '''  
 
-    tdoas = generate_true_2d_tdoa_data(emitter, receivers)
+    tdoas = generate_true_tdoa_data(emitter, receivers)
 
     '''
     # physical distances between receivers and emitters
@@ -53,19 +57,52 @@ def tdoa_solver_2d():
     diff_12 = (real_dists[2] - real_dists[1])
     '''
     
-    x = np.linspace(3*x_min-1, 3*x_max+1, 300)
-    y = np.linspace(3*y_min-1, 3*y_max+1, 300)
-    X, Y = np.meshgrid(x, y)
-    initial_guess = (0, 0)
-
-
     true_diff_01 = c*tdoas[0][1]
     true_diff_02 = c*tdoas[0][2]
+    true_diff_03 = c*tdoas[0][3]
     true_diff_12 = c*tdoas[1][2]
+    true_diff_13 = c*tdoas[1][3]
+    true_diff_23 = c*tdoas[2][3]
 
-    eq0 = hyperbola(X, Y, receivers[0], receivers[1], true_diff_01)
-    eq1 = hyperbola(X, Y, receivers[0], receivers[2], true_diff_02)
-    eq2 = hyperbola(X, Y, receivers[1], receivers[2], true_diff_12)
+    print(true_diff_01, ", ", true_diff_02, ", ", true_diff_03)
+
+    x = np.linspace(3*x_min-1, 3*x_max+1, 100)
+    y = np.linspace(3*y_min-1, 3*y_max+1, 100)
+    z = np.linspace(3*z_min-1, 3*z_max+1, 100)
+    X, Y, Z = np.meshgrid(x, y, z)
+
+    eq0 = hyperboloid_3d(X, Y, Z, receivers[0], receivers[1], true_diff_01)
+    eq1 = hyperboloid_3d(X, Y, Z, receivers[0], receivers[2], true_diff_02)
+    eq2 = hyperboloid_3d(X, Y, Z, receivers[0], receivers[3], true_diff_03)
+    eq3 = hyperboloid_3d(X, Y, Z, receivers[1], receivers[2], true_diff_12)
+    eq4 = hyperboloid_3d(X, Y, Z, receivers[1], receivers[3], true_diff_13)
+    eq5 = hyperboloid_3d(X, Y, Z, receivers[2], receivers[3], true_diff_23)
+
+    eqs = [eq0, eq1, eq2, eq3, eq4, eq5]
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    for eq in eqs:
+        ax.contourf(X, Y, Z, facecolors=plt.cm.viridis(eq), alpha=0.5)
+
+    # plot_hyperboloid(ax, X, Y, Z, receivers[0], receivers[1], true_diff_01, 'r', alpha=0.5)
+    # plot_hyperboloid(ax, X, Y, Z, receivers[0], receivers[2], true_diff_02, 'g', alpha=0.5)
+    # plot_hyperboloid(ax, X, Y, Z, receivers[0], receivers[3], true_diff_03, 'b', alpha=0.5)
+    # plot_hyperboloid(ax, X, Y, Z, receivers[1], receivers[2], true_diff_12, 'm', alpha=0.5)
+    # plot_hyperboloid(ax, X, Y, Z, receivers[1], receivers[3], true_diff_13, 'c', alpha=0.5)
+    # plot_hyperboloid(ax, X, Y, Z, receivers[2], receivers[3], true_diff_23, 'y', alpha=0.5)
+
+    ax.scatter(emitter_lat, emitter_lon, emitter_alt, c='black', marker='s', s=100, label='True Emitter Location')
+    ax.scatter([r[0] for r in receivers], [r[1] for r in receivers], [r[2] for r in receivers], c='blue', label='Receivers')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('3D TDOA Hyperboloid Visualization')
+    plt.legend()
+    plt.show()
+
+    return 
 
     def equation(p):
             x, y = p
@@ -79,7 +116,7 @@ def tdoa_solver_2d():
     x_true, y_true = result_ls.x
 
 #-------------------------start of loop to add noise-------------------------------------------------------------------------------------------------------------
-    num_samples = 8
+    num_samples = 0
     hyperbolaA = []
     hyperbolaB = []
     hyperbolaC = []
@@ -132,19 +169,19 @@ def tdoa_solver_2d():
         print("real:", emitter_lat, ", ", emitter_lon)
 
         '''
-    plt.contour(X, Y, eq0, levels=[0], colors='r')
-    plt.contour(X, Y, eq1, levels=[0], colors='g')
-    plt.contour(X, Y, eq2, levels=[0], colors='b')
+    
     for A in hyperbolaA:
         plt.contour(X, Y, A, levels=[0], colors='r', alpha=0.2)
     for B in hyperbolaB:
         plt.contour(X, Y, B, levels=[0], colors='g', alpha=0.2)
     for C in hyperbolaC:
         plt.contour(X, Y, C, levels=[0], colors='b', alpha=0.2)
-        
+    # ------------------------------ end of loop ---------------------------------------------------------------------------------------------------------------------    
         
     #error = np.sqrt((x_est - emitter_lat)**2 + (y_est - emitter_lon)**2)
-    
+    plt.contour(X, Y, eq0, levels=[0], colors='r')
+    plt.contour(X, Y, eq1, levels=[0], colors='g')
+    plt.contour(X, Y, eq2, levels=[0], colors='b')
     plt.scatter(emitter_lat, emitter_lon, c='black', marker='s', s=100,  label='True Emitter Location')
     plt.scatter(x_true, y_true, c='green', marker='s', s=60, label='Estimated Emitter Location')
     plt.scatter([r.x[0] for r in results], [r.x[1] for r in results], c='red', label='estimated emitters')
@@ -171,31 +208,28 @@ def hyperbola(x, y, receiver_1, receiver_2, diff_ab):
         diff_ab = -diff_ab
     return np.sqrt((x - xb) ** 2 + (y - yb) ** 2) - np.sqrt((x - xa) ** 2 + (y - ya) ** 2) - diff_ab
 
+def hyperboloid_3d(x, y, z, receiver_1, receiver_2, diff_ab):
+    if diff_ab > 0:
+        xa, ya, za = receiver_1
+        xb, yb, zb = receiver_2
+    else:
+        xa, ya, za = receiver_2
+        xb, yb, zb = receiver_1
+        #diff_ab = -diff_ab
+    return np.sqrt((x - xb) ** 2 + (y - yb) ** 2 + (z - zb) ** 2) - np.sqrt((x - xa) ** 2 + (y - ya) ** 2 + (z - za) ** 2) - diff_ab
 
+def plot_hyperboloid(ax, X, Y, Z, receiver_1, receiver_2, diff_ab, color, alpha):
+    xa, ya, za = receiver_1
+    xb, yb, zb = receiver_2
+    ax.plot_surface(X, Y, Z, color=color, alpha=alpha)
 
-def generate_true_2d_tdoa_data(emitter, receivers):
-    '''
-        Generates precide time difference of arrival provided with emitter and receiver locations
-        Does not consider altitude - hence 2d data
-
-        emitter: (lat, lon), position for emitter if known
-        receivers: [(lat, lon), (lat, lon), ...] = coords for [receiver0, receiver1, ...]
-        returns: matrix of tdoa values with shape (num_receivers, num_receivers)  
-                 tdoa[i,j] == tdoa[j,i] is the time difference between receiver i and j  
-    '''
-
-    if emitter:
-        assert len(emitter) == 2 
-    for r in receivers:
-        assert len(r) == 2  
-
-    emitter_lat, emitter_lon = emitter
+def generate_true_tdoa_data(emitter, receivers, coord_sys='cartesian'):
+    distance_func = get_distance_func(len(emitter), coord_sys)
 
     # physical distances between receivers and emitters
     distances = []
-    for r_lat, r_lon in receivers:
-        d = np.sqrt((r_lat - emitter_lat)**2 + (r_lon - emitter_lon)**2)
-        
+    for r in receivers:
+        d = distance_func(emitter, r)
         distances.append(d)
 
     times = np.array(distances)/c
@@ -209,10 +243,24 @@ def generate_true_2d_tdoa_data(emitter, receivers):
         for j in range(i + 1, n):
             if i == j:
                 continue
-            diff = (arrival_times[j] - arrival_times[i])
+            diff = arrival_times[j] - arrival_times[i]
             tdoa[i,j] = diff
             tdoa[j,i] = diff
     
     return tdoa
+
+def get_distance_func(dim, coord_sys):
+    if coord_sys == 'cartesian':
+        if dim == 2:
+            return lambda x,y: np.sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2)
+        if dim == 3:
+            return lambda x,y: np.sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2 + (x[2] - y[2])**2)
+        
+    if coord_sys == 'latlon':
+        if dim == 2:
+            return lambda x,y: distance.distance(x,y).m
+        if dim == 3:
+            return lambda x,y: np.sqrt( (distance.distance((x[0], x[1]), (y[0], y[1])).m)**2 + (x[2] - y[2])**2)
+
     
-tdoa_solver_2d()
+tdoa_solver_3d()
