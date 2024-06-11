@@ -1,212 +1,54 @@
-<!-- Index.html is the page rendered by the IP address-->
-<!DOCTYPE html> <!--# tells the browser to use the most up to date version of html available -->
-<html lang="en"></html>
- <html> <!--#all HTML needs to be between these elements -->
-    <head> <!--#contains information about the document - not displayed in browser - used to set header or description (optional) -->
-        <title>geoleek</title>
-        <meta name="description" contents="tdoa and fdoa for real time aircraft location mapping">
-        <style> /*stylistic guidelines and specifics*/
-            body{
-                font-family: monospace;
-                background-color: black;
-                color: blanchedalmond; 
-            }
-            header {
-                text-align: center;
-            }
-            nav ul {
-                list-style-type: none;
-                margin: 0;
-                padding: 0;
-            }
-            nav ul li {
-                display: inline-block;
-                margin: 0 10px;
-            }
-            nav ul li a {
-                color: blanchedalmond;
-                text-decoration: none;
-            }
-            .dropdown {
-                 position: relative;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                background-color: #396b40;
-                min-width: 160px;
-                box-shadow: 0px 8px 16px 0px rgb(66, 100, 69);
-                z-index: 1;
-            }
-
-            .dropdown-content a {
-                display: block;
-                padding: 10px;
-                text-decoration: none;
-                color: blanchedalmond;
-            }
-
-            .dropdown:hover .dropdown-content {
-                display: block;
-            }
-            footer {
-            text-align: center;
-            padding: 20px;
-            }
-            footer ul {
-                list-style-type: none;
-                padding: 0;
-                text-align: center
-            }
-            footer ul li {
-                display: inline-block; 
-                margin: 0 10px; 
-            }
-            footer {
-                display: inline;
-                margin-right: 10px;
-            }
-            .footer-line {
-                border-bottom: 1px solid black;
-                margin-bottom: 10px;
-            }
-            /* Animation settings start below here" */
-            .letter {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in 0.5s forwards;
-            }
-            @keyframes fade-in {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        </style>
-    </head>
-    <body> <!--#contains all the visible content  -->
-        <header>
-            <nav> <!--#doesn't apply style but denotes the navigation section of page -->
-                <ul> <!--#unordered list -->
-                    <li>Home</li>
-                    <li>Who We Are</li>
-                    <li>Why geoleek?</li>
-                    <li class="dropdown">
-                        <a href="#" class="dropbtn">Track A Flight</a>
-                        <div class="dropdown-content">
-                            <a href="#live">Live TDOA/FDOA Tracking</a>
-                            <a href="#upload">Upload ADS-B Data</a>
-                            <a href="#tdoa_sim">Simulate TDOA</a>
-                        </div>
-                    </li>
-                    <li>Contact Us</li>
-                </ul>
-            </nav>
-            <hr> <!--#horizontal rule - used to separate content (empty tag so no closing element needed)-->
-            <h1> geoleek </h1> <!--#heading 1 - largest heading-->
-            <button>Track a Flight &#9992;&#x2708;</button>
-            <br> 
-            <!-- TODO : FIND BACKGROUND IMAGE-->
-            <!-- <button></button> -->
-            /* &lt;&gt; */ how to make a gap between letter in line
-            
-        </header>
-       <!-- <img src="">  example for including an image--> 
-        <footer>
-            <span> <!--#used to group inline-elements in a document-->
-                <h5>Follow Us:</h5>
-                <ul> <!--#unordered list -->
-                    <li><img src ="user_interface_webapp/images/github.png"></li>
-                    <li><img src ="Flight-Tracker-Simulator/user_interface_webapp/images/youtube.png"></li> <!--#list item that can only be used inside a ul (unordered list) or an ol (ordered list)-->
-                    <li><img src ="user_interface_webapp/images/facebook.png"></li> 
-                    <li><img src ="Flight-Tracker-Simulator/user_interface_webapp/images/x.jpeg"></li>
-                </ul>
-                <hr class="footer-line">
-            </span>
-        </footer>    
-        /* link webpages */
-        
-    </body>
-</html> 
-
-
-<!-- templates/index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html> <!-- tells the browser to use the most up to date version of html available -->
+<html lang="en"> 
+<head> <!-- #contains information about the document - not displayed in browser - used to set header or description (optional) */ -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Redirect Example</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'monospace';
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-        }
-        .button-container {
-            display: flex;
-            flex-direction: column;
-        }
-        .button-container a {
-            text-decoration: none;
-        }
-        .button {
-            padding: 20px;
-            margin: 10px;
-            font-size: 20px;
-            margin-right: 50px;
-            color: #1e1e2e;
-            background-color: #cdd6f4;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration-color: #cdd6f4;
-        }
-        .button:hover {
-            background-color: #575d64;
-        }
-        .title {
-            font-size: 40px;
-            margin-bottom: 20px;
-            text-align: center;
-            margin-right: 450px
-        }
-        .letter {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in 0.5s forwards;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <meta name="description" content="tdoa and fdoa for real time aircraft location mapping">
+    <title>geoleek</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <!-- <link href="base.css" rel="stylesheet" type="text/css"> -->
 </head>
 <body>
-    <div class="title">
-        <span class="letter" style="animation-delay: 0s;">g</span>
-        <span class="letter" style="animation-delay: 0.2s;">e</span>
-        <span class="letter" style="animation-delay: 0.4s;">o</span>
-        <span class="letter" style="animation-delay: 0.6s;">l</span>
-        <span class="letter" style="animation-delay: 0.8s;">k</span>
-    </div>
+    <header>
+        <nav class="navbar">
+            <ul> <!-- /*navbar & redirects to other pages*/ -->
+                <li><li><a href="/index">Home</a></li>
+                <li><a href="/what"></a>What is geoleek?</li>
+                <li>Who Are We?</li>
+                <li>Why geoleek?</li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Track A Flight</a>
+                    <div class="dropdown-content">
+                        <a href="/live">Live TDOA/FDOA Tracking</a>
+                        <a href="/upload">Upload ADS-B Data</a>
+                        <a href="/tdoa_sim">Simulate TDOA</a>
+                    </div>
+                </li>
+                <li>Contact Us</li>
+            </ul>
+        </nav>
+        <main>
+            
+        </main>
 
-    <div class="button-container">
-        <a href="/upload">
-            <div class="button">upload ads-b data</div>
-        </a>
-        <a href="/live">
-            <div class="button">live data</div>
-        </a>
-        <a href="/tdoa-sim">
-            <div class="button">tdoa-simulator</div>
-        </a>
-    </div>
+        <hr>
+        <h1>geoleek</h1>
+        <button>Track a Flight ✈️</button>
+    </header>
+    <footer>
+        <span>
+            <hr class="footer-line">
+            <h5>Follow Us:</h5>
+            <ul>
+                <li><img src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub"></li>
+                <li><img src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube"></li>
+                <li><img src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook"></li>
+                <li><img src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image"></li>
+            </ul>
+            <ul>
+                <li><img src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store"></li>
+                <li><img src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store"></li>
+            </ul>
+        </span>
+    </footer>
 </body>
-</html> -->
+</html>
