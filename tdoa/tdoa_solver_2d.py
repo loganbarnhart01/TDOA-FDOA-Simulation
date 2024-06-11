@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
+import pymap3d as pm
 from scipy import optimize as op
 import random
 
@@ -9,10 +9,10 @@ c = 299792458.0 # speed of light in m/s
 def tdoa_solver_2d():
 
     
-    x_min = -50
-    x_max = 50
-    y_min = -50
-    y_max = 50
+    x_min = -2
+    x_max = 2
+    y_min = -2
+    y_max = 2
     bounds = ([3*x_min, 3*y_min], [3*x_max, 3*y_max])
     
     
@@ -27,32 +27,18 @@ def tdoa_solver_2d():
     
     '''
     ###################################
+    test case for 2 possible solutions
     receivers = [(-131, -120), (-68, -122), (-72, -68)]
     emitter = (5, 40)
     emitter_lat, emitter_lon = emitter
     '''
-
-    
-    
+   
     # receivers = [(x_min, y_min), (x_min, y_max), (x_max, y_min)]
     # emitter = (x_max*3, y_max*3)
-    # emitter_lat, emitter_lon = emitter
-    
-    
+    # emitter_lat, emitter_lon = emitter    
       
 
     tdoas = generate_true_2d_tdoa_data(emitter, receivers)
-    #print(tdoas[0])
-
-    #tdoas = tdoas*c
-
-    # diff_01 = tdoas[0][1]
-    # diff_02 = tdoas[0][2]
-    # diff_12 = tdoas[1][2]
-    
-    # print(diff_01)
-    # print(diff_02)
-    # print(diff_12)
 
     '''
     # physical distances between receivers and emitters
@@ -66,25 +52,46 @@ def tdoa_solver_2d():
     diff_02 = (real_dists[2] - real_dists[0])
     diff_12 = (real_dists[2] - real_dists[1])
     '''
-    #-------------------------start of loop to add noise-------------------------------------------------------------------------------------------------------------
+    
     x = np.linspace(3*x_min-1, 3*x_max+1, 300)
     y = np.linspace(3*y_min-1, 3*y_max+1, 300)
     X, Y = np.meshgrid(x, y)
+    initial_guess = (0, 0)
 
-    num_samples = 1
+
+    true_diff_01 = c*tdoas[0][1]
+    true_diff_02 = c*tdoas[0][2]
+    true_diff_12 = c*tdoas[1][2]
+
+    eq0 = hyperbola(X, Y, receivers[0], receivers[1], true_diff_01)
+    eq1 = hyperbola(X, Y, receivers[0], receivers[2], true_diff_02)
+    eq2 = hyperbola(X, Y, receivers[1], receivers[2], true_diff_12)
+
+    def equation(p):
+            x, y = p
+            eq1 = hyperbola(x, y, receivers[0], receivers[1], true_diff_01)
+            eq2 = hyperbola(x, y, receivers[0], receivers[2], true_diff_02)
+            eq3 = hyperbola(x, y, receivers[1], receivers[2], true_diff_12)
+            return [eq1, eq2, eq3]
+    
+    result_ls = op.least_squares(equation, initial_guess, bounds=bounds)
+
+    x_true, y_true = result_ls.x
+
+#-------------------------start of loop to add noise-------------------------------------------------------------------------------------------------------------
+    num_samples = 8
     hyperbolaA = []
     hyperbolaB = []
     hyperbolaC = []
     equations = []
     results = []
-    initial_guess = (0, 0)
 
-    for sample in range(num_samples):
+    
+    for sample in range(num_samples):       
         # Add noise to the TDOA data (assuming Gaussian noise)
-        noise_variance = 60e-9  # Adjust as needed
-        print(tdoas[0])
+        noise_variance = 1e-9  # Adjust as needed
         noisy_tdoas = tdoas + np.random.normal(scale=noise_variance, size=tdoas.shape)
-
+        
         diff_01 = c*noisy_tdoas[0][1]
         diff_02 = c*noisy_tdoas[0][2]
         diff_12 = c*noisy_tdoas[1][2]
@@ -109,7 +116,6 @@ def tdoa_solver_2d():
 
         # Find estimated emitter location
         result_ls = op.least_squares(equations, initial_guess, bounds=bounds)
-        x_est, y_est = result_ls.x
 
         results.append(result_ls)
         
@@ -126,6 +132,9 @@ def tdoa_solver_2d():
         print("real:", emitter_lat, ", ", emitter_lon)
 
         '''
+    plt.contour(X, Y, eq0, levels=[0], colors='r')
+    plt.contour(X, Y, eq1, levels=[0], colors='g')
+    plt.contour(X, Y, eq2, levels=[0], colors='b')
     for A in hyperbolaA:
         plt.contour(X, Y, A, levels=[0], colors='r', alpha=0.2)
     for B in hyperbolaB:
@@ -135,13 +144,10 @@ def tdoa_solver_2d():
         
         
     #error = np.sqrt((x_est - emitter_lat)**2 + (y_est - emitter_lon)**2)
-
-
-
+    
     plt.scatter(emitter_lat, emitter_lon, c='black', marker='s', s=100,  label='True Emitter Location')
-    #plt.scatter([i[0] for i in results], [i[1] for i in results], c='red', label='Estimated Emitter Location')
+    plt.scatter(x_true, y_true, c='green', marker='s', s=60, label='Estimated Emitter Location')
     plt.scatter([r.x[0] for r in results], [r.x[1] for r in results], c='red', label='estimated emitters')
-    #plt.scatter(x_est, y_est, c='red', marker='s',  label='Estimated Emitter Location')
     plt.scatter([r[0] for r in receivers], [r[1] for r in receivers], c='blue', label='Receivers')
     #plt.annotate(f'Error: {error:.2f}', xy=(x_est, y_est), xytext=(x_est + 1, y_est + 1),
     #            arrowprops=dict(facecolor='black', shrink=.05))
