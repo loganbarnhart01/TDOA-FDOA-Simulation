@@ -8,9 +8,6 @@
 </head>
 <body>
     <header>
-            <video autoplay loop muted plays-inline id="video-bg">
-                <source src="{{ url_for('static', filename='videos/airplane-color.mp4') }}" type="video/mp4">
-            </video>
         <nav class="navbar">
             <img src="{{ url_for('static', filename='images/leekylogo.png')}}"class="navbar-logo">
             <ul><!-- navbar & redirects to other pages -->
@@ -34,7 +31,11 @@
             <h1>geoleek</h1>
             <a href="/live" class="button">Track a Flight ✈️</a>
         </div>
-
+        <main>
+            <video autoplay loop muted plays-inline id="video-bg">
+                <source src="{{ url_for('static', filename='video/airplane-color.mp4') }}" type="video/mp4">
+            </video>
+        </main>
         
     </header>
     <footer>
@@ -43,14 +44,20 @@
                 <hr class="footer-line">
                 <h5>Follow Us:</h5>
                 <ul>
-                    <li><a href="https://github.com/loganbarnhart01/Flight-Tracker-Simulator/"><img src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub"></a></li>
-                    <li><a href="https://www.youtube.com/"><img src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube" width="35px"></a></li>
-                    <li><a href="https://www.facebook.com/"><img src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook" width="35px"></a></li>
-                    <li><a href="https://www.x.com/"><img src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image" width="35px"></a></li>
+                    <li><a href="https://github.com/loganbarnhart01/Flight-Tracker-Simulator/">
+                        <img id="github" src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub" style="width:50px;"></a></li>
+                    <li><a href="https://www.youtube.com/">
+                        <img id="youtube" src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube" style="width:80px;"></a></li>
+                    <li><a href="https://www.facebook.com/">
+                        <img id="facebook" src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook" style="width:80px;"></a></li>
+                    <li><a href="https://www.x.com/">
+                        <img id="x" src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image" style="width:50px;"></a></li>
                 </ul>
                 <ul>
-                    <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds"><img src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" width="150px"></a></li>
-                    <li><a href="https://www.applestore.com/"><img src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" width="145px"></a></li>
+                    <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds">
+                        <img id="googleplay" src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" style="width:150px;"></a></li>
+                    <li><a href="https://www.applestore.com/">
+                        <img id="applestore" src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" style="width:150px;"></a></li>
                 </ul>
             </div>
         </span>
