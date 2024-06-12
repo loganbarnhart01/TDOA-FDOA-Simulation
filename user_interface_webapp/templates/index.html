@@ -5,16 +5,19 @@
     <meta name="description" content="tdoa and fdoa for real time aircraft location mapping">
     <title>geoleek</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
-    <!-- <link href="base.css" rel="stylesheet" type="text/css"> -->
 </head>
 <body>
     <header>
+            <video autoplay loop muted plays-inline id="video-bg">
+                <source src="{{ url_for('static', filename='videos/airplane-color.mp4') }}" type="video/mp4">
+            </video>
         <nav class="navbar">
-            <ul> <!-- /*navbar & redirects to other pages*/ -->
-                <li><li><a href="/index">Home</a></li>
-                <li><a href="/what"></a>What is geoleek?</li>
-                <li>Who Are We?</li>
-                <li>Why geoleek?</li>
+            <img src="{{ url_for('static', filename='images/leekylogo.png')}}"class="navbar-logo">
+            <ul><!-- navbar & redirects to other pages -->
+                <li><a href="/">Home</a></li>
+                <li><a href="/what">What is geoleek?</a></li>
+                <li><a href="/who">Who Are We?</a></li>
+                <li><a href="/why">Why geoleek?</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropbtn">Track A Flight</a>
                     <div class="dropdown-content">
@@ -23,32 +26,34 @@
                         <a href="/tdoa_sim">Simulate TDOA</a>
                     </div>
                 </li>
-                <li>Contact Us</li>
+                <li><a href="/contact">Contact Us</a></li>
             </ul>
         </nav>
-        <main>
-            
-        </main>
+        <div class="content">
+            <hr>
+            <h1>geoleek</h1>
+            <a href="/live" class="button">Track a Flight ✈️</a>
+        </div>
 
-        <hr>
-        <h1>geoleek</h1>
-        <button>Track a Flight ✈️</button>
+        
     </header>
     <footer>
         <span>
-            <hr class="footer-line">
-            <h5>Follow Us:</h5>
-            <ul>
-                <li><a href="https://www.github.com/"><img src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub"></a></li>
-                <li><a href="https://www.youtube.com/"><img src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube"></a></li>
-                <li><a href="https://www.facebook.com/"><img src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook"></a></li>
-                <li><a href="https://www.x.com/"><img src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image"></a></li>
-            </ul>
-            <ul>
-                <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds"><img src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store"></a></li>
-                <li><a href="https://www.applestore.com/"><img src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store"></a></li>
-            </ul>
+            <div class="footer">
+                <hr class="footer-line">
+                <h5>Follow Us:</h5>
+                <ul>
+                    <li><a href="https://github.com/loganbarnhart01/Flight-Tracker-Simulator/"><img src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub"></a></li>
+                    <li><a href="https://www.youtube.com/"><img src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube" width="35px"></a></li>
+                    <li><a href="https://www.facebook.com/"><img src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook" width="35px"></a></li>
+                    <li><a href="https://www.x.com/"><img src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image" width="35px"></a></li>
+                </ul>
+                <ul>
+                    <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds"><img src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" width="150px"></a></li>
+                    <li><a href="https://www.applestore.com/"><img src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" width="145px"></a></li>
+                </ul>
+            </div>
         </span>
-    </footer>
-</body>
+    </footer>    
+</body> 
 </html>
