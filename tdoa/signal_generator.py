@@ -72,7 +72,7 @@ def channel(signal: np.ndarray,
     assert emitter.position.shape == receiver.position.shape
     distance = np.linalg.norm(emitter.position - receiver.position)
     f1 = f0 * (c / (c - (np.dot(emitter.velocity, receiver.position - emitter.position) / distance)))
-    doppler_ratio = f1 / f0
+    doppler_ratio = f1 / f0 * frequency_scale
     times = times / doppler_ratio
 
     # apply time shift, signal arrives at receiver at t=d/c
@@ -84,7 +84,7 @@ def channel(signal: np.ndarray,
     noise = np.random.normal(0, noise_var, len(signal))
     signal = signal + noise
 
-    return signal, times
+    return signal, times,  f1 * frequency_scale
     
 def signal_to_noise_ratio(signal: np.ndarray,
                           distance: float):
