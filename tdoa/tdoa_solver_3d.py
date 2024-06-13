@@ -32,6 +32,7 @@ def tdoa_solver_3d():
 
     num_trials = 10000
     errors = np.zeros(num_trials)
+    second_soln_count = 0
     for i in range (num_trials):
 
         
@@ -93,10 +94,23 @@ def tdoa_solver_3d():
         result = op.least_squares(equations, initial_guess, bounds=bounds, ftol=1e-8, xtol=1e-8, gtol=1e-8)
         errors[i] = np.linalg.norm(result.x - np.array(emitter))
 
+        x_est, y_est, z_est = result.x
+
+        val0 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[1], true_diffs[0])
+        val1 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[2], true_diffs[1])
+        val2 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[3], true_diffs[2])
+        val3 = hyperboloid_3d(x_est, y_est, z_est, receivers[1], receivers[2], true_diffs[3])
+        val4 = hyperboloid_3d(x_est, y_est, z_est, receivers[1], receivers[3], true_diffs[4])
+        val5 = hyperboloid_3d(x_est, y_est, z_est, receivers[2], receivers[3], true_diffs[5])
+        
+        if errors[i] > 1 and val0 < 1e-8 and val1 < 1e-8 and val2 < 1e-8 and val3 < 1e-8 and val4 < 1e-8 and val5 < 1e-8:
+            second_soln_count +=1
+
     print(f'Mean error: {np.mean(errors)}')
     print(f'Std error: {np.std(errors)}')
     print(f"median error: {np.median(errors)}")
     print(f"Percent correct solutions: {np.sum(errors < 1) / num_trials * 100}")
+    print(f"Percent of choosing wrong from 2 solutions: {second_soln_count / num_trials * 100}")
 
 
 def hyperboloid_3d(x, y, z, receiver_1, receiver_2, diff_ab):
