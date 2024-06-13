@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
@@ -9,6 +11,8 @@ f0 = 1090e6
 
 
 def main():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         emitter_pos = np.random.random(2) * 100
         emitter_vel = np.random.random(2) * 100
         emitter = Emitter(1090e6, 1e8, 1e8, emitter_pos, emitter_vel)
@@ -48,7 +52,7 @@ def main():
         # x0 = np.concatenate((emitter_pos, emitter_vel)) + np.random.random(4)
         x0 = np.random.random(4) * 100
         print(x0)
-        x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5))  
+        x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5), full_output=False)  
         print(f'Emitter position: {emitter_pos} Emitter velocity: {emitter_vel}')
         print(f'Estimated position: {x[:2]} Estimated velocity: {x[2:]}')
         print(f'Error: {np.linalg.norm(emitter_pos - x[:2])}')    
@@ -113,7 +117,7 @@ def main():
             f4 = 1090e6 - f4
             f5 = 1090e6 - f5
             x0 = np.random.random(4) * 100
-            x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5))  
+            x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5), full_output=False)  
             errors[i] = np.linalg.norm(emitter_pos - x[:2])
         print(f'Mean error: {np.mean(errors)}')
         print(f'Std error: {np.std(errors)}')
