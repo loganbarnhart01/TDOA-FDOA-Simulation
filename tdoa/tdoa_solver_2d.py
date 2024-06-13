@@ -68,18 +68,18 @@ def tdoa_solver_2d():
     eq2 = hyperbola(X, Y, receivers[1], receivers[2], true_diff_12)
 
     def equation(p):
-            x, y = p
-            eq1 = hyperbola(x, y, receivers[0], receivers[1], true_diff_01)
-            eq2 = hyperbola(x, y, receivers[0], receivers[2], true_diff_02)
-            eq3 = hyperbola(x, y, receivers[1], receivers[2], true_diff_12)
-            return [eq1, eq2, eq3]
-    
+        x, y = p
+        eq1 = hyperbola(x, y, receivers[0], receivers[1], true_diff_01)
+        eq2 = hyperbola(x, y, receivers[0], receivers[2], true_diff_02)
+        eq3 = hyperbola(x, y, receivers[1], receivers[2], true_diff_12)
+        return [eq1, eq2, eq3]
+
     result_ls = op.least_squares(equation, initial_guess, bounds=bounds)
 
     x_true, y_true = result_ls.x
 
 #-------------------------start of loop to add noise-------------------------------------------------------------------------------------------------------------
-    num_samples = 8
+    num_samples = 0
     hyperbolaA = []
     hyperbolaB = []
     hyperbolaC = []
