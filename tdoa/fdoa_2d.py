@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
@@ -9,6 +11,9 @@ f0 = 1090e6
 
 
 def main():
+        
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         emitter_pos = np.random.random(2) * 100
         emitter_vel = np.random.random(2) * 100
         emitter_dir = emitter_vel / np.linalg.norm(emitter_vel) * 30
