@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="description" content="tdoa and fdoa for real time aircraft location mapping">
     <title>geoleek</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/live.css') }}">
 </head>
 <body>
     <header>
         <nav class="navbar">
-            <img src="{{ url_for('static', filename='images/leekylogo.png')}}"class="navbar-logo">
+            <img src="{{ url_for('static', filename='images/leekylogo_lightmode.png')}}"class="navbar-logo">
             <ul><!-- navbar & redirects to other pages -->
                 <li><a href="/">Home</a></li>
                 <li><a href="/what">What is geoleek?</a></li>
@@ -28,9 +28,16 @@
         </nav>
         <div class="content">
             <hr>
-            <h2>Contact Us:</h2>
+            <h2>Contact Us</h2>
+            <!-- <a href="/live" class="button">Track a Flight</a> -->
         </div>
-       
+
+        <video autoplay loop muted plays-inline id="video-bg">
+            <source src="{{ url_for('static', filename='video/airplane-color.mp4') }}" type="video/mp4">
+        </video>
+        <main>
+           
+        </main>
         
     </header>
     <footer>
@@ -40,21 +47,23 @@
                 <div class="footer-content">
                     <ul>
                         <li><a href="https://github.com/loganbarnhart01/Flight-Tracker-Simulator/">
-                            <img id="github" src="{{ url_for('static', filename='images/github_darkmode.png') }}" alt="GitHub" style="width:50px;"></a></li>
+                            <img id="github" src="{{ url_for('static', filename='images/github_lightmode.svg') }}" alt="GitHub" style="width:32px;"></a></li>
                         <li><a href="https://www.youtube.com/">
-                            <img id="youtube" src="{{ url_for('static', filename='images/youtube_darkmode.png') }}" alt="YouTube" style="width:80px;"></a></li>
+                            <img id="youtube" src="{{ url_for('static', filename='images/youtube_lightmode.png') }}" alt="YouTube" style="width:30px;"></a></li>
                         <li><a href="https://www.facebook.com/">
-                            <img id="facebook" src="{{ url_for('static', filename='images/facebook_darkmode.png') }}" alt="Facebook" style="width:80px;"></a></li>
-                        <li><a href="https://www.x.com/">
-                            <img id="x" src="{{ url_for('static', filename='images/x.jpeg') }}" alt="X Image" style="width:50px;"></a></li>
+                            <img id="facebook" src="{{ url_for('static', filename='images/facebook_lightmode.svg') }}" alt="Facebook" style="width:30px;"></a></li>
+                        <li><a href="https://www.instagram.com/">
+                            <img id="instagram" src="{{ url_for('static', filename='images/instagram_lightmode.svg') }}" alt="Instagram" style="width:30px;"></a></li>
+                            <li><a href="https://www.linkedin.com/">
+                                <img id="instagram" src="{{ url_for('static', filename='images/linkedin_lightmode.svg') }}" alt="Instagram" style="width:30px;"></a></li>
                     </ul>
                 </div>
                 <div class="footer-content">
                     <ul>
                         <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds">
-                            <img id="googleplay" src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" style="width:150px;"></a></li>
+                            <img id="googleplay" src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" style="width:175px;"></a></li>
                         <li><a href="https://www.applestore.com/">
-                            <img id="applestore" src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" style="width:150px;"></a></li>
+                            <img id="applestore" src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" style="width:175px;"></a></li>
                     </ul>
                 </div>
             </div>
