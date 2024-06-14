@@ -79,7 +79,7 @@ def main():
         plt.grid(True)
         plt.show()
 
-        # Test how often we get the correct solution + visualize errors
+        # Test how often we get the correct solution with diff initial guess strategies
 
         num_tests = 10000
         close_to_emitter_errors = np.zeros(num_tests)
