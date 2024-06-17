@@ -35,8 +35,12 @@ def main():
         signal1, f1 = receiver1.apply_doppler(signal1, emitter)
         signal2, f2 = receiver2.apply_doppler(signal2, emitter)
         signal3, f3 = receiver3.apply_doppler(signal3, emitter)
-        print(f1, f2, f3)
 
+        # solve for soln from initial guess near emitter
+        x0 = emitter_pos + np.random.random(2) * 10
+        x = fsolve(f, x0, args=(emitter_vel, receiver1_pos, receiver2_pos, receiver3_pos, f1, f2, f3))
+        
+        # plotting
         x1 = receiver1_pos[0]
         y1 = receiver1_pos[1]
         x2 = receiver2_pos[0]
@@ -48,17 +52,18 @@ def main():
         yvals = np.linspace(-50, 150, 500)
         X, Y = np.meshgrid(xvals, yvals)
         Z12 = dij(X, Y, emitter_vel, receiver1_pos, receiver2_pos, f1, f2)
-
         Z13 = dij(X, Y, emitter_vel, receiver1_pos, receiver3_pos, f1, f3)
-
         plt.figure()
         CS = plt.contour(X, Y, Z12, levels=[0], colors=('red',), linestyles=('dashed',), linewidths=(2,))
         CS = plt.contour(X, Y, Z13, levels=[0], colors=('red',), linestyles=('dashed',), linewidths=(2,))
         plt.plot(emitter_pos[0], emitter_pos[1], 'o', color = 'black', label = 'Emitter')
+        plt.plot(x[0], x[1], 'X', color = 'green', label = 'Emitter Estimate')
+        plt.plot()
         plt.plot(x1, y1, 'o', color = 'blue', label = 'Receiver')
         plt.plot(x2, y2, 'o', color = 'blue')
         plt.plot(x3, y3, 'o', color = 'blue')
         plt.quiver(emitter_pos[0], emitter_pos[1], emitter_vel[0], emitter_vel[1], color = 'black', alpha = 0.75, label = 'Emitter Velocity', scale=1, scale_units='xy', angles='xy', pivot='tail', width=0.009)
+        plt.legend()
         plt.show()
 
 def channel(signal: np.ndarray, 
