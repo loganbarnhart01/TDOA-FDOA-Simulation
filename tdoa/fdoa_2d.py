@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import least_squares
 import matplotlib.pyplot as plt
 
 from signal_generator import Emitter, Receiver
@@ -38,7 +38,8 @@ def main():
 
         # solve for soln from initial guess near emitter
         x0 = emitter_pos + np.random.random(2) * 10
-        x = fsolve(f, x0, args=(emitter_vel, receiver1_pos, receiver2_pos, receiver3_pos, f1, f2, f3))
+        x = least_squares(f, x0, args=(emitter_vel, receiver1_pos, receiver2_pos, receiver3_pos, f1, f2, f3)).x
+        print(x)
         
         # plotting
         x1 = receiver1_pos[0]
