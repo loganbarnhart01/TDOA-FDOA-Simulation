@@ -45,6 +45,10 @@ def who():
 def why():
     return render_template('why.html')
 
+@app.route('/contact', methods=['GET'])
+def contact():
+    return render_template('contact.html')
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     return render_template('upload.html')
