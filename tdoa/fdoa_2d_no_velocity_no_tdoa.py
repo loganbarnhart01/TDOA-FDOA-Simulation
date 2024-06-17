@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import least_squares
 import matplotlib.pyplot as plt
 
 from signal_generator import Emitter, Receiver
@@ -45,7 +45,7 @@ def main():
         
         # finding solution
         x0 = np.concatenate((emitter_pos, emitter_vel)) + np.random.random(4) * 10
-        x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5), full_output=False)  
+        x = least_squares(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, receiver4_pos, receiver5_pos, f1, f2, f3, f4, f5)).x
 
         # plotting
         xvals = np.linspace(-50, 150, 500)

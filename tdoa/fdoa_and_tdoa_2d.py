@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import least_squares
 import matplotlib.pyplot as plt
 
 from signal_generator import Emitter, Receiver
@@ -40,7 +40,7 @@ def main():
 
         # find solution
         x0 = np.concatenate((emitter_pos, emitter_vel)) + np.random.random(4) * 10
-        x = fsolve(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, f1, f2, f3, toa1, toa2, toa3))
+        x = least_squares(f, x0, args=(receiver1_pos, receiver2_pos, receiver3_pos, f1, f2, f3, toa1, toa2, toa3)).x
 
         print('Position error: ', np.linalg.norm(emitter_pos - x[:2]))
         print('Velocity error: ', np.linalg.norm(emitter_vel - x[2:]))
