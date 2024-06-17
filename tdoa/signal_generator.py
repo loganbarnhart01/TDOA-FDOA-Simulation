@@ -3,12 +3,6 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 
-# TODO: Reconfig the transmission + sampling. Emitter sends symbols, receiver samples each symbol n times per bit, then apply doppler shift based on distance, 
-# Apply noise based on desired SNR and make sure that you apply from ~N(0, sigma^2 / 2) where Power_noise = Power_signal / SNR = sigma^2
-# Wait to apply time shift based on distance (actually prepend zeroes) to deal with fractional time delay filters
-# for now, return the doppler shift and time delay values. Later we will implement CAF to calculate this. 
-# No longer need a "channel" function
-
 class Emitter: 
     def __init__(self, 
                  frequency: int, 
@@ -58,16 +52,17 @@ class Receiver:
         distance = np.linalg.norm(emitter.position - self.position) # meters
         v = np.dot(emitter.velocity, self.position - emitter.position) / distance # velocity in direction of receiver m/s
         
-        f1 = f0 * (c / (c - v)) - f0
+        f1 = f0 * (c / (c + v)) - f0
 
         doppler_shifted_signal = signal * np.exp(2 * np.pi * 1j * f1)
-        return doppler_shifted_signal
+        return doppler_shifted_signal, f1
     
     def add_time_delay(self, signal: np.ndarray, emitter: Emitter):
         c = 299792458.0
         distance = np.linalg.norm(emitter.position - self.position)
         time_delay = distance / c
-        return np.append(np.zeros(int(time_delay * self.sample_rate)), signal)
+        # return np.append(np.zeros(int(time_delay * self.sample_rate)), signal)
+        return time_delay
     
     def signal_to_noise_ratio(self, signal: np.ndarray, distance: float):
         signal_power = np.sum(np.abs(signal)**2) / len(signal)
@@ -101,7 +96,7 @@ def main():
         symbols = emitter.generate_signal('1010')
         signal = receiver.sample_signal(symbols)
         ax[i].plot(signal[:100], label = "symbols", color='blue')
-        signal = receiver.apply_doppler(signal, emitter)
+        signal, freq = receiver.apply_doppler(signal, emitter)
         ax[i].plot(signal[:100].real, label = "doppler-shifted", color='red')
         signal = receiver.add_noise(signal, emitter)
         ax[i].plot(signal[:100].real, label = "noisy-ds", color='green')
