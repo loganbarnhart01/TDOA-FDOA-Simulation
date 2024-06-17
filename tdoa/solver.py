@@ -7,10 +7,10 @@ from signal_generator import Receiver
 c = 2.99792458e8
 f0 = 1090e6
 
-def solve_position(
+def estimate_emitter(
         receivers:  List[Receiver],
-        fdoa_data: Optional[List[np.ndarray]] = None,
-        tdoa_data: Optional[List[np.ndarray]] = None,
+        fdoa_data: Optional[List[float]] = None,
+        toa_data: Optional[List[float]] = None,
         emitter_velocity: Optional[np.ndarray] = None,
                    ) -> np.ndarray:
     """
@@ -20,7 +20,7 @@ def solve_position(
     params:
         receivers: List of Receiver objects initialized with position information
         fdoa_data: List of FDOA measurements
-        tdoa_data: List of TDOA measurements
+        toa_data: List of TDOA measurements
         emitter_velocity: Velocity of the emitter
     returns:
         Estimated emitter position
@@ -30,14 +30,14 @@ def solve_position(
     
     # let initial guess be centroid I guess? Until we have a more sophisticated search algo.
     x0 = np.sum(receiver_X_list, axis=0) / len(receiver_X_list)
-    if fdoa_data and tdoa_data:
+    if fdoa_data and toa_data:
         v0 = np.zeros(x0.shape)
         x0 = np.concatenate((x0, v0))
-        obj = lambda Z : fdoa_with_tdoa(Z, receiver_X_list, fdoa_data, tdoa_data)
-    elif emitter_velocity and fdoa_data:
+        obj = lambda Z : fdoa_with_tdoa(Z, receiver_X_list, fdoa_data, toa_data)
+    elif fdoa_data is not None and emitter_velocity is not None:
         obj = lambda X : fdoa_v_known(X, emitter_velocity, receiver_X_list, fdoa_data)
-    elif tdoa_data:
-        obj = lambda X : tdoa(X, receiver_X_list, tdoa_data)
+    elif toa_data:
+        obj = lambda X : tdoa(X, receiver_X_list, toa_data)
     elif fdoa_data:
         v0 = np.zeros(x0.shape)
         x0 = np.concatenate((x0, v0))
