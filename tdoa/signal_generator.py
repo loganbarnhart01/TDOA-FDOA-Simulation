@@ -1,114 +1,112 @@
+from typing import List
+
 import numpy as np
 import matplotlib.pyplot as plt
-
-global frequency_scale
-frequency_scale = 1000
 
 class Emitter: 
     def __init__(self, 
                  frequency: int, 
-                 bit_rate: int, 
-                 sample_rate: int,
                  position: np.ndarray,
                  velocity: np.ndarray):
-        self.bit_rate = bit_rate / frequency_scale
-        self.frequency = frequency / frequency_scale
+        self.frequency = frequency
         self.sample_rate = 20 * self.frequency # 20 samples per cycle for continuous effect when emitting
         self.position = position
         self.velocity = velocity
 
         self.preamble = '101000010100000'
-        self.modulator = {'0' : lambda x : np.cos((2 * np.pi * self.frequency * x + np.pi)),
-                          '1' : lambda x : np.cos((2 * np.pi * self.frequency * x))}
+        self.modulator = {'0' : -1, # exp(2pi * j * freq * (0 + pi))
+                          '1' : 1} # exp(2pi * j * freq * 1)
 
     def generate_signal(self, bits):
         bits = self.preamble + bits
-        num_samples = int(self.sample_rate / self.bit_rate)
-        bit_duration = 1 / self.bit_rate
-        
-        signal = np.array([])
+                
+        symbols = []
 
         for i, bit in enumerate(bits):
-            sample_times = np.linspace(i * bit_duration, (i + 1)*bit_duration, num_samples, endpoint=False)
-            samples = self.modulator[bit](sample_times)
-            signal = np.concatenate((signal, samples))
+            symbols.append(self.modulator[bit])
 
-        time_values = np.linspace(0, len(signal) / self.sample_rate, len(signal))
-
-        return signal, time_values
+        return symbols
     
 class Receiver:
     def __init__(self, 
-                 carrier_frequency: int,
-                 sample_rate: int, 
-                 position: np.ndarray):
+                 sample_rate: int, # samples / sec
+                 bit_duration: int, # sec / bit
+                 position: np.ndarray): # cartesian position coords
         # info about emitter to sample accurately
-        self.carrier_frequency = carrier_frequency / frequency_scale
-        self.carrier_rate = 20 * self.carrier_frequency
-
-        self.sample_rate = sample_rate / frequency_scale
-
+        self.sample_rate = sample_rate 
+        self.bit_duration = bit_duration
         self.position = position
 
-    def collect_signal(self, signal, times):
-        signal_time = len(signal) / self.carrier_rate
-
-        sampling_interval = int(self.carrier_rate / self.sample_rate)
-
-        sampled_signal = signal[::sampling_interval]
-        sampled_times = times[::sampling_interval]
-
-        return sampled_signal
+    def sample_signal(self, symbols: List[int]):
+        samples_per_bit = int(self.sample_rate * self.bit_duration)
+        demodded_signal = np.array([])
+        for sym in symbols:
+            sym_samples = np.ones(samples_per_bit) * sym
+            demodded_signal = np.append(demodded_signal, sym_samples)
+        return demodded_signal
     
-def channel(signal: np.ndarray, 
-            times: np.ndarray, 
-            emitter: Emitter, 
-            receiver: Receiver):
+    def apply_doppler(self, signal: np.ndarray, emitter: Emitter):
+        
+        c = 299792458.0
+        f0 = emitter.frequency
+        distance = np.linalg.norm(emitter.position - self.position) # meters
+        v = np.dot(emitter.velocity, self.position - emitter.position) / distance # velocity in direction of receiver m/s
+        
+        f1 = f0 * (c / (c + v)) - f0
+
+        doppler_shifted_signal = signal * np.exp(2 * np.pi * 1j * f1)
+        return doppler_shifted_signal, f1
     
-    c = 299792458.0
-
-    # Calculate and apply doppler shifts 
-    f0 = emitter.frequency
-    assert emitter.position.shape == receiver.position.shape
-    distance = np.linalg.norm(emitter.position - receiver.position)
-    f1 = f0 * (c / (c - (np.dot(emitter.velocity, receiver.position - emitter.position) / distance)))
-    doppler_ratio = f1 / f0 * frequency_scale
-    times = times / doppler_ratio
-
-    # apply time shift, signal arrives at receiver at t=d/c
-    time_shift = distance / c
-    times = times + time_shift
-
-    # add noise according to distance
-    noise_var = signal_to_noise_ratio(signal, distance)
-    noise = np.random.normal(0, noise_var, len(signal))
-    signal = signal + noise
-
-    return signal, times,  f1 * frequency_scale
+    def add_time_delay(self, signal: np.ndarray, emitter: Emitter):
+        c = 299792458.0
+        distance = np.linalg.norm(emitter.position - self.position)
+        time_delay = distance / c
+        # return np.append(np.zeros(int(time_delay * self.sample_rate)), signal)
+        return time_delay
     
-def signal_to_noise_ratio(signal: np.ndarray,
-                          distance: float):
-    signal_power = np.sum(np.abs(signal)**2) / len(signal)
-
-    snr_from_distance = lambda x : 17 / (1 + np.exp(.05 * (x / 1000) - 3)) + .999
-
-    snr = snr_from_distance(distance)
-
-    noise_var = signal_power / snr
-    return noise_var
-
+    def signal_to_noise_ratio(self, signal: np.ndarray, distance: float):
+        signal_power = np.sum(np.abs(signal)**2) / len(signal)
+        snr_from_distance = lambda x : (1 - 4) / (400000) * x + 4
+        snr = snr_from_distance(distance)
+        noise_var = signal_power / snr
+        return noise_var
+    
+    def add_noise(self, signal: np.ndarray, emitter: Emitter):
+        distance = np.linalg.norm(emitter.position - self.position)
+        noise_var = self.signal_to_noise_ratio(signal, distance)
+        real_noise = np.random.normal(0, noise_var**2/2, len(signal))
+        imag_noise = np.random.normal(0, noise_var**2/2, len(signal))
+        noise = real_noise + 1j * imag_noise
+        return signal + noise
 
 def main():
     emitter_pos = np.array([0, 0, 0])
-    emitter_vel = np.array([1, 0, 0])
-    receiver_pos = np.array([400000, 0, 0])
-    emitter = Emitter(1090e6, 1e8, 1e8, emitter_pos, emitter_vel)
-    receiver = Receiver(1090e6, 2180e6, receiver_pos)
-    
-    signal, times = emitter.generate_signal('1010')
-    signal, times = channel(signal, times, emitter, receiver)
-    sampled_signal = receiver.collect_signal(signal, times)
+    emitter_vel = np.array([10, 0, 0])
 
+    dist = [1000, 10000, 100000, 200000, 300000, 400000] 
+    
+    fig, ax = plt.subplots(3, 2)
+    ax = ax.flatten()
+
+    for i, d in enumerate(dist):
+        receiver_pos = np.array([d, 0, 0])
+        emitter = Emitter(1090e6, emitter_pos, emitter_vel)
+        receiver = Receiver(20.90e6, 1e-6, receiver_pos)
+        
+        symbols = emitter.generate_signal('1010')
+        signal = receiver.sample_signal(symbols)
+        ax[i].plot(signal[:100], label = "symbols", color='blue')
+        signal, freq = receiver.apply_doppler(signal, emitter)
+        ax[i].plot(signal[:100].real, label = "doppler-shifted", color='red')
+        signal = receiver.add_noise(signal, emitter)
+        ax[i].plot(signal[:100].real, label = "noisy-ds", color='green')
+        ax[i].set_title(f"Distance: {d/1000:.0f} km")
+
+    labels = [line.get_label() for line in ax[0].get_lines()]
+    handles = [line for line in ax[0].get_lines()]
+    fig.legend(handles, labels, loc='lower center', ncol=3)
+    fig.suptitle("Change in Noise With Distance")
+    plt.show()
 
 if __name__ == '__main__':
     main()

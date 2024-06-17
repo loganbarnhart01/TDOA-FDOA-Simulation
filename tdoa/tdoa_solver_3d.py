@@ -40,7 +40,14 @@ def tdoa_solver_3d():
         r1 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max), random.uniform(z_min, z_max))
         r2 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max), random.uniform(z_min, z_max))
         r3 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max), random.uniform(z_min, z_max))
-        receivers = [r0, r1, r2, r3]
+        r4 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max), random.uniform(z_min, z_max))
+        receivers = [r0, r1, r2, r3, r4]
+        receiver_pairs = [
+                (0, 1), (0, 2), (0, 3), (0, 4),
+                (1, 2), (1, 3), (1, 4),
+                (2, 3), (2, 4),
+                (3, 4)
+            ]
 
         emitter = (random.uniform(3*x_min, 3*x_max), random.uniform(3*y_min, 3*y_max), random.uniform(3*z_min, 3*z_max))
         
@@ -56,55 +63,46 @@ def tdoa_solver_3d():
 
         tdoas = generate_true_tdoa_data(emitter, receivers)
 
-        '''
-        # physical distances between receivers and emitters 
-        real_dists = []
-        for r in receivers:
-            receiver_lat, receiver_lon = r
-            d = np.sqrt((receiver_lat - emitter_lat)**2 + (receiver_lon - emitter_lon)**2)
-            real_dists.append(d)
-
-        diff_01 = (real_dists[1] - real_dists[0])
-        diff_02 = (real_dists[2] - real_dists[0])
-        diff_12 = (real_dists[2] - real_dists[1])
-        '''
-
         x = np.linspace(3*x_min-1, 3*x_max+1, 300)
         y = np.linspace(3*y_min-1, 3*y_max+1, 300)
         z = np.linspace(3*z_min-1, 3*z_max+1, 300)
-        #X, Y = np.meshgrid(x, y)
-        initial_guess = (0, 0, 0)
 
+        true_diffs = c * tdoas
 
-        true_diffs = c * tdoas[np.triu_indices(len(receivers), 1)]
 
         def equations(p):
             x, y, z = p
-            eq1 = hyperboloid_3d(x, y, z, receivers[0], receivers[1], true_diffs[0])
-            eq2 = hyperboloid_3d(x, y, z, receivers[0], receivers[2], true_diffs[1])
-            eq3 = hyperboloid_3d(x, y, z, receivers[0], receivers[3], true_diffs[2])
 
-            eq4 = hyperboloid_3d(x, y, z, receivers[1], receivers[2], true_diffs[3])
-            eq5 = hyperboloid_3d(x, y, z, receivers[1], receivers[3], true_diffs[4])
-            eq6 = hyperboloid_3d(x, y, z, receivers[2], receivers[3], true_diffs[5])
-            return [eq1, eq2, eq3, eq4, eq5, eq6]
+            return [
+                hyperboloid_3d(x, y, z, receivers[pair[0]], receivers[pair[1]], true_diffs[pair[0]][pair[1]])
+                for pair in receiver_pairs
+            ]
+        
+            # eq0 = hyperboloid_3d(x, y, z, receivers[0], receivers[1], true_diffs[0][1])
+            # eq1 = hyperboloid_3d(x, y, z, receivers[0], receivers[2], true_diffs[0][2])
+            # eq2 = hyperboloid_3d(x, y, z, receivers[0], receivers[3], true_diffs[0][3])
+            # eq3 = hyperboloid_3d(x, y, z, receivers[0], receivers[4], true_diffs[0][4])
+            # eq4 = hyperboloid_3d(x, y, z, receivers[1], receivers[2], true_diffs[1][2])
+            # eq5 = hyperboloid_3d(x, y, z, receivers[1], receivers[3], true_diffs[1][3])
+            # eq6 = hyperboloid_3d(x, y, z, receivers[1], receivers[4], true_diffs[1][4])
+            # eq7 = hyperboloid_3d(x, y, z, receivers[2], receivers[3], true_diffs[2][3])
+            # eq8 = hyperboloid_3d(x, y, z, receivers[2], receivers[4], true_diffs[2][4])
+            # eq9 = hyperboloid_3d(x, y, z, receivers[3], receivers[4], true_diffs[3][4])
+
+            # return [eq0, eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8, eq9]
 
 
         initial_guess = (0, 0, 3*z_max)
-        result = op.least_squares(equations, initial_guess, bounds=bounds, ftol=1e-8, xtol=1e-8, gtol=1e-8)
+        result = op.least_squares(equations, initial_guess, bounds=bounds, ftol=1e-12, xtol=1e-12, gtol=1e-12)
         errors[i] = np.linalg.norm(result.x - np.array(emitter))
 
-        x_est, y_est, z_est = result.x
+        values = [
+            hyperboloid_3d(x, y, z, receivers[pair[0]], receivers[pair[1]], true_diffs[pair[0]][pair[1]])
+            for pair in receiver_pairs
+        ]
 
-        val0 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[1], true_diffs[0])
-        val1 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[2], true_diffs[1])
-        val2 = hyperboloid_3d(x_est, y_est, z_est, receivers[0], receivers[3], true_diffs[2])
-        val3 = hyperboloid_3d(x_est, y_est, z_est, receivers[1], receivers[2], true_diffs[3])
-        val4 = hyperboloid_3d(x_est, y_est, z_est, receivers[1], receivers[3], true_diffs[4])
-        val5 = hyperboloid_3d(x_est, y_est, z_est, receivers[2], receivers[3], true_diffs[5])
-        
-        if errors[i] > 1 and val0 < 1e-8 and val1 < 1e-8 and val2 < 1e-8 and val3 < 1e-8 and val4 < 1e-8 and val5 < 1e-8:
-            second_soln_count +=1
+        if errors[i] > 1 and np.all(values) < 1e-8:
+            second_soln_count += 1
 
     print(f'Mean error: {np.mean(errors)}')
     print(f'Std error: {np.std(errors)}')
