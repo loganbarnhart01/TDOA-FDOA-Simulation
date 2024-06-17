@@ -30,25 +30,28 @@ def solve_position(
     
     # let initial guess be centroid I guess? Until we have a more sophisticated search algo.
     x0 = np.sum(receiver_X_list, axis=0) / len(receiver_X_list)
-    pass
     if fdoa_data and tdoa_data:
+        v0 = np.zeros(x0.shape)
+        x0 = np.concatenate((x0, v0))
         obj = lambda Z : fdoa_with_tdoa(Z, receiver_X_list, fdoa_data, tdoa_data)
     elif emitter_velocity and fdoa_data:
         obj = lambda X : fdoa_v_known(X, emitter_velocity, receiver_X_list, fdoa_data)
     elif tdoa_data:
         obj = lambda X : tdoa(X, receiver_X_list, tdoa_data)
     elif fdoa_data:
+        v0 = np.zeros(x0.shape)
+        x0 = np.concatenate((x0, v0))
         obj = lambda Z : fdoa_v_unknown(Z, receiver_X_list, fdoa_data)
     else:
         raise ValueError("Need at least one type of data to solve for emitter position")
 
-    location = least_squares(obj, x0)
+    solution = least_squares(obj, x0)
 
-    if location.success:
-        return location.x
+    if solution.success:
+        return solution.x
     else:
         warnings.warn("Solver failed to converge")
-        return location.x
+        return solution.x
     
 
 def const_fdoa(
