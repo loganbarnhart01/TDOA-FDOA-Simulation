@@ -27,7 +27,23 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html')
+    return render_template('index_live.html')
+
+@app.route('/home', methods=['GET'])
+def go_home():
+    return render_template('index_live.html')
+
+@app.route('/what', methods=['GET'])
+def what():
+    return render_template('what.html')
+
+@app.route('/who', methods=['GET'])
+def who():
+    return render_template('what.html')
+
+@app.route('/why', methods=['GET'])
+def why():
+    return render_template('why.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
