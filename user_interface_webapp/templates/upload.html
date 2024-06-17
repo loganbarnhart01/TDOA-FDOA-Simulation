@@ -1,5 +1,3 @@
-<!-- templates/raw_text.html -->
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +5,13 @@
     <meta name="upload page" content="geoleek upload data">
     <title>geoleek</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/upload.css') }}">
- </head>
- <body>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/live.css') }}">
+    <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>  //js link 
+</head>
+<body>
     <header>
         <nav class="navbar">
-            <img src="{{ url_for('static', filename='images/leekylogo_lightmode.png')}}"class="navbar-logo">
+            <img src="{{ url_for('static', filename='images/leekylogo_lightmode.png')}}" class="navbar-logo">
             <ul><!-- navbar & redirects to other pages -->
                 <li><a href="/">Home</a></li>
                 <li><a href="/what">What is geoleek?</a></li>
@@ -27,36 +27,37 @@
                 </li>
                 <li><a href="/contact">Contact Us</a></li>
             </ul>
+
         </nav>
-        <div class="content">
-            <hr>
-            <h2>Upload ADS-B Data</h2>
-            <!-- <a href="/live" class="button">Track a Flight</a> -->
-        </div>
-                    <!-- live background implementation*/ -->
+
+        <span>
+            <hr style="border-color: #474772;">
+        </span>
+        
         <video autoplay loop muted plays-inline id="video-bg">
             <source src="{{ url_for('static', filename='video/airplane-color.mp4') }}" type="video/mp4">
         </video>
+
         <main>
-            <!--Prompt user to upload data -->
-            <subtitle>Upload ADS-B Data</subtitle>
-            <h4>accepted file types: </h4>
-            <h5 style="margin: top 0;">.csv</h5>
-            <!-- upload button specifications-->
-            <form action="/upload" method="post" enctype="multipart/form-data">
-                <label for="fileUpload" class="button">Upload CSV File</label>
+            <div class="content">
+                <!-- <hr> -->
+                <h2>Upload ADS-B Data</h2>
+            </div>
+            <h3>Accepted file types:</h3>
+            <h4 style="margin-top: 0;">.csv</h4>
+            <br/><br/>
+            <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                <label for="fileUpload" class="upload-button">Upload File</label>
                 <input type="file" id="fileUpload" name="fileUpload" accept=".csv" style="display: none;">
-                <button type="submit" class="button">Submit</button>
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+            
         </main>
-     
-    </form>
-    
     </header>
-     <!-- /* footer content */ -->
     <footer>
         <span>
             <div class="footer">
-                <h4>Follow Us:</h4>
+                <h5>Follow Us:</h5>
                 <div class="footer-content">
                     <ul>
                         <li><a href="https://github.com/loganbarnhart01/Flight-Tracker-Simulator/">
@@ -67,22 +68,20 @@
                             <img id="facebook" src="{{ url_for('static', filename='images/facebook_lightmode.svg') }}" alt="Facebook" style="width:30px;"></a></li>
                         <li><a href="https://www.instagram.com/">
                             <img id="instagram" src="{{ url_for('static', filename='images/instagram_lightmode.svg') }}" alt="Instagram" style="width:30px;"></a></li>
-                            <li><a href="https://www.linkedin.com/">
-                                <img id="instagram" src="{{ url_for('static', filename='images/linkedin_lightmode.svg') }}" alt="Instagram" style="width:30px;"></a></li>
+                        <li><a href="https://www.linkedin.com/">
+                            <img id="linkedin" src="{{ url_for('static', filename='images/linkedin_lightmode.svg') }}" alt="LinkedIn" style="width:30px;"></a></li>
                     </ul>
                 </div>
                 <div class="footer-content">
                     <ul>
                         <li><a href="https://play.google.com/store/apps?utm_source=na_Med&utm_medium=hasem&utm_content=Nov0520&utm_campaign=Evergreen&pcampaignid=MKT-EDR-na-us-1707532-Med-hasem-ap-Evergreen-Nov0520-Text_Search_BKWS-id_100470_%7CEXA%7CONSEM_kwid_43700023142507910&gad_source=1&gclid=CjwKCAjw65-zBhBkEiwAjrqRMHgx6mEriMKMNMCPtMDgsfu4syBqkXKX1ni66hUaayw4SPJOOxHMLRoC5AwQAvD_BwE&gclsrc=aw.ds">
-                            <img id="googleplay" src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" style="width:175px;"></a></li>
+                            <img id="googleplay" src="{{ url_for('static', filename='images/googleplay_darkmode.jpeg') }}" alt="Google Play Store" style="width:210px;"></a></li>
                         <li><a href="https://www.applestore.com/">
-                            <img id="applestore" src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" style="width:175px;"></a></li>
+                            <img id="applestore" src="{{ url_for('static', filename='images/applestore_darkmode.png') }}" alt="Apple Store" style="width:210px;"></a></li>
                     </ul>
                 </div>
             </div>
         </span>
-    </footer>    
-    
-     
- </body>
- </html>
+    </footer>
+</body>
+</html>

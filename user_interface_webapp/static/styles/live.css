@@ -3,6 +3,9 @@ body {
     font-family: 'Times New Roman', Times, serif;
     background-color: blanchedalmond;
     color: #1e1e2e;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* makes the page fill the entire screen that is visible */
 }
 
 header {
@@ -28,7 +31,7 @@ header {
     font-weight: bold; /*makes text bold*/
     padding: 10px;
     display: block;
-    font-size: 20px; /* nav bar text size*/
+    font-size: 25px; /* nav bar text size*/
     transition: 0.8s;
 }
 
@@ -77,8 +80,9 @@ header {
     z-index: -1;
 }
 
-.content {
+.content { /*homepage title positioning*/
     text-align: center;
+    margin-top: 300px; /* margin for the main header */
 }
 
 .content h1 {
@@ -88,24 +92,34 @@ header {
     transition: 0.8s;
 }
 
+
 /* .content h1:hover{    /*text animation for homepage, main header*/
     /* -webkit-text-stroke: 2px #474772;
     color: transparent;
 } */ 
 
-.content a {
+.content h2 {
+    font-size: 100px;
+    color: #474772;
+    font-weight: 600;
+    transition: 0.8s;
+}
+
+
+.content a { /* homepage Track Button */
     text-decoration: none;
     display: inline-block;
     color: #474772;
+    background-color: transparent;
     font-size: 24px;
     border: 2px solid #474772;
     padding: 14px 70px;
     border-radius: 50px;
     margin-top: 50px;
-    transition: 0.02s;mathmetical
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.content a:hover{
+.content a:hover{ /* homepage Track Button hover animation */
     -webkit-background-stroke: 2px #474772;
     background-color: #474772;
     color: blanchedalmond;
@@ -135,6 +149,10 @@ button {
     cursor: pointer;
 } */
 
+main {
+    flex: 1; /*main content push footer to bottom of page*/
+}
+
 /* footer only */
 footer {
     position: relative;
@@ -145,12 +163,12 @@ footer {
     flex-direction: column;
     align-items: center;
     border-color: #474772;
-    margin-bottom: 5px;
-    margin-top: 310px;
+    /* margin-bottom: 5px; */
+    margin-top: auto;
 }
 
 .footer h4 {
-    margin-bottom: 5px; /* Adjust the bottom margin of the "Follow Us:" text */
+    margin-bottom: 10px; /* Adjust the bottom margin of the "Follow Us:" text */
 }
 .footer-content {
     display: flex;
