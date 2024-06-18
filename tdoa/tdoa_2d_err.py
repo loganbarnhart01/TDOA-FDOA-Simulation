@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import optimize as op
 import random
 
+
 c = 299792458.0  # speed of light in m/s
 
 def tdoa_solver_2d():

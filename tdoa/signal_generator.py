@@ -78,35 +78,3 @@ class Receiver:
         imag_noise = np.random.normal(0, noise_var**2/2, len(signal))
         noise = real_noise + 1j * imag_noise
         return signal + noise
-
-def main():
-    emitter_pos = np.array([0, 0, 0])
-    emitter_vel = np.array([10, 0, 0])
-
-    dist = [1000, 10000, 100000, 200000, 300000, 400000] 
-    
-    fig, ax = plt.subplots(3, 2)
-    ax = ax.flatten()
-
-    for i, d in enumerate(dist):
-        receiver_pos = np.array([d, 0, 0])
-        emitter = Emitter(1090e6, emitter_pos, emitter_vel)
-        receiver = Receiver(20.90e6, 1e-6, receiver_pos)
-        
-        symbols = emitter.generate_signal('1010')
-        signal = receiver.sample_signal(symbols)
-        ax[i].plot(signal[:100], label = "symbols", color='blue')
-        signal, freq = receiver.apply_doppler(signal, emitter)
-        ax[i].plot(signal[:100].real, label = "doppler-shifted", color='red')
-        signal = receiver.add_noise(signal, emitter)
-        ax[i].plot(signal[:100].real, label = "noisy-ds", color='green')
-        ax[i].set_title(f"Distance: {d/1000:.0f} km")
-
-    labels = [line.get_label() for line in ax[0].get_lines()]
-    handles = [line for line in ax[0].get_lines()]
-    fig.legend(handles, labels, loc='lower center', ncol=3)
-    fig.suptitle("Change in Noise With Distance")
-    plt.show()
-
-if __name__ == '__main__':
-    main()
