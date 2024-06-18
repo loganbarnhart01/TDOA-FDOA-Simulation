@@ -6,7 +6,7 @@
     <title>geoleek</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/upload.css') }}">
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/live.css') }}">
-    <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>  //js link 
+    <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>   
 </head>
 <body>
     <header>
@@ -50,6 +50,9 @@
                 <label for="fileUpload" class="upload-button">Upload File</label>
                 <input type="file" id="fileUpload" name="fileUpload" accept=".csv" style="display: none;">
                 <button type="submit" class="submit-button">Submit</button>
+                <br/>
+                <span id="fileUploadName"></span>
+                
             </form>
             
         </main>
@@ -83,5 +86,9 @@
             </div>
         </span>
     </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>
+    
 </body>
 </html>
