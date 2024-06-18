@@ -64,7 +64,7 @@ h5{
 .submit-button.loading {
     background-color: #ccc; 
     color: #474772; /* change text color when loading*/
-    cursor: default; /* Disable cursor during loading */
+    cursor: default; /* curor unavailable when loading in process */
 }
 
 .loading-overlay.loading-start {
