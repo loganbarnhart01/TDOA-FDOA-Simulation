@@ -30,7 +30,7 @@ def main():
     doppler_info = [receivers[i].apply_doppler(signals[i], emitter) for i in range(num_receivers)]
     signals, doppler_freqs = zip(*doppler_info)
     times_info = [receivers[i].add_time_delay(signals[i], emitter) for i in range(num_receivers)]
-    time_signal, time_delays = zip(*times_info)
+    time_signal, times = zip(*times_info)
 
     times = times + np.random.random(len(times), 1e-6)
     doppler_freqs = doppler_freqs + np.random.random(len(doppler_freqs), 1e-6)
