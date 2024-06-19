@@ -33,8 +33,7 @@ def main():
 
     times = times + np.random.random(len(times), 1e-6)
     doppler_freqs = doppler_freqs + np.random.random(len(doppler_freqs), 1e-6)
-
-
+    
     if flag == "tdoa + fdoa":
         solution = estimate_emitter(receivers, fdoa_data=doppler_freqs, toa_data=times)
         position = solution[:dim]
