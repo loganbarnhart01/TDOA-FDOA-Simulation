@@ -15,20 +15,23 @@ def caf(signal1, signal2, max_time_shift, max_freq_shift, freq_count = 51):
     max_ind = np.unravel_index(np.argmax(np.abs(caf_values)), caf_values.shape)
     time_shift  = time_shifts[max_ind[1]]
     freq_shift = freq_shifts[max_ind[0]]
-    return caf_values[max_ind], -time_shift, freq_shift,caf_values
+    return np.abs(caf_values[max_ind]), -time_shift, freq_shift, caf_values
 
 def test_caf():
     sig1 = np.random.randn(1024) + 1j * np.random.randn(1024)
     
-    caf_peak, _, _ , caf_out1= caf(sig1, sig1, 10, .5)
+    caf_peak, tshift, fshift, caf_out1= caf(sig1, sig1, 10, .5)
+    print(tshift, fshift)
 
     sig2 = np.roll(sig1, 2)
 
-    caf_peak, _, _ , caf_out2= caf(sig1, sig2, 10, .5)
+    caf_peak, tshift, fshift, caf_out2= caf(sig1, sig2, 10, .5)
+    print(tshift, fshift)
 
     sig3 = sig1 *  np.exp(1j * 2 * np.pi * .1 * np.arange(len(sig2)))
 
-    caf_peak, _, _ , caf_out3= caf(sig1, sig3, 10, .5)
+    caf_peak, tshift, fshift, caf_out3= caf(sig1, sig3, 10, .5)
+    print(tshift, fshift)
 
     plt.subplot(2,2,1)
     plt.imshow(np.abs(caf_out1), origin='lower', aspect = 'auto')
@@ -44,5 +47,5 @@ def test_caf():
     plt.ylabel("frequency")
     plt.show()
 
-# if __name__ == '__main__':
-#     test_caf()
+if __name__ == '__main__':
+    test_caf()
