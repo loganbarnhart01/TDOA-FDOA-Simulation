@@ -62,10 +62,10 @@ def convolution_caf(sig1, sig2, num_freq_shifts = 51):
     freq_sig2 = np.fft.fft(sig2)
     freq_sig2_conj = freq_sig2.conj()
 
-    caf_out = np.zeros((K, num_freq_shifts), dtype = np.complex128)
+    caf_out = np.zeros((K, num_freq_shifts // 2), dtype = np.complex128)
 
-    for i in range(num_freq_shifts):
-        sig1_shifted = freq_sig1
+    for i in range(num_freq_shifts // 2):
+        sig1_shifted = np.roll(freq_sig1, -i)
         sig2_shifted = np.roll(freq_sig2_conj, i)
         caf = np.fft.ifft(sig1_shifted * sig2_shifted)
         caf_out[:, i] = caf
@@ -75,7 +75,7 @@ def convolution_caf(sig1, sig2, num_freq_shifts = 51):
     print(max_ind)
 
     time_shift  = K - max_ind[0]
-    freq_shift = max_ind[1] / K
+    freq_shift = max_ind[1]
 
     max_mag = np.max(np.abs(caf_out))
     median_mag = np.median(np.abs(caf_out))
@@ -86,9 +86,8 @@ def convolution_caf(sig1, sig2, num_freq_shifts = 51):
     return caf_out, time_shift, freq_shift, max_mag, median_mag
 
 
-
 def test_caf():
-    sig1 = np.random.randn(1024) + 1j * np.random.randn(1024)
+    sig1 = np.random.randn(256) + 1j * np.random.randn(256)
 
     # caf_out1, tshift1, fshift1, max_mag, median_mag = convolution_caf(sig1, sig1, 100)
     # print(tshift1, fshift1, max_mag, median_mag)
@@ -102,7 +101,10 @@ def test_caf():
 
     sig3 = sig1 *  np.exp(1j * 2 * np.pi * .1 * np.arange(len(sig1)))
 
-    convolution_caf(sig1, sig3, 1000)
+    caf = convolution_caf(sig1, sig3, 100)[0]
+
+    plt.imshow(np.abs(caf), origin='lower', aspect = 'auto')
+    plt.show()
 
     # caf_out3, tshift3, fshift3, max_mag, median_mag = fft_caf(sig1, sig3, 100)
     # print(tshift3, fshift3, max_mag, median_mag)
