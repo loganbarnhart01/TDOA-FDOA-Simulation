@@ -6,6 +6,8 @@ import random
 from matplotlib.patches import Ellipse
 
 c = 299792458.0 # speed of light in m/s
+confidence_level = 0.95
+chi_square_val = 5.991  # Chi-square critical value for 95% confidence in 2D
 '''
 ###################################
 test case for 2 possible solutions
@@ -87,65 +89,39 @@ def tdoa_solver_2d():
     # x_true, y_true = result_ls.x
 # end of loop for error tests -----------------------------------------------------------------------------------------------------------------------------------
 #-------------------------start of loop to add noise-------------------------------------------------------------------------------------------------------------
-    
-    num_samples = 0 # change here to run loop or not
-    hyperbolaA = []
-    hyperbolaB = []
-    hyperbolaC = []
-    equations = []
-    results = []
+    x_min, x_max = -100, 100
+    y_min, y_max = -10, 100
+    bounds = ([5*x_min, 5*y_min], [5*x_max, 5*y_max])
 
-    
-    for sample in range(num_samples):       
-        # Add noise to the TDOA data (assuming Gaussian noise)
-        noise_variance = 1e-9  # Adjust as needed
-        noisy_tdoas = tdoas + np.random.normal(scale=noise_variance, size=tdoas.shape)
-        
-        diff_01 = c*noisy_tdoas[0][1]
-        diff_02 = c*noisy_tdoas[0][2]
-        diff_12 = c*noisy_tdoas[1][2]
-
-        eqA = hyperbola(X, Y, receivers[0], receivers[1], diff_01)
-        eqB = hyperbola(X, Y, receivers[0], receivers[2], diff_02)
-        eqC = hyperbola(X, Y, receivers[1], receivers[2], diff_12)
-          
-        hyperbolaA.append(eqA)
-        hyperbolaB.append(eqB)
-        hyperbolaC.append(eqC)
-
-        def equations(p):
-            x, y = p
-            eq1 = hyperbola(x, y, receivers[0], receivers[1], diff_01)
-            eq2 = hyperbola(x, y, receivers[0], receivers[2], diff_02)
-            eq3 = hyperbola(x, y, receivers[1], receivers[2], diff_12)
-            return [eq1, eq2, eq3]
-
-        # Find estimated emitter location
-        result_ls = op.least_squares(equations, initial_guess, bounds=bounds)
-
-        results.append(result_ls)
-# end of loop -----------------------------------------------------------------------------------------------------------------------------------------------       
-
-
-    x_min, x_max = -10, 10
-    y_min, y_max = -10, 10
-    bounds = ([3*x_min, 3*y_min], [3*x_max, 3*y_max])
-
-    x = np.linspace(3 * x_min - 1, 3 * x_max + 1, 300)
-    y = np.linspace(3 * y_min - 1, 3 * y_max + 1, 300)
+    x = np.linspace(3 * x_min - 10, 3 * x_max + 10, 300)
+    y = np.linspace(3 * y_min - 10, 3 * y_max + 10, 300)
     X, Y = np.meshgrid(x, y)
-    initial_guess = (0, 0)
+    
 
-    r1 = (x_max*random.random(), y_max*random.random())
-    r2 = (x_max*random.random(), y_max*random.random())
-    r3 = (x_max*random.random(), y_max*random.random())
-    receivers = [r1, r2, r3]
-
-    emitter = (random.uniform(x_min, 3 * x_max), random.uniform(y_min, 3 * y_max))
+    receivers = [(random.uniform(x_min, x_max), random.uniform(y_min, y_max)) for _ in range(3)]
+    emitter = (random.uniform(3*x_min, 3*x_max), random.uniform(3*y_min, 3*y_max))
     emitter_lat, emitter_lon = emitter
 
+    initial_guess = (emitter_lat, emitter_lon) + np.random.random(2)*5
 
     tdoas = generate_true_2d_tdoa_data(emitter, receivers)
+
+    num_samples = 200 # change here to run loop or not
+    equations = []
+    results_x = []
+    results_y = []
+    
+    
+# end of loop -----------------------------------------------------------------------------------------------------------------------------------------------       
+
+    # r1 = (x_min, y_min)
+    # r2 = (x_min, y_max)
+    # r3 = (x_max, y_min)
+    # receivers = [r1, r2, r3]
+
+    # emitter = (3*x_max, 3*y_max)
+    # emitter_lat, emitter_lon = emitter
+
 
     diff_01 = c*tdoas[0][1]
     diff_02 = c*tdoas[0][2]
@@ -162,42 +138,56 @@ def tdoa_solver_2d():
         eq3 = hyperbola(x, y, receivers[1], receivers[2], diff_12)
         return [eq1, eq2, eq3]
 
-    # Find estimated emitter location
-    result = op.least_squares(equations, initial_guess, bounds=bounds)
-
+    # Find estimated emitter location (no noise)
+    result = op.least_squares(equations, initial_guess, bounds=bounds, ftol=1e-12, xtol=1e-12, gtol=1e-12)
     x_est, y_est = result.x
 
     FIM = compute_FIM(receivers, np.array([x_est, y_est]))
-
-    # Step 4: Find the CRLB
     CRLB = np.linalg.inv(FIM)
-
-    # Step 5: Compute eigenvalues and eigenvectors
     eigenvalues, eigenvectors = np.linalg.eigh(CRLB)
 
-    print("Eigenvalues:", eigenvalues)
-    print("Eigenvectors:", eigenvectors)
-
+    
     # Get the orientation of the ellipse
     angle = np.degrees(np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]))
-    
-    # Width and height of the ellipse are 2*sqrt(eigenvalues)
-    width, height = 2 * np.sqrt(eigenvalues)
-    
+    width = 2 * np.sqrt(eigenvalues[0] * chi_square_val)
+    height = 2 * np.sqrt(eigenvalues[1] * chi_square_val)
+
+    # print("Eigenvalues:", eigenvalues)
+    # print("Eigenvectors:", eigenvectors)
+    # print(width, height)
+
+    for sample in range(num_samples):       
+        tdoas = generate_true_2d_tdoa_data(emitter, receivers)
+        # Add noise to the TDOA data (assuming Gaussian noise)
+        noisy_tdoas = tdoas + np.random.normal(0, 10e-9)
+        
+        diff_01 = c*noisy_tdoas[0][1]
+        diff_02 = c*noisy_tdoas[0][2]
+        diff_12 = c*noisy_tdoas[1][2]
+
+        def equations(p):
+            x, y = p
+            eq1 = hyperbola(x, y, receivers[0], receivers[1], diff_01)
+            eq2 = hyperbola(x, y, receivers[0], receivers[2], diff_02)
+            eq3 = hyperbola(x, y, receivers[1], receivers[2], diff_12)
+            return [eq1, eq2, eq3]
+
+        # Find estimated emitter location
+        result_ls = op.least_squares(equations, initial_guess, bounds=bounds)
+        res_x, res_y = result_ls.x
+
+        curr_err = np.linalg.norm(result_ls.x - emitter)
+
+        if curr_err < max(0.5*width, 0.5*height):
+            results_x.append(res_x)
+            results_y.append(res_y)
+        
     fig, ax = plt.subplots()
-    ellipse = Ellipse(xy=(x_est, y_est), width=width, height=height, angle=angle, edgecolor='r', fc='None', lw=2)
-    
+    ellipse = Ellipse(xy=(x_est, y_est), width=width, height=height, angle=angle, edgecolor='orange', facecolor='orange', alpha=0.5)    
     ax.plot([r[0] for r in receivers], [r[1] for r in receivers], 'bo', label='Receivers')
     ax.add_patch(ellipse)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_title('TDOA Visualization')
-    ax.legend()
-    ax.grid(True)
-    ax.axis('equal')
-
     
-    
+    plt.scatter([r for r in results_x], [r for r in results_y], s=3, label='noise results')
     plt.contour(X, Y, eqA, levels=[0], colors='r')
     plt.contour(X, Y, eqB, levels=[0], colors='g')
     plt.contour(X, Y, eqC, levels=[0], colors='b')
@@ -236,18 +226,32 @@ def tdoa_solver_2d():
     # plt.axis('equal')
     # plt.show()
 
-def compute_FIM(receiver_locations, emitter_location):
-    num_receivers = len(receiver_locations)
-    FIM = np.zeros((2, 2))
+def compute_FIM(receivers, emitter):
+    num_receivers = len(receivers)
+    FIM = np.zeros((2, 2))  # 2x2 matrix for 2D localization
+    
     for i in range(num_receivers):
         for j in range(i + 1, num_receivers):
-            ri = np.linalg.norm(np.array(receiver_locations[i]) - emitter_location)
-            rj = np.linalg.norm(np.array(receiver_locations[j]) - emitter_location)
-            grad_i = (emitter_location - np.array(receiver_locations[i])) / ri
-            grad_j = (emitter_location - np.array(receiver_locations[j])) / rj
+            ri = np.array(receivers[i])
+            rj = np.array(receivers[j])
+            e = np.array(emitter)
+            
+            # Distances from the emitter to receivers
+            di = np.linalg.norm(ri - e)
+            dj = np.linalg.norm(rj - e)
+            
+            # Gradients
+            grad_i = (e - ri) / di
+            grad_j = (e - rj) / dj
+            
+            # Gradient difference
             grad_diff = grad_i - grad_j
+            
+            # Update FIM
             FIM += np.outer(grad_diff, grad_diff)
+    
     return FIM
+
     
 def hyperbola(x, y, receiver_1, receiver_2, diff_ab):
     if diff_ab > 0:
