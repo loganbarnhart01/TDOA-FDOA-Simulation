@@ -1,7 +1,6 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdint.h>
 #include <errno.h>
@@ -11,9 +10,11 @@
 #include <stdio.h>
 #include <assert.h>
 #include <libbladeRF.h>
-#include <bladeRF2.h>
 
-int16_t *init_sync_rx(struct bladerf *dev, int16_t num_samples, bladerf_format format,
+#define NUM_SAMPLES 10240
+#define SAMPLE_BUFFER_SIZE (NUM_SAMPLES * 2 * sizeof(int16_t))
+
+int16_t *init_sync_rx(struct bladerf *dev, bladerf_format format,
               bladerf_channel_layout channel_layout)
 {
     int status = -1;
@@ -38,7 +39,7 @@ int16_t *init_sync_rx(struct bladerf *dev, int16_t num_samples, bladerf_format f
     const unsigned int timeout_ms    = 1000;
     const unsigned int buffer_size   = 2048;
 
-    samples = malloc(num_samples * 2 * sizeof(int16_t));
+    samples = malloc(SAMPLE_BUFFER_SIZE);
     if (samples == NULL) {
         perror("malloc");
         goto error;
@@ -101,7 +102,7 @@ int deinit_bladerf(struct bladerf *dev, int16_t *samples)
     return 0;
 }
 
-int receive_with_time(struct bladerf *dev, int16_t *samples, unsigned int samples_len, unsigned int rx_count, unsigned int timeout_ms)
+int receive_with_time(struct bladerf *dev, int16_t *samples, unsigned int rx_count, unsigned int timeout_ms, FILE *file)
 {
     int status = 0;
     struct bladerf_metadata meta;
@@ -115,19 +116,22 @@ int receive_with_time(struct bladerf *dev, int16_t *samples, unsigned int sample
     meta.flags = BLADERF_META_FLAG_RX_NOW;
 
     /* Receive samples and do work on them */
-    int count = 0;
-    while(count < 10) {
-        status = bladerf_sync_rx(dev, samples, samples_len, &meta, timeout_ms);
-        if (status != 0) {
-            fprintf(stderr, "RX \"now\" failed: %s\n\n", bladerf_strerror(status));
-        } else if (meta.status & BLADERF_META_STATUS_OVERRUN) {
-            fprintf(stderr, "Overrun detected. %u valid samples were read.\n", meta.actual_count);
-        } else {
-            printf("RX'd %u samples at t=0x%016" PRIx64 "\n", meta.actual_count, meta.timestamp);
-            uint64_t timestamp = (uint64_t) meta.timestamp;
-            fflush(stdout);
-            count++;
+    time_t t = time(NULL);
+    printf("t: %d\n", t);
+    while(t < 1719271900) {
+        t = time(NULL);
+    }
+    status = bladerf_sync_rx(dev, samples, NUM_SAMPLES, &meta, timeout_ms);
+    if (status != 0) {
+        fprintf(stderr, "RX \"now\" failed: %s\n\n", bladerf_strerror(status));
+    } else if (meta.status & BLADERF_META_STATUS_OVERRUN) {
+        fprintf(stderr, "Overrun detected. %u valid samples were read.\n", meta.actual_count);
+    } else {
+        printf("RX'd %u samples at t=0x%016" PRIx64 "\n", meta.actual_count, meta.timestamp);
+        for (uint16_t j = 0; j < NUM_SAMPLES * 2; j+=2){
+            fprintf(file, "%d %d,", samples[j], samples[j + 1]);
         }
+        fflush(stdout);
     }
     return status;
 }
@@ -188,7 +192,6 @@ struct bladerf *init_bladerf(struct bladerf *dev) {
 int main(int argc, char *argv[]) {
     struct bladerf *dev = NULL;
     struct bladerf_devinfo dev_info;
-    unsigned int num_samples = 4096;
  
     /* Initialize the information used to identify the desired device
     * to all wildcard (i.e., "any device") values */
@@ -209,13 +212,23 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    /* Open file to write to */
+
+    char *filename = "received_samples.txt";
+    FILE *file = fopen(filename, "w");
+
+    if (file == NULL) {
+        fprintf(stderr, "Failed to open file\n");
+        return -1;
+    }
+
     /* Initialize BladeRF connection, samples buffer */
 
-    int16_t* samples = init_sync_rx(dev, num_samples, BLADERF_FORMAT_SC16_Q11_META, BLADERF_RX_X1, 10240);
+    int16_t* samples = init_sync_rx(dev, BLADERF_FORMAT_SC16_Q11_META, BLADERF_RX_X1);
     if (samples != NULL) {
         printf("Press ENTER to send the message: ");
         getchar();
-        status = receive_with_time(dev, samples, num_samples, 1, 0); // receive samples
+        status = receive_with_time(dev, samples, 1, 0, file); // receive samples
     } else {
         fprintf(stderr, "Failed to initialize samples buffer\n");
     }
