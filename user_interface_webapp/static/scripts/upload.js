@@ -1,6 +1,7 @@
 // javascript is CASE SENSITIVE */
 // file to implement functionality to upload html file when it renders webapge 
-
+// js below is to render animation to the upload and submit buttons 
+// also  displays the file name once a file has been attached.
 
 (function() {
     var resize;
@@ -11,7 +12,7 @@
                 return $("div").removeClass(); 
             }
         } else {
-            setTimeout(function() {
+            setTimeout(function() {     /* sets the timeout */
                 $("div").addClass("loading-start");
             }, 0);
 
