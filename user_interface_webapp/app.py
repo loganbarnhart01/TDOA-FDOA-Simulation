@@ -1,3 +1,4 @@
+
 import logging
 import os
 import requests
@@ -22,7 +23,7 @@ engine = create_engine(url)
 Session = sessionmaker(bind=engine)
 db = Session()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
@@ -55,7 +56,11 @@ def upload():
 
 @app.route('/live', methods=['GET'])
 def live():
-    return render_template('live.html')
+    return render_template('cesium_globe.html')
+
+# @app.route('/custom-geo', methods=['GET'])
+# def custom_geo():
+#     return render_template('custom_geo.html')
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
