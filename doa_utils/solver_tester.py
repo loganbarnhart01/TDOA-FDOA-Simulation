@@ -4,8 +4,10 @@ from signal_generator import Emitter, Receiver
 from solver import estimate_emitter
 
 def main():
+    chi_square_val_2d = 5.991  # Chi-square critical value for 95% confidence in 2D
+
     flag = "tdoa + fdoa"
-    dim = 3
+    dim = 2
 
     num_receivers_map = {
         "tdoa + fdoa" : dim + 1,

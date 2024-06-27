@@ -18,13 +18,13 @@ def tdoa_solver_3d():
     y_max = 100
     z_min = 0
     z_max = 100
-    bounds = ([3*x_min, 3*y_min, 3*z_min], [3*x_max, 3*y_max, 3*z_max])
+    bounds = ([5*x_min, 5*y_min, z_min], [5*x_max, 5*y_max, 5*z_max])
     
     # receivers = [(x_min, y_min, z_min), (x_min, y_max, z_min), (x_max, y_min, z_min), (x_max, y_max, z_min)]
     # emitter = (0, 4, 3*z_max)
     # emitter_lat, emitter_lon, emitter_alt = emitter 
 
-    num_trials = 10
+    num_trials = 100
     count = 0
     
         
@@ -95,7 +95,12 @@ def tdoa_solver_3d():
             point = [res_x, res_y, res_z]
             res = np.linalg.norm(noisy_result.x)
             curr_points.append(point)
-        
+
+        points_as_tuples = [tuple(p) for p in curr_points]
+        point_counts = Counter(points_as_tuples)
+        most_common_point, count = point_counts.most_common(1)[0]
+        most_common_point = list(most_common_point)
+        best_est.append(most_common_point)
         points.append(curr_points)
     
             # if res < 600:
@@ -107,15 +112,17 @@ def tdoa_solver_3d():
             #     count += 1
 
     points = np.array(points)
-    print(points)
-    # print("number of points plotted:", len(points))
+    print(best_est)
+    print(len(best_est))
     print(emitter)
+    # print("number of points plotted:", len(points))
     # print("Count of points within ellipsoid:", count)
 
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter([r[0] for r in receivers], [r[1] for r in receivers], [r[2] for r in receivers], c='blue', label='Receivers')
+    ax.scatter([e[0] for e in best_est], [e[1] for e in best_est], [e[2] for e in best_est], c='red', marker='o', s=10, label='Best Estimates')
     #ax.scatter(points[:, 0], points[:, 1], points[:, 2], label='Noisy Emitter Locations')
     ax.scatter(*emitter, c='black', marker='s', s=100, label='True Emitter Location')
     ax.scatter(x_est, y_est, z_est, c='green', marker='s', s=60, label='Estimated Emitter Location')
