@@ -6,7 +6,7 @@ def test_caf():
     sig1 = np.random.randn(256) + 1j * np.random.randn(256)
 
     fft_caf_out1, tshift1, fshift1, max_mag, median_mag = fft_caf(sig1, sig1, 51)
-    # print(tshift1, fshift1, max_mag, median_mag)
+    print(tshift1, fshift1, max_mag, median_mag)
 
     conv_caf_out1, tshift1, fshift1, max_mag, median_mag = convolution_caf(sig1, sig1, 100)
     print(tshift1, fshift1, max_mag, median_mag)
@@ -14,7 +14,7 @@ def test_caf():
     sig2 = np.roll(sig1, 2)
 
     fft_caf_out2, tshift1, fshift1, max_mag, median_mag = fft_caf(sig1, sig2, 51)
-    # print(tshift1, fshift1, max_mag, median_mag)
+    print(tshift1, fshift1, max_mag, median_mag)
     
     conv_caf_out2, tshift2, fshift2, max_mag, median_mag = convolution_caf(sig1, sig2)
     print(tshift2, fshift2, max_mag, median_mag)
@@ -22,7 +22,7 @@ def test_caf():
     sig3 = sig1 *  np.exp(1j * 2 * np.pi * .1 * np.arange(len(sig1)))
 
     fft_caf_out3, tshift3, fshift3, max_mag, median_mag = fft_caf(sig1, sig3, 100)
-    # print(tshift3, fshift3, max_mag, median_mag)
+    print(tshift3, fshift3, max_mag, median_mag)
 
     conv_caf_out3, tshift3, fshift3, max_mag, median_mag = convolution_caf(sig1, sig3, 1000)
     print(tshift3, fshift3, max_mag, median_mag)
@@ -30,7 +30,7 @@ def test_caf():
     sig4 = np.roll(sig3, 2)
     
     fft_caf_out4, tshift4, fshift4, max_mag, median_mag = fft_caf(sig1, sig4, 100)
-    # print(tshift4, fshift4, max_mag, median_mag)
+    print(tshift4, fshift4, max_mag, median_mag)
 
     conv_caf_out4, tshift4, fshift4, max_mag, median_mag = convolution_caf(sig1, sig4, 1000)
     print(tshift4, fshift4, max_mag, median_mag)
