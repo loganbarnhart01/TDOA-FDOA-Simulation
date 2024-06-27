@@ -12,6 +12,13 @@ header {
     text-align: center;
 }
 
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
 .navbar ul {
     list-style-type: none;
     margin: 0px;
