@@ -28,11 +28,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index_live.html')
+    return render_template('index.html')
 
 @app.route('/home', methods=['GET'])
 def go_home():
-    return render_template('index_live.html')
+    return render_template('index.html')
 
 @app.route('/what', methods=['GET'])
 def what():
@@ -54,13 +54,13 @@ def contact():
 def upload():
     return render_template('upload.html')
 
+# @app.route('/live', methods=['GET'])
+# def live():
+#     return render_template('live_threejs.html')
+
 @app.route('/live', methods=['GET'])
 def live():
     return render_template('cesium_globe.html')
-
-# @app.route('/custom-geo', methods=['GET'])
-# def custom_geo():
-#     return render_template('custom_geo.html')
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
@@ -70,7 +70,7 @@ def live_data():
 
 @app.route('/tdoa-sim', methods=['GET'])
 def tdoa_sim():
-    return render_template('tdoa_sim.html')
+    return render_template('simulator.html')
 
 @app.route('/tdoa-data', methods=['GET', 'POST'])
 def tdoa_data():
