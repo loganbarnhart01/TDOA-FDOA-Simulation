@@ -1,11 +1,7 @@
 from typing import List
 
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import LightSource
-from matplotlib import cm
 
-from caf import caf
 
 class Emitter: 
     def __init__(self, 
@@ -59,34 +55,18 @@ class Receiver:
         distance = np.linalg.norm(emitter.position - self.position) # meters
         v = np.dot(emitter.velocity, self.position - emitter.position) / distance # velocity in direction of receiver m/s
         
-        f1 = f0 * (c / (c + v)) - f0
+        f1 = v/c * f0 # must be in Hz
 
-        doppler_shifted_signal = signal * np.exp(2 * np.pi * 1j * f1 / self.sample_rate * np.arange(len(signal)))
+        doppler_shifted_signal = signal * np.exp(2j*np.pi*f1*np.arange(0, len(signal)) / self.sample_rate)  
         return doppler_shifted_signal, f1
     
     def add_time_delay(self, 
                        signal: np.ndarray, 
                        emitter: Emitter):
         
-        ''' OR TAKE FFT to get into freq. domain, multiply all signal values by e^{2pi* j * f * tshift} then take ifft. (tshift is in seconds and f is a range of freqs)'''
         c = 299792458.0
         distance = np.linalg.norm(emitter.position - self.position)
         time_delay_seconds = distance / c
-
-        # time_delay_samples = time_delay_seconds * self.sample_rate
-
-        # print(f"Time delay: {time_delay_seconds} seconds - {time_delay_samples} samples")
-        # N = len(signal)
-        # k = np.arange(N)
-        # # time_shift = np.exp( (2 * np.pi * 1j * k * time_delay_samples) / N + time_delay_samples * np.pi * 1j)
-        # time_shift = -np.exp( (2 * np.pi * 1j * k * time_delay_samples) / N)
-        # freq_shift = np.fft.fftshift(time_shift)
-
-        # fft_signal = np.fft.fft(signal)
-        # fft_delay_signal = fft_signal * freq_shift
-        # shift_signal = np.fft.ifft(fft_delay_signal)
-
-        # return shift_signal, time_delay_seconds
 
         time_delay_samples = time_delay_seconds * self.sample_rate
         integer_delay = int(time_delay_samples)
@@ -123,60 +103,14 @@ class Receiver:
         imag_noise = np.random.normal(0, noise_var**2/2, len(signal))
         noise = real_noise + 1j * imag_noise
         return signal + noise
-
-def main():
-    emitter = Emitter(1090e6, np.array([0, 0, 0]), np.array([100, 0, 0]))
-    receiver1 = Receiver(21.80e6, 1e-6, np.array([1000, 0, 0]))
-    receiver2 = Receiver(21.80e6, 1e-6, np.array([-50, 0, 0]))
     
-    message = '1010'
-    symbols = emitter.generate_signal(message)
- 
-    signal1 = receiver1.sample_signal(symbols)
+    def receive(self, 
+                symbols: List[int], 
+                emitter: Emitter):
 
-    doppler_signal1, f1 = receiver1.apply_doppler(signal1, emitter)
-    time_delayed_signal1, t1 = receiver1.add_time_delay(doppler_signal1, emitter)
-    noisy_signal1 = receiver1.add_noise(time_delayed_signal1, emitter)
-
-    signal2 = receiver2.sample_signal(symbols)
-    doppler_signal2, f2 = receiver2.apply_doppler(signal2, emitter)
-    time_delayed_signal2, t2 = receiver2.add_time_delay(doppler_signal2, emitter)
-
-    fig, ax = plt.subplots(2, 1)
-
-    ax[0].plot(np.real(signal1))
-    ax[1].plot(np.real(time_delayed_signal1), c='r')
-    plt.show()
-    noisy_signal2 = receiver2.add_noise(time_delayed_signal2, emitter)
-
-    plt.plot(noisy_signal1)
-    plt.plot(noisy_signal2)
-    plt.show()
-
-    max_caf, tshift_caf, fshift_caf, caf_values = caf(noisy_signal1, noisy_signal2, 80, 800, 250)
-
-    print(f"True time shift: {int((t1 - t2) * receiver1.sample_rate)} samples")
-    print(f"Time shift: {tshift_caf} samples")
-
-    print(f"True freq shift: {f1 - f2} Hz")
-    print(f"Freq shift: {fshift_caf} Hz")
-
-    noisy_signal1 = noisy_signal1[int(tshift_caf):]
-    noisy_signal1 = noisy_signal1 * np.exp(2j * np.pi * fshift_caf * np.arange(len(noisy_signal1)) / receiver1.sample_rate)
-
-    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    X, Y = np.linspace(-6, 6, caf_values.shape[1]), np.linspace(-800, 800, caf_values.shape[0])
-    X, Y = np.meshgrid(X, Y)
-
-    Z = np.abs(caf_values)
-    ls = LightSource(270, 45)
-    rgb = ls.shade(Z, cmap=cm.gist_earth, vert_exag=0.1, blend_mode='soft')
-    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=rgb,
-                       linewidth=0, antialiased=False, shade=False)
-    
-    plt.imshow(np.abs(caf_values), aspect='auto', extent=[-6, 6, -800, 800])
-    plt.show()
-
-
-if __name__ == '__main__':
-    main()
+        signal = self.sample_signal(symbols)
+        # doppler_signal, f = self.apply_doppler(signal, emitter)
+        # time_delayed_signal, t = self.add_time_delay(doppler_signal, emitter)
+        time_delayed_signal, t = self.add_time_delay(signal, emitter) 
+        noisy_signal = self.add_noise(time_delayed_signal, emitter)
+        return noisy_signal, t#, f
