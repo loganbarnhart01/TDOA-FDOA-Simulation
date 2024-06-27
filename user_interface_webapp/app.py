@@ -54,13 +54,13 @@ def contact():
 def upload():
     return render_template('upload.html')
 
+# @app.route('/live', methods=['GET'])
+# def live():
+#     return render_template('live_threejs.html')
+
 @app.route('/live', methods=['GET'])
 def live():
     return render_template('cesium_globe.html')
-
-# @app.route('/custom-geo', methods=['GET'])
-# def custom_geo():
-#     return render_template('custom_geo.html')
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():

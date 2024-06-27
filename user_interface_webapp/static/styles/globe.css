@@ -1,11 +1,12 @@
-@import url("../templates/bucket.css");
-@import url('https://fonts.googleapis.com/css?family=Lato:400,700&display=swap');
+/* @import url("../templates/bucket.css"); */
+/* @import url('https://github.com/CesiumGS/cesium/blob/main/Apps/Sandcastle/templates/bucketRaw.css');
+/* @import url('https://fonts.googleapis.com/css?family=Lato:400,700&display=swap'); */
 
 
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-color:#474772;
+    background-color:#05141a /*#474772;*/
     color: #acacc8;
     display: flex;
     flex-direction: column;
@@ -106,17 +107,18 @@ header {
 }
 
 #cesiumContainer {
-    width: 75%;
+    width: 100%; //changes size of Cesium IDE container
     height: 100%;
-    margin: 0;
+    margin: 0 auto;
     padding: 0;
     display: inline-block;
+    
 }
 
 #cesium2DContainer {
     width: 25%;
     height: 100%;
-    margin: 0;
+    margin: 0 auto; //center the cesium block
     padding: 0;
     display: inline-block;
 }
@@ -142,6 +144,76 @@ header {
 #toolbar .header {
     font-weight: bold;
 } */
+
+#toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(42, 42, 42, 0.8);
+    padding: 4px;
+    border-radius: 4px;
+    z-index: 3;
+}
+
+#toolbar input {
+    vertical-align: middle;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+#toolbar .header {
+    font-weight: bold;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
 
 #loadingOverlay {
     display: none;

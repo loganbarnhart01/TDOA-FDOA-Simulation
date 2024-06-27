@@ -1,347 +1,116 @@
-const viewer = new Cesium.Viewer("cesiumContainer");
+// This example showcases the ability to overlay labels
+// on top of unlabeled imagery.
+//
+// On the left side is Bing Maps Aerial With Labels + unlabeled high
+// resolution Washington DC imagery. The labels are obscured by the
+// DC imagery and can not be turned on or off independently.
+//
+// On the right side is Bing Maps Aerial + unlabeled high resolution
+// Washington DC imagery + Bing Maps Labels Only. The labels
+// are now on top of all imagery in the scene and can be independently
+// shown or hidden based on app configuration and/or camera zoom level.
 
-function addBillboard() {
-  Sandcastle.declare(addBillboard);
+// For this demo, start with all imagery disabled.
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  baseLayer: false,
+  baseLayerPicker: false,
+  infoBox: false,
+});
 
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/Cesium_Logo_overlay.png",
-    },
-  });
-}
+const layers = viewer.imageryLayers;
 
-function setBillboardProperties() {
-  Sandcastle.declare(setBillboardProperties);
+// Add Bing Maps Aerial with Labels to the left panel
+const bingMapsAerialWithLabels = Cesium.ImageryLayer.fromProviderAsync(
+  Cesium.IonImageryProvider.fromAssetId(3)
+);
+bingMapsAerialWithLabels.splitDirection = Cesium.SplitDirection.LEFT;
+layers.add(bingMapsAerialWithLabels);
 
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/Cesium_Logo_overlay.png", // default: undefined
-      show: true, // default
-      pixelOffset: new Cesium.Cartesian2(0, -50), // default: (0, 0)
-      eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
-      horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
-      verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // default: CENTER
-      scale: 2.0, // default: 1.0
-      color: Cesium.Color.LIME, // default: WHITE
-      rotation: Cesium.Math.PI_OVER_FOUR, // default: 0.0
-      alignedAxis: Cesium.Cartesian3.ZERO, // default
-      width: 100, // default: undefined
-      height: 25, // default: undefined
-    },
-  });
-}
+// Add Bing Maps Aerial (unlabeled) to the right panel
+const bingMapsAerial = Cesium.ImageryLayer.fromProviderAsync(
+  Cesium.IonImageryProvider.fromAssetId(2)
+);
+bingMapsAerial.splitDirection = Cesium.SplitDirection.RIGHT;
+layers.add(bingMapsAerial);
 
-function changeBillboardProperties() {
-  Sandcastle.declare(changeBillboardProperties);
+// Add high resolution Washington DC imagery to both panels.
+const imageryLayer = Cesium.ImageryLayer.fromProviderAsync(
+  Cesium.IonImageryProvider.fromAssetId(3827)
+);
+viewer.imageryLayers.add(imageryLayer);
 
-  const entity = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(
-      -75.59777,
-      40.03883,
-      300000.0
-    ),
-    billboard: {
-      image: "../images/Cesium_Logo_overlay.png",
-    },
-  });
+// Add Bing Maps Labels Only to the right panel
+const bingMapsLabelsOnly = Cesium.ImageryLayer.fromProviderAsync(
+  Cesium.IonImageryProvider.fromAssetId(2411391)
+);
+bingMapsLabelsOnly.splitDirection = Cesium.SplitDirection.RIGHT; // Only show to the left of the slider.
+layers.add(bingMapsLabelsOnly);
 
-  const billboard = entity.billboard;
-  billboard.scale = 3.0;
-  billboard.color = Cesium.Color.WHITE.withAlpha(0.25);
-}
+// Zoom to the Washington DC imagery
+// viewer.zoomTo(imageryLayer);
 
-function sizeBillboardInMeters() {
-  Sandcastle.declare(sizeBillboardInMeters);
+// Add a button to toggle the display of the Bing Maps Labels Only layer
+Sandcastle.addToggleButton(
+  "Show Bing Maps Labels Only",
+  true,
+  (checked) => {
+    bingMapsLabelsOnly.show = checked;
+  }
+);
 
-  const entity = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/Cesium_Logo_overlay.png",
-      sizeInMeters: true,
-    },
-  });
+// The remaining code synchronizes the position of the slider with the split position
+const slider = document.getElementById("slider");
+viewer.scene.splitPosition =
+  slider.offsetLeft / slider.parentElement.offsetWidth;
 
-  viewer.zoomTo(entity);
-}
+const handler = new Cesium.ScreenSpaceEventHandler(slider);
 
-function addMultipleBillboards() {
-  Sandcastle.declare(addMultipleBillboards);
+let moveActive = false;
 
-  const logoUrl = "../images/Cesium_Logo_overlay.png";
-  const facilityUrl = "../images/facility.gif";
-
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: logoUrl,
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-80.5, 35.14),
-    billboard: {
-      image: facilityUrl,
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-80.12, 25.46),
-    billboard: {
-      image: facilityUrl,
-    },
-  });
-}
-
-function scaleByDistance() {
-  Sandcastle.declare(scaleByDistance);
-
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/facility.gif",
-      scaleByDistance: new Cesium.NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
-    },
-  });
-}
-
-function fadeByDistance() {
-  Sandcastle.declare(fadeByDistance);
-
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/Cesium_Logo_overlay.png",
-      translucencyByDistance: new Cesium.NearFarScalar(
-        1.5e2,
-        2.0,
-        1.5e7,
-        0.5
-      ),
-    },
-  });
-}
-
-function offsetByDistance() {
-  Sandcastle.declare(offsetByDistance);
-  Promise.all([
-    Cesium.Resource.fetchImage("../images/Cesium_Logo_overlay.png"),
-    Cesium.Resource.fetchImage("../images/facility.gif"),
-  ]).then(function (images) {
-    // as viewer zooms closer to facility billboard,
-    // increase pixelOffset on CesiumLogo billboard to this height
-    const facilityHeight = images[1].height;
-
-    // colocated billboards, separate as viewer gets closer
-    viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-      billboard: {
-        image: images[1],
-        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-      },
-    });
-    viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-      billboard: {
-        image: images[0],
-        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0.0, -facilityHeight),
-        pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
-          1.0e3,
-          1.0,
-          1.5e6,
-          0.0
-        ),
-        translucencyByDistance: new Cesium.NearFarScalar(
-          1.0e3,
-          1.0,
-          1.5e6,
-          0.1
-        ),
-      },
-    });
-  });
-}
-
-function addMarkerBillboards() {
-  Sandcastle.declare(addMarkerBillboards);
-
-  // add billboards from Cesium
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
-    billboard: {
-      image: "../images/whiteShapes.png",
-      imageSubRegion: new Cesium.BoundingRectangle(49, 43, 18, 18),
-      color: Cesium.Color.LIME,
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-84.0, 39.0),
-    billboard: {
-      image: "../images/whiteShapes.png",
-      imageSubRegion: new Cesium.BoundingRectangle(61, 23, 18, 18),
-      color: new Cesium.Color(0, 0.5, 1.0, 1.0),
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-70.0, 41.0),
-    billboard: {
-      image: "../images/whiteShapes.png",
-      imageSubRegion: new Cesium.BoundingRectangle(67, 80, 14, 14),
-      color: new Cesium.Color(0.5, 0.9, 1.0, 1.0),
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-73.0, 37.0),
-    billboard: {
-      image: "../images/whiteShapes.png",
-      imageSubRegion: new Cesium.BoundingRectangle(27, 103, 22, 22),
-      color: Cesium.Color.RED,
-    },
-  });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-79.0, 35.0),
-    billboard: {
-      image: "../images/whiteShapes.png",
-      imageSubRegion: new Cesium.BoundingRectangle(105, 105, 18, 18),
-      color: Cesium.Color.YELLOW,
-    },
-  });
-}
-
-async function disableDepthTest() {
-  Sandcastle.declare(disableDepthTest);
-
-  viewer.scene.globe.depthTestAgainstTerrain = true;
-
-  try {
-    const worldTerrainProvider = await Cesium.createWorldTerrainAsync();
-
-    // Return early in case a different option has been selected in the meantime
-    if (!viewer.scene.globe.depthTestAgainstTerrain) {
-      return;
-    }
-
-    viewer.terrainProvider = worldTerrainProvider;
-  } catch (error) {
-    window.alert(`Failed to load terrain. ${error}`);
+function move(movement) {
+  if (!moveActive) {
+    return;
   }
 
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(-122.1958, 46.1915),
-    billboard: {
-      image: "../images/facility.gif",
-      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY,
-    },
-  });
-  viewer.scene.camera.setView({
-    destination: new Cesium.Cartesian3(
-      -2357576.243142461,
-      -3744417.5604860787,
-      4581807.855903771
-    ),
-    orientation: new Cesium.HeadingPitchRoll(
-      5.9920811504170475,
-      -0.6032820429886212,
-      6.28201303164098
-    ),
-  });
+  const relativeOffset = movement.endPosition.x;
+  const splitPosition =
+    (slider.offsetLeft + relativeOffset) /
+    slider.parentElement.offsetWidth;
+  slider.style.left = `${100.0 * splitPosition}%`;
+  viewer.scene.splitPosition = splitPosition;
 }
 
-Sandcastle.addToolbarMenu([
-  {
-    text: "Add billboard",
-    onselect: function () {
-      addBillboard();
-      Sandcastle.highlight(addBillboard);
-    },
-  },
-  {
-    text: "Set billboard properties at creation",
-    onselect: function () {
-      setBillboardProperties();
-      Sandcastle.highlight(setBillboardProperties);
-    },
-  },
-  {
-    text: "Change billboard properties",
-    onselect: function () {
-      changeBillboardProperties();
-      Sandcastle.highlight(changeBillboardProperties);
-    },
-  },
-  {
-    text: "Size billboard in meters",
-    onselect: function () {
-      sizeBillboardInMeters();
-      Sandcastle.highlight(sizeBillboardInMeters);
-    },
-  },
-  {
-    text: "Add multiple billboards",
-    onselect: function () {
-      addMultipleBillboards();
-      Sandcastle.highlight(addMultipleBillboards);
-    },
-  },
-  {
-    text: "Scale by viewer distance",
-    onselect: function () {
-      scaleByDistance();
-      Sandcastle.highlight(scaleByDistance);
-    },
-  },
-  {
-    text: "Fade by viewer distance",
-    onselect: function () {
-      fadeByDistance();
-      Sandcastle.highlight(fadeByDistance);
-    },
-  },
-  {
-    text: "Offset by viewer distance",
-    onselect: function () {
-      offsetByDistance();
-      Sandcastle.highlight(offsetByDistance);
-    },
-  },
-  {
-    text: "Add marker billboards",
-    onselect: function () {
-      addMarkerBillboards();
-      Sandcastle.highlight(addMarkerBillboards);
-    },
-  },
-  {
-    text: "Disable the depth test when clamped to ground",
-    onselect: function () {
-      disableDepthTest();
-      Sandcastle.highlight(disableDepthTest);
-    },
-  },
-]);
+handler.setInputAction(function () {
+  moveActive = true;
+}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+handler.setInputAction(function () {
+  moveActive = true;
+}, Cesium.ScreenSpaceEventType.PINCH_START);
 
-Sandcastle.reset = async function () {
-  viewer.camera.flyHome(0);
-  viewer.entities.removeAll();
-  viewer.scene.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-  viewer.scene.globe.depthTestAgainstTerrain = false;
-};
+handler.setInputAction(move, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+handler.setInputAction(move, Cesium.ScreenSpaceEventType.PINCH_MOVE);
 
+handler.setInputAction(function () {
+  moveActive = false;
+}, Cesium.ScreenSpaceEventType.LEFT_UP);
+handler.setInputAction(function () {
+  moveActive = false;
+}, Cesium.ScreenSpaceEventType.PINCH_END);
 
-
-// function addFlightPath(startLongitude, startLatitude, endLongitude, endLatitude) {
-//   // function to plot points maybe?
-//   viewer.entities.add({
-//       polyline: {
-//           positions: [
-//               Cesium.Cartesian3.fromDegrees(startLongitude, startLatitude),
-//               Cesium.Cartesian3.fromDegrees(endLongitude, endLatitude)
-//           ],
-//           width: 2,
-//           material: Cesium.Color.RED
-//       }
-//   });
-// }
+// Add the day/night mode toggle functionality
+document.getElementById('dayNightToggle').addEventListener('change', function() {
+  const label = document.getElementById('toggleLabel');
+  if (this.checked) {
+    viewer.scene.skyAtmosphere.hueShift = -0.8;
+    viewer.scene.skyAtmosphere.saturationShift = -0.7;
+    viewer.scene.skyAtmosphere.brightnessShift = -0.33;
+    viewer.scene.globe.enableLighting = true;
+    label.innerText = 'Day Mode';
+  } else {
+    viewer.scene.skyAtmosphere.hueShift = 0.0;
+    viewer.scene.skyAtmosphere.saturationShift = 0.0;
+    viewer.scene.skyAtmosphere.brightnessShift = 0.0;
+    viewer.scene.globe.enableLighting = false;
+    label.innerText = 'Night Mode';
+  }
+});

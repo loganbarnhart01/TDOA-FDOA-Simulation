@@ -1,12 +1,12 @@
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>geoleek Globe</title>
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.89/Build/Cesium/Cesium.js"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/globe.css') }}">
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.89/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 </head>
 <body>
 <header>
@@ -48,4 +48,55 @@
 
 
 
+ -->
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>geoleek Globe</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/globe.css') }}">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <img src="{{ url_for('static', filename='images/leekylogo.png') }}" class="navbar-logo">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/what">What is geoleek?</a></li>
+            <li><a href="/who">Who Are We?</a></li>
+            <li><a href="/why">Why geoleek?</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Track A Flight</a>
+                <div class="dropdown-content">
+                    <a href="/live">Historical Flight Paths</a>
+                    <a href="/upload">Upload ADS-B Data</a>
+                    <a href="/tdoa_sim">Simulate TDOA</a>
+                </div>
+            </li>
+            <li><a href="/contact">Contact Us</a></li>
+        </ul>
+    </nav>
+    <span>
+        <hr style="border-color: #474772;">
+    </span>
+</header>
+
+<video autoplay loop muted playsinline id="video-bg">
+    <source src="{{ url_for('static', filename='video/space.mp4') }}" type="video/mp4">
+</video>
+
+<div id="cesiumContainer" class="fullSize"></div>
+<div id="loadingOverlay"><h1>Loading...</h1></div>
+<!-- <div id="toolbar">
+    <label id="toggleLabel" for="dayNightToggle">Night Mode</label>
+    <input type="checkbox" id="dayNightToggle">
+</div> -->
+
+<script type="module" src="{{ url_for('static', filename='scripts/cesium_globe.js') }}"></script>
+</body>
+</html>
 
