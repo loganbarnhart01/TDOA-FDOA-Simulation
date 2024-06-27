@@ -50,13 +50,13 @@ layers.add(bingMapsLabelsOnly);
 // viewer.zoomTo(imageryLayer);
 
 // Add a button to toggle the display of the Bing Maps Labels Only layer
-Sandcastle.addToggleButton(
-  "Show Bing Maps Labels Only",
-  true,
-  (checked) => {
-    bingMapsLabelsOnly.show = checked;
-  }
-);
+// Sandcastle.addToggleButton(
+//   "Show Bing Maps Labels Only",
+//   true,
+//   (checked) => {
+//     bingMapsLabelsOnly.show = checked;
+//   }
+// );
 
 // The remaining code synchronizes the position of the slider with the split position
 const slider = document.getElementById("slider");
@@ -97,20 +97,64 @@ handler.setInputAction(function () {
   moveActive = false;
 }, Cesium.ScreenSpaceEventType.PINCH_END);
 
-// Add the day/night mode toggle functionality
-document.getElementById('dayNightToggle').addEventListener('change', function() {
-  const label = document.getElementById('toggleLabel');
-  if (this.checked) {
-    viewer.scene.skyAtmosphere.hueShift = -0.8;
-    viewer.scene.skyAtmosphere.saturationShift = -0.7;
-    viewer.scene.skyAtmosphere.brightnessShift = -0.33;
-    viewer.scene.globe.enableLighting = true;
-    label.innerText = 'Day Mode';
-  } else {
-    viewer.scene.skyAtmosphere.hueShift = 0.0;
-    viewer.scene.skyAtmosphere.saturationShift = 0.0;
-    viewer.scene.skyAtmosphere.brightnessShift = 0.0;
-    viewer.scene.globe.enableLighting = false;
-    label.innerText = 'Night Mode';
-  }
+
+//AIRPLANE MODEL CODE
+// Function to create and show a model
+function createModel(url, height) {
+  viewer.entities.removeAll();
+
+  const position = Cesium.Cartesian3.fromDegrees(
+      -123.0744619,
+      44.0503706,
+      height
+  );
+  const heading = Cesium.Math.toRadians(135);
+  const pitch = 0;
+  const roll = 0;
+  const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+  const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+      position,
+      hpr
+  );
+
+  const entity = viewer.entities.add({
+      name: url,
+      position: position,
+      orientation: orientation,
+      model: {
+          uri: url,
+          minimumPixelSize: 128,
+          maximumScale: 20000,
+      },
+  });
+  viewer.trackedEntity = entity;
+}
+
+// Example button to trigger the airplane model
+const airplaneButton = document.createElement('button');
+airplaneButton.textContent = 'Show Airplane';
+airplaneButton.addEventListener('click', function() {
+  createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
 });
+document.getElementById('toolbar').appendChild(airplaneButton);
+
+
+
+//TOGGLE SWITCH FOR DAY?NIGHT MODE
+// Add the day/night mode toggle functionality
+// document.getElementById('dayNightToggle').addEventListener('change', function() {
+//   const label = document.getElementById('toggleLabel');
+//   if (this.checked) {
+//     viewer.scene.skyAtmosphere.hueShift = -0.8;
+//     viewer.scene.skyAtmosphere.saturationShift = -0.7;
+//     viewer.scene.skyAtmosphere.brightnessShift = -0.33;
+//     viewer.scene.globe.enableLighting = true;
+//     label.innerText = 'Day Mode';
+//   } else {
+//     viewer.scene.skyAtmosphere.hueShift = 0.0;
+//     viewer.scene.skyAtmosphere.saturationShift = 0.0;
+//     viewer.scene.skyAtmosphere.brightnessShift = 0.0;
+//     viewer.scene.globe.enableLighting = false;
+//     label.innerText = 'Night Mode';
+//   }
+// });

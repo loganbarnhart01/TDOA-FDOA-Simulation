@@ -1,8 +1,11 @@
-/* base style across all webpages */
+/* base style across all subpages of web application - except for the globe.html file*/
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-color: black;
-    color: blanchedalmond; 
+    background-color: blanchedalmond;
+    color: #1e1e2e;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* makes the page fill the entire screen that is visible */
 }
 
 header {
@@ -11,21 +14,36 @@ header {
 
 .navbar ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
     display: inline-block;
 }
 
 .navbar ul li {
     display: inline-block;
     margin: 0 10px;
+    list-style: none;
 }
 
 .navbar ul li a {
-    color: blanchedalmond;
+    color: #474772; /*color for the nav bar text */
     text-decoration: none;
+    font-weight: bold; /*makes text bold*/
     padding: 10px;
     display: block;
+    font-size: 25px; /* nav bar text size*/
+    transition: 0.8s;
+}
+
+.navbar ul li a:hover{ /* animations for the navigation bar*/
+    -webkit-background-stroke: 2px #474772;
+    background-color: #474772;
+    color: blanchedalmond;
+}
+
+.navbar-logo {
+    max-width: 75px;
+    height: auto;
 }
 
 .dropdown {
@@ -35,9 +53,10 @@ header {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #69793E;
+    background-color: #474772; /* dropdown background color */
+    color: blanchedalmond;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgb(66, 100, 69);
+    box-shadow: 0px 8px 16px 0px rgb(68, 60, 128); /* shadow of box*/
     z-index: 1;
 }
 
@@ -50,107 +69,135 @@ header {
 
 .dropdown:hover .dropdown-content {
     display: block;
+    -webkit-background-stroke: 2px #474772;
+    background-color: #acacc8;
 }
 
-/* button customs */
-button {
-    background-color: #69793E; /* Green background */
-    border: none; /* Remove borders */
-    color: white; /* White text */
-    padding: 15px 32px; /* Padding */
-    text-align: center; /* Center text */
-    text-decoration: none; /* Remove underline */
-    display: inline-block; /* Display as inline-block */
-    font-size: 16px; /* Font size */
-    margin: 4px 2px; /* Margin */
-    transition-duration: 0.4s; /* Transition animation duration */
-    cursor: pointer; /* Cursor pointer on hover */
-  }
+.back-video{
+    position: flex;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
 
-/* Footer Only */
+.content { /*homepage title positioning*/
+    text-align: center;
+    margin-top: 300px; /* margin for the main header */
+}
+
+.content h1 {
+    font-size: 137px;
+    color: #474772;
+    font-weight: 600;
+    transition: 0.8s;
+}
+
+
+/* .content h1:hover{    /*text animation for homepage, main header*/
+    /* -webkit-text-stroke: 2px #474772;
+    color: transparent;
+} */ 
+
+.content h2 {
+    font-size: 100px;
+    color: #474772;
+    font-weight: 600;
+    transition: 0.8s;
+}
+
+
+.content a { /* homepage Track Button */
+    text-decoration: none;
+    display: inline-block;
+    color: #474772;
+    background-color: transparent;
+    font-size: 24px;
+    border: 2px solid #474772;
+    padding: 14px 70px;
+    border-radius: 50px;
+    margin-top: 50px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.content a:hover{ /* homepage Track Button hover animation */
+    -webkit-background-stroke: 2px #474772;
+    background-color: #474772;
+    color: blanchedalmond;
+}
+
+#video-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 40%;
+    z-index: -1;
+}
+
+/* button customs
+button {
+    background-color: #69793E;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+} */
+
+main {
+    flex: 1; /*main content push footer to bottom of page*/
+}
+
+/* footer only */
 footer {
     position: relative;
     text-align: center;
-    padding: 20px;
+    padding: 0px;
     display: flex;
+    border-top: 1px solid black(0, 0, 0);
     flex-direction: column;
-    align-items: right;
+    align-items: center;
+    border-color: #474772;
+    /* margin-bottom: 5px; */
+    margin-top: auto;
 }
 
-footer span {
-    position: relative;
+.footer h4 {
+    margin-bottom: 10px; /* Adjust the bottom margin of the "Follow Us:" text */
+}
+.footer-content {
+    display: flex;
+    justify-content: center;
 }
 
-footer ul {
-    position: relative;
+.footer-content ul {
     list-style-type: none;
     padding: 0;
 }
 
-footer ul li {
+.footer-content ul li {
     display: inline-block;
     margin: 0 5px;
 }
 
-footer ul li img {
-    width: 35px; /* Adjust the width of the images */
-    height: auto; /* Maintain aspect ratio */
-    margin-right: 3px; /* Add spacing between images */
-} 
-
-footer ul li:nth-child(1),
-footer ul li:nth-child(2),
-footer ul li:nth-child(3),
-footer ul li:nth-child(4) {
+.footer-content ul li img {
+    width: 40px;
+    height: auto;
+    margin-right: 3px;
     display: inline-block;
-    margin: 0 5px; /* Adjust margin as needed */
+    border: none;
 }
 
-footer ul li:nth-child(2) img {
-    width: 45px; /* Adjust the width of the third image */
-    height: auto; 
-}
-
-footer ul li:nth-child(3) img {
-    width: 68px; /* Adjust the width of the third image */
-    height: auto; 
-}
-
-footer ul li:nth-child(5) img,
-footer ul li:nth-child(6) img {
-    display: in-line block;
-    width: 190px; /* Adjust the width of the first and second images */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 10px; /* Add spacing between the first two images and the rest */
-}
-
-
-.footer-line {
-    border-bottom: 1px solid black;
-    margin-bottom: 10px;
-}
-
-.follow-us {
-    font-size: 20px;
-    position: absolute;
-    top: -30px; 
-}
-
-/* Animation settings */
-.letter {
+#github,
+#youtube,
+#facebook,
+#instagram
+#linkedin{
     display: inline-block;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fade-in 0.5s forwards;
-}
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    margin: 0 5px;  
 }

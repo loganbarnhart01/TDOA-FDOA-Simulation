@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-color:#05141a /*#474772;*/
+    background-color:#020218; //base background color for page that flashes before globe renderings
     color: #acacc8;
     display: flex;
     flex-direction: column;
@@ -52,7 +52,7 @@ header {
 .navbar ul li a:hover{ /* animations for the navigation bar*/
     /* -webkit-background-stroke: 2px #474772; */
     background-color: #474772;
-    color: blanchedalmond;
+    /* color: blanchedalmond; */
 }
 
 .navbar-logo {
@@ -123,33 +123,14 @@ header {
     display: inline-block;
 }
 
-/* 
-#toolbar {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: #474772;
-    color: blanchedalmond; 
-    padding: 4px;
-    border-radius: 4px;
-    z-index: 1;
-}
-
-#toolbar input {
-    vertical-align: middle;
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-
-#toolbar .header {
-    font-weight: bold;
-} */
 
 #toolbar {
     position: absolute;
     top: 10px;
     left: 10px;
     background: rgba(42, 42, 42, 0.8);
+    color: #8e8ebd;
+    font-size: 25px;
     padding: 4px;
     border-radius: 4px;
     z-index: 3;
@@ -165,7 +146,7 @@ header {
     font-weight: bold;
 }
 
-.toggle-switch {
+/* .toggle-switch {
     display: flex;
     align-items: center;
     color: white;
@@ -205,6 +186,55 @@ header {
     bottom: 4px;
     background-color: white;
     transition: .4s;
+} */
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.slider {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.slider input:checked + .switch {
+    background-color: #2196F3;
+}
+
+.slider input:checked + .switch:before {
+    transform: translateX(26px);
+}
+
+.switch {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.switch:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
 }
 
 input:checked + .slider {
@@ -220,7 +250,7 @@ input:checked + .slider:before {
     display: none;
     position: absolute;
     background-image: radial-gradient(circle at center, rgba(72, 72, 72, 0.8), rgba(22, 22, 22, 0.8));
-    color: white;
+    color: #474772;
     padding: 1em;
     border-radius: 4px;
 }
