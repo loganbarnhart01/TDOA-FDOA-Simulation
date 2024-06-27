@@ -40,10 +40,9 @@ def fft_caf(sig1, sig2, max_time_shift):
     
     max_ind = np.unravel_index(np.argmax(np.abs(caf_out)), caf_out.shape)
 
-    print(max_ind)
-
     time_shift  = time_shifts[max_ind[1]]
-    freq_shift = (K - max_ind[0]) % K / K
+    # freq_shift = (K - max_ind[0]) % K / K
+    freq_shift = (((max_ind[0] + (K // 2)) % K) - (K // 2)) / K
 
     max_mag = np.max(np.abs(caf_out))
     median_mag = np.median(np.abs(caf_out))
