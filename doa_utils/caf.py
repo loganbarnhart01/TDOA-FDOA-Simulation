@@ -1,163 +1,78 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.signal import ZoomFFT, firwin
-from scipy import signal, linalg
 
+def naive_caf(sig1, sig2, max_time_shift, max_freq_shift, num_freqs = 51):
+    assert len(sig1) == len(sig2), "Signals must be the same length."
+    
+    K = len(sig1)
 
-def caf(signal1, signal2, max_time_shift, max_freq_shift, freq_count = 51):
-    assert len(signal1) == len(signal2), "Signals must be the same length"
+    time_shifts = np.arange(-max_time_shift, max_time_shift + 1)
+    freq_shifts = np.linspace(-max_freq_shift, max_freq_shift, num_freqs) / K
 
-    time_shifts = np.arange(0, max_time_shift + 1)
-    freq_shifts = np.linspace(-max_freq_shift, max_freq_shift, freq_count)
-    caf_values = np.zeros((len(time_shifts), len(freq_shifts)), dtype=complex)
-    for i, t in enumerate(time_shifts):
-        for j, f in enumerate(freq_shifts):
-            signal1_shifted = np.roll(signal1, t) * np.exp(2j * np.pi * f * np.arange(len(signal1)))
-            caf_values[i, j] = signal1_shifted @ signal2.conj()
-    caf_values = caf_values.T
-    max_ind = np.unravel_index(np.argmax(np.abs(caf_values)), caf_values.shape)
+    print(time_shifts)
+    print(freq_shifts)
+
+    caf_out = np.zeros((len(freq_shifts), len(time_shifts)), dtype = np.complex128)
+
+    for i, tshift in enumerate(time_shifts):
+        for j, fshift in enumerate(freq_shifts):
+            sig2_shifted = np.roll(sig2, tshift).conj()
+            caf = sig1 * sig2_shifted * np.exp(-2j * np.pi * fshift * np.arange(K))
+            caf_out[j, i] = np.sum(caf)
+
+    max_ind = np.unravel_index(np.argmax(np.abs(caf_out)), caf_out.shape)
     time_shift  = time_shifts[max_ind[1]]
     freq_shift = freq_shifts[max_ind[0]]
-    return np.abs(caf_values[max_ind]), -time_shift, freq_shift, caf_values
 
-def fftconvolve(sig1,sig2,freq_shift=0):
-    tmp1 = np.empty_like(sig1); tmp2 = np.empty_like(sig2)
-    pad_size = np.abs(len(sig2) - len(sig1))
-    if len(sig2) > len(sig1):
-        tmp1 = np.hstack((sig1,np.zeros(pad_size)))
-    elif len(sig1) > len(sig2):
-        tmp2 = np.hstack((sig2,np.zeros(pad_size)))
+    return caf_out, time_shift, freq_shift
 
-    tmp1 = np.hstack((sig1,np.zeros(sig2.size)))
-    tmp2 = np.hstack((sig2,np.zeros(sig1.size)))
-    S1 = np.fft.fftshift(np.fft.fft(tmp1))
-    S2 = np.fft.fftshift(np.fft.fft(tmp2))
-    S1 = np.roll(S1,int(np.round(freq_shift*sig1.size)))
-    return np.fft.ifft(np.fft.ifftshift(S1*S2))
+def fft_caf(sig1, sig2, max_time_shift):
+    assert len(sig1) == len(sig2), "Signals must be the same length."
 
-def corner_turn_caf(signal1, signal2, max_time_shift, max_freq_shift, num_freqs = 51):
+    K = len(sig1)
+    time_shifts = np.arange(-max_time_shift, max_time_shift + 1)
     
-    delays = np.arange(0, max_time_shift)
-    freqs = np.linspace(-max_freq_shift, max_freq_shift, num_freqs)
+    caf_out = np.zeros((K, len(time_shifts)), dtype = np.complex128)
+
+    for i, tshift in enumerate(time_shifts):
+        sig2_shifted = np.roll(sig2, -tshift).conj()
+        caf = np.fft.fft(sig1 * sig2_shifted)
+        caf_out[:, i] = caf
     
-    filt_len = 100
-    t = np.arange(filt_len)
-    fc = 0.5
-    filt = fc / (2*np.pi)*np.sinc(fc * (t - filt_len // 2) / 2)
-    win = signal.windows.bartlett(filt_len)
-    filt = filt * win
+    max_ind = np.unravel_index(np.argmax(np.abs(caf_out)), caf_out.shape)
 
-    L = int(1/fc)
-    R = len(signal1) // L
-    delay_len = len(delays)
-    vjr = np.zeros((delay_len, R), dtype=complex)
+    print(max_ind)
 
-    for r in range(R):
-        fr = filt * signal1.take(np.arange(r*L - filt_len//2, r*L + filt_len//2, 1),mode='wrap')
-        gr = np.conj( signal2.take(np.arange(r*L + delay_len//2, r*L - delay_len//2, -1),mode='wrap') )
+    time_shift  = time_shifts[max_ind[1]]
+    freq_shift = (K - max_ind[0]) % K / K
 
-        vjr[:,r] = fftconvolve(fr, gr)[filt_len//2:-1*filt_len//2]
+    max_mag = np.max(np.abs(caf_out))
+    median_mag = np.median(np.abs(caf_out))
 
-    caf = np.fft.fftshift(np.fft.fft(vjr, axis=1), axes=1)
-    caf = caf.T
-    max_ind = np.unravel_index(np.argmax(np.abs(caf)), caf.shape)
-    print(caf.shape)
-    print(len(freqs))
-    print(len(delays))
-    time_shift  = delays[max_ind[1]]
-    freq_shift = freqs[max_ind[0]]
-    
-    plt.imshow(np.abs(caf), aspect=vjr.shape[0]/vjr.shape[1])
-    plt.show()
+    return caf_out, time_shift, freq_shift, max_mag, median_mag
 
-    return caf, time_shift, freq_shift
+def convolution_caf(sig1, sig2, num_freq_shifts = 51):
+    assert len(sig1) == len(sig2), "Signals must be the same length."
 
+    K = len(sig1)
 
-# def corner_turn_caf(signal1, signal2, max_time_shift, max_freq_shift, sampling_freq = 2, num_freqs = 51):
-#     '''
-#     corner turn caf
+    freq_sig1 = np.fft.fft(sig1)
+    freq_sig2 = np.fft.fft(sig2)
+    freq_sig2_conj = freq_sig2.conj()
 
-#     Parameters
+    caf_out = np.zeros((K, num_freq_shifts // 2), dtype = np.complex128)
 
-#         signal1: np.ndarray, first signal
-#         signal2: np.ndarray, second signal
-#         max_time_shift: int, maximum time shift
-#         max_freq_shift: float, maximum frequency shift
-#         sampling_freq: float, sampling frequency - if sampling freq is 10kHz then max_freq_shift must be in kHz
-#     '''
-#     assert len(signal1) == len(signal2), "Signals must be the same length"
+    for i in range(num_freq_shifts // 2):
+        sig1_shifted = np.roll(freq_sig1, i)
+        sig2_shifted = np.roll(freq_sig2_conj, -i)
+        caf = np.fft.ifft(sig1_shifted * sig2_shifted)
+        caf_out[:, i] = caf
 
-#     K = len(signal1)
-#     R = 2 * max_freq_shift + 1
-#     L = int(K / R)
-    
-#     print(K)
-#     print(L, R)
-    
-#     time_shifts = np.arange(0, max_time_shift + 1)
-#     freq_shifts = np.linspace(-max_freq_shift, max_freq_shift, num_freqs)
+    max_ind = np.unravel_index(np.argmax(np.abs(caf_out)), caf_out.shape)
 
-#     zoom_fft = ZoomFFT(R, [-max_freq_shift, max_freq_shift], fs = sampling_freq)
-  
-#     cutoff = 1/L
-#     num_coeffs = 100
-#     fir_filter = firwin(num_coeffs, cutoff, pass_zero="lowpass")
+    time_shift  = (K - max_ind[0]) % (K)
+    freq_shift = max_ind[1] / K * 2
 
-   
-#     v = np.zeros(len(time_shifts), R)
-#     F = np.zeros(R)
-#     G = np.zeros(R)
-    
-#     for r in range(R):
-#         F[r] = np.array([fir_filter[m] * signal1[r*L - m] for m in range(num_coeffs)])
-#         G[r] = np.array([signal2[r*L - j] for j in time_shifts])
-    
-#     for r in range(R):
-#         v[:,r] = np.convolve(F[r], G[r], mode= 'same')
+    max_mag = np.max(np.abs(caf_out))
+    median_mag = np.median(np.abs(caf_out))
 
-#     caf_vals = np.zeros( (len(time_shifts), len(freq_shifts)), dtype=complex)
-#     for r in range(R):
-#         caf_vals[:, r] = zoom_fft(v[:, r])
-
-#     return caf_vals
-
-
-def test_corner_turn_caf():
-    sig1 = np.random.randn(1024) + 1j * np.random.randn(1024)
-    caf, time_shift, freq_shift = corner_turn_caf(sig1, sig1, 10, 100)
-    
-    print(time_shift, freq_shift)
-
-
-def test_caf():
-    sig1 = np.random.randn(1024) + 1j * np.random.randn(1024)
-    
-    caf_peak, tshift, fshift, caf_out1= caf(sig1, sig1, 10, .5)
-    print(tshift, fshift)
-
-    sig2 = np.roll(sig1, 2)
-
-    caf_peak, tshift, fshift, caf_out2= caf(sig1, sig2, 10, .5)
-    print(tshift, fshift)
-
-    sig3 = sig1 *  np.exp(1j * 2 * np.pi * .1 * np.arange(len(sig2)))
-
-    caf_peak, tshift, fshift, caf_out3= caf(sig1, sig3, 10, .5)
-    print(tshift, fshift)
-
-    plt.subplot(2,2,1)
-    plt.imshow(np.abs(caf_out1), origin='lower', aspect = 'auto')
-    plt.xlabel("time")
-    plt.ylabel("frequency")
-    plt.subplot(2,2,3)
-    plt.imshow(np.abs(caf_out2), origin='lower', aspect = 'auto')
-    plt.xlabel("time")
-    plt.ylabel("frequency")
-    plt.subplot(2,2,2)
-    plt.imshow(np.abs(caf_out3), origin='lower', aspect = 'auto')
-    plt.xlabel("time")
-    plt.ylabel("frequency")
-    plt.show()
-
-if __name__ == '__main__':
-    test_corner_turn_caf()
+    return caf_out, time_shift, freq_shift, max_mag, median_mag
