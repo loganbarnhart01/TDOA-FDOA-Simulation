@@ -1,12 +1,8 @@
-/* @import url("../templates/bucket.css"); */
-/* @import url('https://github.com/CesiumGS/cesium/blob/main/Apps/Sandcastle/templates/bucketRaw.css');
-/* @import url('https://fonts.googleapis.com/css?family=Lato:400,700&display=swap'); */
-
-
+/* Your existing styles */
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-color:#020218; //base background color for page that flashes before globe renderings
+    background-color:#020218; /* base background color for page that flashes before globe renderings */
     color: #acacc8;
     display: flex;
     flex-direction: column;
@@ -40,19 +36,17 @@ header {
 }
 
 .navbar ul li a {
-    color: #8e8ebd; /*color for the nav bar text */
+    color: #8e8ebd; /* color for the nav bar text */
     text-decoration: none;
-    font-weight: bold; /*makes text bold*/
+    font-weight: bold; /* makes text bold */
     padding: 10px;
     display: block;
-    font-size: 25px; /* nav bar text size*/
+    font-size: 25px; /* nav bar text size */
     transition: 0.8s;
 }
 
-.navbar ul li a:hover{ /* animations for the navigation bar*/
-    /* -webkit-background-stroke: 2px #474772; */
+.navbar ul li a:hover { /* animations for the navigation bar */
     background-color: #474772;
-    /* color: blanchedalmond; */
 }
 
 .navbar-logo {
@@ -70,7 +64,7 @@ header {
     background-color: #474772; /* dropdown background color */
     color: blanchedalmond;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgb(68, 60, 128); /* shadow of box*/
+    box-shadow: 0px 8px 16px 0px rgb(68, 60, 128); /* shadow of box */
     z-index: 1;
 }
 
@@ -83,7 +77,6 @@ header {
 
 .dropdown:hover .dropdown-content {
     display: block;
-    /* -webkit-background-stroke: 2px #474772; */
     background-color: #34345d;
 }
 
@@ -101,28 +94,18 @@ header {
     background-size: cover;
 }
 
-.content { /*homepage title positioning*/
+.content { /* homepage title positioning */
     text-align: center;
     margin-top: 300px; /* margin for the main header */
 }
 
 #cesiumContainer {
-    width: 100%; //changes size of Cesium IDE container
+    width: 100%; /* changes size of Cesium IDE container */
     height: 100%;
     margin: 0 auto;
     padding: 0;
     display: inline-block;
-    
 }
-
-#cesium2DContainer {
-    width: 25%;
-    height: 100%;
-    margin: 0 auto; //center the cesium block
-    padding: 0;
-    display: inline-block;
-}
-
 
 #toolbar {
     position: absolute;
@@ -134,30 +117,35 @@ header {
     padding: 4px;
     border-radius: 4px;
     z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10x;
+}
+
+#toolbar .toggle-container {
+    display: flex;
+    align-items: center;
+    border:none;
 }
 
 #toolbar input {
     vertical-align: middle;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    /* padding-top: 2px;
+    padding-bottom: 2px; */
+    border:none;
 }
 
 #toolbar .header {
     font-weight: bold;
 }
 
-/* .toggle-switch {
-    display: flex;
-    align-items: center;
-    color: white;
-}
-
 .switch {
     position: relative;
     display: inline-block;
-    width: 34px;
-    height: 20px;
+    width: 60px;
+    height: 34px;
     margin-left: 10px;
+    border: none;
 }
 
 .switch input {
@@ -172,81 +160,55 @@ header {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: .4s;
-    border-radius: 20px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 12px;
-    width: 12px;
-    border-radius: 50%;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-} */
-
-.toggle-switch {
-    display: flex;
-    align-items: center;
-    color: white;
-}
-
-.toggle-switch input {
-    display: none;
-}
-
-.slider {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-}
-
-.slider input:checked + .switch {
-    background-color: #2196F3;
-}
-
-.slider input:checked + .switch:before {
-    transform: translateX(26px);
-}
-
-.switch {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 34px;
 }
 
-.switch:before {
+.slider:before {
     position: absolute;
     content: "";
     height: 26px;
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
-    transition: .4s;
+    background-color: rgb(136, 118, 164);
+    transition: 0.4s;
     border-radius: 50%;
 }
 
 input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #474772;
 }
 
 input:checked + .slider:before {
-    transform: translateX(14px);
+    transform: translateX(26px);
+}
+
+/* Optional: Add focus styles for accessibility */
+input:focus + .slider {
+    box-shadow: 0 0 1px #0f7093;
+}
+
+#renderAirplaneButton {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    padding: 10px 25px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 14px; 
+    margin-right: 10px;  
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+#renderAirplaneButton:hover {
+    background-color: rgba(255, 255, 255, 0.3); /* less transparent on hover */
+    border-color: rgba(255, 255, 255, 0.7); /* Less transparent border on hover */
 }
 
 #loadingOverlay {
-    display: none;
     display: none;
     position: absolute;
     background-image: radial-gradient(circle at center, rgba(72, 72, 72, 0.8), rgba(22, 22, 22, 0.8));
@@ -254,4 +216,3 @@ input:checked + .slider:before {
     padding: 1em;
     border-radius: 4px;
 }
-
