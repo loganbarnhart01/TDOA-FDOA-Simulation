@@ -59,46 +59,85 @@ layers.add(bingMapsLabelsOnly);
 // );
 
 // The remaining code synchronizes the position of the slider with the split position
-const slider = document.getElementById("slider");
-viewer.scene.splitPosition =
-  slider.offsetLeft / slider.parentElement.offsetWidth;
+// const slider = document.getElementById("slider");
+// viewer.scene.splitPosition =
+//   slider.offsetLeft / slider.parentElement.offsetWidth;
 
-const handler = new Cesium.ScreenSpaceEventHandler(slider);
+// const handler = new Cesium.ScreenSpaceEventHandler(slider);
 
-let moveActive = false;
+// let moveActive = false;
 
-function move(movement) {
-  if (!moveActive) {
-    return;
-  }
+// function move(movement) {
+//   if (!moveActive) {
+//     return;
+//   }
 
-  const relativeOffset = movement.endPosition.x;
-  const splitPosition =
-    (slider.offsetLeft + relativeOffset) /
-    slider.parentElement.offsetWidth;
-  slider.style.left = `${100.0 * splitPosition}%`;
-  viewer.scene.splitPosition = splitPosition;
+//   const relativeOffset = movement.endPosition.x;
+//   const splitPosition =
+//     (slider.offsetLeft + relativeOffset) /
+//     slider.parentElement.offsetWidth;
+//   slider.style.left = `${100.0 * splitPosition}%`;
+//   viewer.scene.splitPosition = splitPosition;
+// }
+
+// handler.setInputAction(function () {
+//   moveActive = true;
+// }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+// handler.setInputAction(function () {
+//   moveActive = true;
+// }, Cesium.ScreenSpaceEventType.PINCH_START);
+
+// handler.setInputAction(move, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+// handler.setInputAction(move, Cesium.ScreenSpaceEventType.PINCH_MOVE);
+
+// handler.setInputAction(function () {
+//   moveActive = false;
+// }, Cesium.ScreenSpaceEventType.LEFT_UP);
+// handler.setInputAction(function () {
+//   moveActive = false;
+// }, Cesium.ScreenSpaceEventType.PINCH_END);
+
+// Define the black marble layer and await its loading in an async function.
+let blackMarbleLayer;
+
+async function loadBlackMarbleLayer() {
+  blackMarbleLayer = await Cesium.ImageryLayer.fromProviderAsync(
+    Cesium.IonImageryProvider.fromAssetId(3812)
+  );
 }
 
-handler.setInputAction(function () {
-  moveActive = true;
-}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-handler.setInputAction(function () {
-  moveActive = true;
-}, Cesium.ScreenSpaceEventType.PINCH_START);
+loadBlackMarbleLayer();
 
-handler.setInputAction(move, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-handler.setInputAction(move, Cesium.ScreenSpaceEventType.PINCH_MOVE);
+// Event listener for the day/night mode toggle functionality.
+document.getElementById('dayNightToggle').addEventListener('change', function () {
+  const label = document.getElementById('toggleLabel');
+  if (this.checked) {
+    viewer.scene.skyAtmosphere.hueShift = -0.8;
+    viewer.scene.skyAtmosphere.saturationShift = -0.7;
+    viewer.scene.skyAtmosphere.brightnessShift = -0.33;
+    viewer.scene.globe.enableLighting = false;
+    label.innerText = 'Day Mode';
 
-handler.setInputAction(function () {
-  moveActive = false;
-}, Cesium.ScreenSpaceEventType.LEFT_UP);
-handler.setInputAction(function () {
-  moveActive = false;
-}, Cesium.ScreenSpaceEventType.PINCH_END);
+    // Add the black marble layer for night mode.
+    if (blackMarbleLayer) {
+      layers.add(blackMarbleLayer);
+    }
+  } else {
+    viewer.scene.skyAtmosphere.hueShift = 0.0;
+    viewer.scene.skyAtmosphere.saturationShift = 0.0;
+    viewer.scene.skyAtmosphere.brightnessShift = 0.0;
+    viewer.scene.globe.enableLighting = false;
+    label.innerText = 'Night Mode';
 
+    // Remove the black marble layer.
+    if (blackMarbleLayer) {
+      layers.remove(blackMarbleLayer);
+    }
+  }
+});
 
 //AIRPLANE MODEL CODE
+// Function to create and show a model
 // Function to create and show a model
 function createModel(url, height) {
   viewer.entities.removeAll();
@@ -130,31 +169,50 @@ function createModel(url, height) {
   viewer.trackedEntity = entity;
 }
 
-// Example button to trigger the airplane model
+// Button to trigger the airplane model
 const airplaneButton = document.createElement('button');
-airplaneButton.textContent = 'Show Airplane';
+airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
+airplaneButton.textContent = 'Render Airplane';
 airplaneButton.addEventListener('click', function() {
   createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
 });
-document.getElementById('toolbar').appendChild(airplaneButton);
+
+// Append the button to the beginning of the Cesium viewer toolbar
+const toolbar = document.querySelector('.cesium-viewer-toolbar');
+toolbar.insertBefore(airplaneButton, toolbar.firstChild);
 
 
+//   const position = Cesium.Cartesian3.fromDegrees(
+//       -123.0744619,
+//       44.0503706,
+//       height
+//   );
+//   const heading = Cesium.Math.toRadians(135);
+//   const pitch = 0;
+//   const roll = 0;
+//   const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+//   const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+//       position,
+//       hpr
+//   );
 
-//TOGGLE SWITCH FOR DAY?NIGHT MODE
-// Add the day/night mode toggle functionality
-// document.getElementById('dayNightToggle').addEventListener('change', function() {
-//   const label = document.getElementById('toggleLabel');
-//   if (this.checked) {
-//     viewer.scene.skyAtmosphere.hueShift = -0.8;
-//     viewer.scene.skyAtmosphere.saturationShift = -0.7;
-//     viewer.scene.skyAtmosphere.brightnessShift = -0.33;
-//     viewer.scene.globe.enableLighting = true;
-//     label.innerText = 'Day Mode';
-//   } else {
-//     viewer.scene.skyAtmosphere.hueShift = 0.0;
-//     viewer.scene.skyAtmosphere.saturationShift = 0.0;
-//     viewer.scene.skyAtmosphere.brightnessShift = 0.0;
-//     viewer.scene.globe.enableLighting = false;
-//     label.innerText = 'Night Mode';
-//   }
+//   const entity = viewer.entities.add({
+//       name: url,
+//       position: position,
+//       orientation: orientation,
+//       model: {
+//           uri: url,
+//           minimumPixelSize: 128,
+//           maximumScale: 20000,
+//       },
+//   });
+//   viewer.trackedEntity = entity;
+// }
+
+// // button to trigger the airplane model
+// const airplaneButton = document.createElement('button');
+// // airplaneButton.textContent = 'Show Airplane';
+// airplaneButton.addEventListener('click', function() {
+//   createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
 // });
+// document.getElementById('toolbar').appendChild(airplaneButton);

@@ -1,7 +1,4 @@
-<!--
-
-
- <!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -42,15 +39,26 @@
 <div id="cesiumContainer" class="fullSize"></div>
 <div id="loadingOverlay"><h1>Loading...</h1></div>
 <div id="toolbar">
-    <label id="toggleLabel" for="dayNightToggle">Night Mode</label>
-    <input type="checkbox" id="dayNightToggle">
-</div> 
+    <div class="toggle-container">
+        <label id="toggleLabel" for="dayNightToggle">Night Mode</label>
+        <label class="switch">
+            <input type="checkbox" id="dayNightToggle">
+            <span class="slider round"></span>
+        </label>
+    </div>
+        <button id="airplaneButton">Render Airplane</button>
+</div>
+   
 
+<label id="toggleLabel" for="dayNightToggle">Night Mode</label>
+    <label class="switch">
+        <input type="checkbox" id="dayNightToggle">
+        <span class="slider round"></span>
+    </label> 
+   
 <script type="module" src="{{ url_for('static', filename='scripts/cesium_globe.js') }}"></script>
 </body>
-</html>
-
--->
+</html> -->
 
 
 <!DOCTYPE html>
@@ -81,6 +89,7 @@
             </li>
             <li><a href="/contact">Contact Us</a></li>
         </ul>
+       
     </nav>
     <span>
         <hr style="border-color: #474772;">
@@ -94,10 +103,18 @@
 <div id="cesiumContainer" class="fullSize"></div>
 <div id="loadingOverlay"><h1>Loading...</h1></div>
 <div id="toolbar">
-    <label id="toggleLabel" for="dayNightToggle">Night Mode</label>
-    <input type="checkbox" id="dayNightToggle">
+    <div class="toggle-container">
+        <label id="toggleLabel" for="dayNightToggle">Night Mode</label>
+        <label class="switch">
+            <input type="checkbox" id="dayNightToggle">
+            <span class="slider round"></span>
+        </label>
+    </div>
 </div>
 
 <script type="module" src="{{ url_for('static', filename='scripts/cesium_globe.js') }}"></script>
 </body>
 </html>
+
+
+
