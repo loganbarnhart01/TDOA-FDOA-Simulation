@@ -15,9 +15,14 @@ def simulate_doa(emitter_position: np.ndarray,
                  emitter_freq: Optional[int] = 1090e6, 
                  sampling_rate: Optional[int] = 21.80e6,
                  bit_duration: Optional[float] = 1e-6, 
+                 cartesian: Optional[bool] = True
                  ):
     
     assert len(receiver_positions) >= 4, "At least 4 receivers are needed to simulate DOA in 3d"
+
+    if not cartesian:
+        pass 
+        # convert to cartesian
 
     if message is None:
         message = ''.join([random.choice('01') for _ in range(10000)])
@@ -57,6 +62,10 @@ def simulate_doa(emitter_position: np.ndarray,
     fft_vel_error = np.linalg.norm(fft_vel - emitter_velocity)
     conv_pos_error = np.linalg.norm(conv_pos - emitter_position)
     conv_vel_error = np.linalg.norm(conv_vel - emitter_velocity)
+
+    if not cartesian:
+        pass
+        #convert back to lat long
 
     return fft_pos, fft_vel, conv_pos, conv_vel
     
