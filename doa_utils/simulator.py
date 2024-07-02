@@ -3,6 +3,7 @@ from typing import Optional, List
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import pymap3d as pm
 
 from signal_generator import Emitter, Receiver
 from caf import convolution_caf, fft_caf
@@ -21,9 +22,11 @@ def simulate_doa(emitter_position: np.ndarray,
     assert len(receiver_positions) >= 4, "At least 4 receivers are needed to simulate DOA in 3d"
 
     if not cartesian:
-        pass 
-        # convert to cartesian
-
+        # assuming velocity is already in east north up format. 
+        lat0, lon0, h0 = receiver_positions[0]
+        emitter_position = pm.geodetic2ecef(*emitter_position, lat0, lon0, h0)
+        receiver_positions = [pm.geodetic2ecef(*pos, lat0, lon0, h0) for pos in receiver_positions]
+        
     if message is None:
         message = ''.join([random.choice('01') for _ in range(10000)])
     
@@ -64,8 +67,9 @@ def simulate_doa(emitter_position: np.ndarray,
     conv_vel_error = np.linalg.norm(conv_vel - emitter_velocity)
 
     if not cartesian:
-        pass
-        #convert back to lat long
+        fft_pos = pm.enu2geodetic(*fft_pos, lat0, lon0, h0)
+        conv_pos = pm.enu2geodetic(*conv_pos, lat0, lon0, h0)
+        # still assuming we're good with enu velocity. 
 
     return fft_pos, fft_vel, conv_pos, conv_vel
     
