@@ -24,8 +24,8 @@ def simulate_doa(emitter_position: np.ndarray,
     if not cartesian:
         # assuming velocity is already in east north up format. 
         lat0, lon0, h0 = receiver_positions[0]
-        emitter_position = pm.geodetic2ecef(*emitter_position, lat0, lon0, h0)
-        receiver_positions = [pm.geodetic2ecef(*pos, lat0, lon0, h0) for pos in receiver_positions]
+        emitter_position = pm.geodetic2enu(*emitter_position, lat0, lon0, h0)
+        receiver_positions = [pm.geodetic2enu(*pos, lat0, lon0, h0) for pos in receiver_positions]
         
     if message is None:
         message = ''.join([random.choice('01') for _ in range(10000)])
