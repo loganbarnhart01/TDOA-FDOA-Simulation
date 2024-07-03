@@ -18,7 +18,7 @@ def update_flight(data, cursor, timestamp):
         SELECT 1 FROM data WHERE icao = %s
     ''', (pms.icao(data),))
     if cursor.fetchone() is None:                               ## flight does not exist yet
-        if (pms.decoder.adsb.oe_flag(data)):                   ## 54th bit denotes whether a bit is even or odd (0 and 1, respectively)       
+        if (pms.decoder.adsb.oe_flag(data) == 0):                   ## 54th bit denotes whether a bit is even or odd (0 and 1, respectively)       
             create_flight(cursor, pms.icao(data), data, None, None, None, timestamp, None)
         else:                                                   ## data must be odd
             create_flight(cursor, pms.icao(data), None, data, None, None, None, timestamp)
@@ -97,14 +97,14 @@ def main():
         try: 
             with open(args.file, "r") as file:
                 data = file.read().split('*')
-                for data in data:
-                    print(data)
-                    if (data == ''):
+                for thing in data:
+                    ## print(data)
+                    if (thing == ''):
                         continue
-                    data, timestamp = data.split(',')
-                    
-                    if (pms.typecode(data) > 5 and pms.typecode(data) < 23 and pms.typecode(data) != 19):
-                        process_data(data, cursor, timestamp)
+                    msg, timestamp = thing.split(',')
+                    print(msg)
+                    if ((pms.df(msg) == 17 or pms.df(msg) == 18) and pms.typecode(msg) > 5 and pms.typecode(msg) < 23 and pms.typecode(msg) != 19):
+                        process_data(msg, cursor, timestamp) 
                     conn.commit()
             conn.close()
         except FileNotFoundError:
@@ -126,7 +126,7 @@ def main():
                     dt = datetime.now()
                     timestamp = int(time.mktime(dt.timetuple()))
                     if ((pms.df(data) == 17 or pms.df(data) == 18) and pms.typecode(data) > 5 and pms.typecode(data) < 23 and pms.typecode(data) != 19):
-                        process_data(data, cursor, timestamp) 
+                        process_data(data, cursor, int(timestamp)) 
                 conn.commit()
         except KeyboardInterrupt:
             print("\nInterrupted, closing sockets.")
