@@ -68,7 +68,6 @@ def live_data():
     globe_json = render_live_plot( data )
     return globe_json
 
-
 @app.route('/2D-curve-rendering', methods=['GET'])
 def curve_sim():
     return render_template('2D_rendering.html')
