@@ -1,16 +1,13 @@
-<!-- this2D_rendering.html file   
-Accessed from the "Locate A Flight" drop down in the navigation bar and then select "2-D Curve Rendering"
--->
-
-<!DOCTYPE html> <!-- tells the browser to use the most up to date version of html available -->
-<html lang="en"> 
-<head> <!-- #contains information about the document - not displayed in browser - used to set header or description (optional) */ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="2d Curve Rendering" content="curve simulation">
-    <title>Curve Rendering</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>T/FDOA Rendering</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/graph.css') }}">
 </head>
-<body> 
+<body>
     <header>
         <nav class="navbar">
             <img src="{{ url_for('static', filename='images/leekylogo_lightmode.png')}}"class="navbar-logo">
@@ -36,6 +33,7 @@ Accessed from the "Locate A Flight" drop down in the navigation bar and then sel
         </span>
 
         <h2 style="margin-top: 40px;">Curve Rendering</h2>    <!--text on screen starts here-->
+        <h2 style="margin-top: 40px;">Curve Rendering</h2>   
         
         <!-- <div class="content">
             <h2>Contact Us</h2>
@@ -48,8 +46,22 @@ Accessed from the "Locate A Flight" drop down in the navigation bar and then sel
         <main>
            
         </main>
-        
-    </header>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <figure class="highcharts-figure">
+        <div id="container"></div>
+        <p class="highcharts-description">
+            Chart allowing users to update the data by clicking in the chart area.
+            Clicking an existing point will remove it.
+        </p>
+    </figure>
+
+    <script src="{{ url_for('static', filename='scripts/chart.js') }}"></script>
+
     <footer>
         <span>
             <div class="footer">
@@ -79,5 +91,5 @@ Accessed from the "Locate A Flight" drop down in the navigation bar and then sel
             </div>
         </span>
     </footer>    
-</body> 
+</body>
 </html>
