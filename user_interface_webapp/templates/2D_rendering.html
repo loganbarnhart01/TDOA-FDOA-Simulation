@@ -8,7 +8,7 @@ Accessed from the "Locate A Flight" drop down in the navigation bar and then sel
     <meta charset="UTF-8">
     <meta name="2d Curve Rendering" content="curve simulation">
     <title>Curve Rendering</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/graph.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body> 
@@ -51,47 +51,31 @@ Accessed from the "Locate A Flight" drop down in the navigation bar and then sel
         </main>
         
     </header>
-    </header>
-    <main>
         <div id="sketch-holder"></div> <!-- Placeholder for the p5.js sketch -->
-    </main>
-    <footer>
-        <!-- Footer content -->
-    </footer>
-
-    <script>
-        let points = [];
-        function setup() {
-            createCanvas(400, 400);
-            background(200);
-        }
-
-        function draw() {
-            background(200);
-            fill(255, 0, 0);
-            if (points.length == 4) {
-                // Illustrative: You might want to perform a more complex rendering here.
-                beginShape();
-                points.forEach(pt => {
-                    vertex(pt.x, pt.y);
-                    ellipse(pt.x, pt.y, 10, 10);
-                });
-                endShape(CLOSE);
-            } else {
-                points.forEach(pt => {
-                    ellipse(pt.x, pt.y, 10, 10);
-                });
+        <script>
+            function setup() {
+                let canvas = createCanvas(600, 600);
+                canvas.parent('sketch-holder');
+                background(230);
+                drawGrid();
             }
-        }
 
-        function mouseClicked() {
-            if (points.length < 4) {
-                points.push(createVector(mouseX, mouseY));
-            } else {
-                points = []; // Reset after 4 points
+            function drawGrid() {
+                stroke(180);
+                for (let x = 0; x < width; x += width / 20) {
+                    line(x, 0, x, height);
+                }
+                for (let y = 0; y < height; y += height / 20) {
+                    line(0, y, width, y);
+                }
             }
-        }
-    </script>
+
+            function mouseClicked() {
+                fill('red');
+                noStroke();
+                ellipse(mouseX, mouseY, 10, 10); // Draw red circle at mouse position
+            }
+        </script>
     <footer>
         <span>
             <div class="footer">
