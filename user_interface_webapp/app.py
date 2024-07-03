@@ -68,15 +68,16 @@ def live_data():
     globe_json = render_live_plot( data )
     return globe_json
 
-@app.route('/tdoa-sim', methods=['GET'])
-def tdoa_sim():
-    return render_template('simulator.html')
 
-@app.route('/tdoa-data', methods=['GET', 'POST'])
-def tdoa_data():
-    input_data = request.json
-    globe_json = render_tdoa_plot(input_data)
-    return globe_json
+@app.route('/2D-curve-rendering', methods=['GET'])
+def curve_sim():
+    return render_template('2D_rendering.html')
+
+# @app.route('/2D-curve-rendering', methods=['GET', 'POST'])
+# def curve_data():
+#     input_data = request.json
+#     globe_json = render_tdoa_plot(input_data)
+#     return globe_json
 
 @app.route('/get-elevation', methods=["POST"])
 def get_elevation():

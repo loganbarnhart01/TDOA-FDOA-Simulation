@@ -47,63 +47,9 @@ const bingMapsLabelsOnly = Cesium.ImageryLayer.fromProviderAsync(
 bingMapsLabelsOnly.splitDirection = Cesium.SplitDirection.RIGHT; // Only show to the left of the slider.
 layers.add(bingMapsLabelsOnly);
 
-// const airplane = new Cesium.Viewer('cesiumContainer'); //airplane controls
-// initializeAirplaneControls(airplane);
 
-// Zoom to the Washington DC imagery
-// viewer.zoomTo(imageryLayer);
-
-// Add a button to toggle the display of the Bing Maps Labels Only layer
-// Sandcastle.addToggleButton(
-//   "Show Bing Maps Labels Only",
-//   true,
-//   (checked) => {
-//     bingMapsLabelsOnly.show = checked;
-//   }
-// );
-
-// The remaining code synchronizes the position of the slider with the split position
-// const slider = document.getElementById("slider");
-// viewer.scene.splitPosition =
-//   slider.offsetLeft / slider.parentElement.offsetWidth;
-
-// const handler = new Cesium.ScreenSpaceEventHandler(slider);
-
-// let moveActive = false;
-
-// function move(movement) {
-//   if (!moveActive) {
-//     return;
-//   }
-
-//   const relativeOffset = movement.endPosition.x;
-//   const splitPosition =
-//     (slider.offsetLeft + relativeOffset) /
-//     slider.parentElement.offsetWidth;
-//   slider.style.left = `${100.0 * splitPosition}%`;
-//   viewer.scene.splitPosition = splitPosition;
-// }
-
-// handler.setInputAction(function () {
-//   moveActive = true;
-// }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-// handler.setInputAction(function () {
-//   moveActive = true;
-// }, Cesium.ScreenSpaceEventType.PINCH_START);
-
-// handler.setInputAction(move, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-// handler.setInputAction(move, Cesium.ScreenSpaceEventType.PINCH_MOVE);
-
-// handler.setInputAction(function () {
-//   moveActive = false;
-// }, Cesium.ScreenSpaceEventType.LEFT_UP);
-// handler.setInputAction(function () {
-//   moveActive = false;
-// }, Cesium.ScreenSpaceEventType.PINCH_END);
-
-
-// DARK MODE IMPLEMENTATION
-// Define the black marble layer and await its loading in an async function.
+// DARK MODE IMPLEMENTATION - note that the map renders in night mode but the city & road features are no longer visible. 
+// init black marble layer and await its loading in an async function.
 let blackMarbleLayer;
 
 async function loadBlackMarbleLayer() {
@@ -144,7 +90,7 @@ document.getElementById('dayNightToggle').addEventListener('change', function ()
 
 
 
-// BUTTON & DOUBLE RIGHTLEFT CLICK TO ADD AIRCRAFT (emitter)
+// BUTTON & DOUBLE LEFT CLICK TO ADD AIRCRAFT (emitter) once 4 collectors have been placed
 function renderAirplane() {
 const airplaneButton = document.createElement('button');
 airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
