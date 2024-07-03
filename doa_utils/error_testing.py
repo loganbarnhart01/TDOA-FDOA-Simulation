@@ -112,19 +112,17 @@ def main():
 
     cov = np.eye(4)
     # Fill diagonal with true expected errors
-    cov[0,0] = 1
-    cov[1,1] = 1
-    cov[2,2] = 1
-    cov[3,3] = 1
+    cov[0,0] = 1527 # std dev in freq
+    cov[1,1] = 1527
+    cov[2,2] = .006 # std dev in time
+    cov[3,3] = .006 
 
     jac = jacobian(emitter_pos, emitter_vel, receiver1_pos, receiver2_pos, receiver3_pos)
     jacT = jac.T
 
-    print(jac)
+    err = jac @ cov @ jacT
 
-    # err = jac @ cov @ jacT
-
-    # print(err)
+    print(err)
 
 if __name__ == "__main__":
     main()
