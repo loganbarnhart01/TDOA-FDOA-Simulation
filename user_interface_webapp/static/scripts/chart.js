@@ -30,23 +30,44 @@ Highcharts.chart('container', {
         margin: [70, 50, 60, 80],
         events: {
             click: function (e) {
-                // find the clicked values and the series
                 const x = Math.round(e.xAxis[0].value),
                     y = Math.round(e.yAxis[0].value),
                     series = this.series[0];
-
-                // Add it
-                series.addPoint([x, y]);
-
+                
+                if (e.shiftKey){
+                    var bluePointIndex = this.series[0].data.findIndex(function(point) {
+                        return point.color === 'blue';
+                    });
+                    if (bluePointIndex < 0) {
+                        // Add it
+                        series.addPoint({
+                            x: x,
+                            y: y,
+                            color: 'blue'
+                        });
+                    }
+                }
+                else {
+                    var orangeCount = this.series[0].data.filter(point => point.color === 'orange').length;
+                    if (orangeCount < 4) {
+                        // Add it
+                        series.addPoint({
+                            x: x,
+                            y: y,
+                            color: 'orange'
+                        });
+                    }
+                }
+            
             }
         }
     },
     title: {
-        text: 'User supplied data',
+        text: 'TDOA and FDOA lines',
         align: 'left'
     },
     subtitle: {
-        text: 'Click the plot area to add a point. Click a point to remove it.',
+        text: 'Left click the plot area to add a receiver. Shift + left click to add the emitter. Left click an existing point to remove it.',
         align: 'left'
     },
     accessibility: {
@@ -55,6 +76,11 @@ Highcharts.chart('container', {
         }
     },
     xAxis: {
+        title: {
+            text: 'x'
+        },
+        min: 0,
+        max: 100,
         gridLineWidth: 1,
         minPadding: 0.2,
         maxPadding: 0.2,
@@ -62,8 +88,10 @@ Highcharts.chart('container', {
     },
     yAxis: {
         title: {
-            text: 'Value'
+            text: 'y'
         },
+        min: 0,
+        max: 100,
         minPadding: 0.2,
         maxPadding: 0.2,
         maxZoom: 60,
@@ -82,11 +110,11 @@ Highcharts.chart('container', {
     plotOptions: {
         series: {
             stickyTracking: false,
-            lineWidth: 3,
+            lineWidth: 0,
             point: {
                 events: {
                     click: function () {
-                        if (this.series.data.length > 1) {
+                        if (this.series.data.length > 0) {
                             this.remove();
                         }
                     }
@@ -95,7 +123,7 @@ Highcharts.chart('container', {
         }
     },
     series: [{
-        data: [[20, 20], [80, 80]],
+        data: [],
         color: Highcharts.getOptions().colors[3],
         marker: {
             lineWidth: 2,
