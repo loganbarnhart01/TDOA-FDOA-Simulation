@@ -3,6 +3,7 @@ import pyModeS as pms
 import psycopg2
 from datetime import datetime
 import time
+import argparse
 
 def process_data(data, cursor):
     print("ICAO: " + pms.icao(data))
@@ -72,11 +73,14 @@ def create_flight(cursor, icao, last_even, last_odd, latitude, longitude, even_t
         ''', (icao, last_even, last_odd, latitude, longitude, even_timestamp, odd_timestamp))
 
 def main():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('127.0.0.1', 30001))
-    server_socket.listen(1)
+    parser = argparse.ArgumentParser(description="Process some integers.")
 
-    client_socket, client_address = server_socket.accept()
+    parser.add_argument('--file', type=str help='Input file')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    print(args.accumulate(args.integers))
 
     conn = psycopg2.connect(database="planes", user="ehong", password="Elanlofr0gs!", host="/var/run/postgresql", port="5432")
     cursor = conn.cursor()
@@ -92,21 +96,41 @@ def main():
         )
         ''')
 
-    try:
-        while 1:
-            data = client_socket.recv(1024)
-            data = data.decode('utf-8')[1:]
-            data = data.split('*')
-            for data in data:
-                if (pms.typecode(data) > 5 and pms.typecode(data) < 23 and pms.typecode(data) != 19):
-                    process_data(data, cursor) 
-            conn.commit()
-    except KeyboardInterrupt:
-        print("\nInterrupted, closing sockets.")
-    finally:
-        conn.close()
-        client_socket.close()
-        server_socket.close()
+    if (~args.file):
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind(('127.0.0.1', 30001))
+        server_socket.listen(1)
+
+        client_socket, client_address = server_socket.accept()
+
+        try:
+            while 1:
+                data = client_socket.recv(1024)
+                data = data.decode('utf-8')[1:]
+                data = data.split('*')
+                for data in data:
+                    if (pms.typecode(data) > 5 and pms.typecode(data) < 23 and pms.typecode(data) != 19):
+                        process_data(data, cursor) 
+                conn.commit()
+        except KeyboardInterrupt:
+            print("\nInterrupted, closing sockets.")
+        finally:
+            conn.close()
+            client_socket.close()
+            server_socket.close()
+    else:
+        try: 
+            with open(args.file, "r") as file:
+                for line in file:
+                    data = line.split('*')
+                    for data in data:
+                        if (pms.typecode(data) > 5 and pms.typecode(data) < 23 and pms.typecode(data) != 19):
+                            process_data(data, cursor)
+                    conn.commit()
+            conn.close()
+        except FileNotFoundError:
+            print("File not found.")
+            conn.close()
 
 if (__name__ == "__main__"):
     main()
