@@ -26,7 +26,7 @@ function init() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableZoom = true;
 
-    // resize handling
+    // resize listener 
     window.addEventListener('resize', onWindowResize, false);
 }
 
