@@ -79,4 +79,4 @@ def convolution_caf(sig1, sig2, num_freq_shifts = 51):
     max_mag = np.max(np.abs(caf_out))
     median_mag = np.median(np.abs(caf_out))
 
-    return caf_out, time_shift, freq_shift, max_mag, median_mag
+    return caf_out, time_shift, -freq_shift, max_mag, median_mag

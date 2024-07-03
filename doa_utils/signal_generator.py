@@ -106,11 +106,14 @@ class Receiver:
     
     def receive(self, 
                 symbols: List[int], 
-                emitter: Emitter):
+                emitter: Emitter,
+                return_true_values: bool = False):
 
         signal = self.sample_signal(symbols)
-        # doppler_signal, f = self.apply_doppler(signal, emitter)
-        # time_delayed_signal, t = self.add_time_delay(doppler_signal, emitter)
-        time_delayed_signal, t = self.add_time_delay(signal, emitter) 
-        noisy_signal = self.add_noise(time_delayed_signal, emitter)
-        return noisy_signal, t#, f
+        time_delayed_signal, t = self.add_time_delay(signal, emitter)
+        doppler_signal, f = self.apply_doppler(time_delayed_signal, emitter)
+        noisy_signal = self.add_noise(doppler_signal, emitter)
+        if return_true_values:
+            return noisy_signal, t, f
+        else:
+            return noisy_signal

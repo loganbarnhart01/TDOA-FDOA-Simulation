@@ -32,7 +32,7 @@ def main():
     print(f"Signal length: {len(dsignal1)}")
         
     caf, tshift, fshift, max_caf, med_caf = fft_caf(dsignal1, dsignal2, 1000)
-    # caf, tshift, fshift, max_caf, med_caf = convolution_caf(dsignal1, dsignal2, 1000)
+    # caf, tshift, fshift, max_caf, med_caf = convolution_caf(dsignal1, dsignal2, 1001)
 
     print(f"Estimated TDOA (samples): {tshift}")
     print(f"Estimated TDOA (seconds): {tshift / receiver1.sample_rate}")

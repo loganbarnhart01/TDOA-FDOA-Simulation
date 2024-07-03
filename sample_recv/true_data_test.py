@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
+from matplotlib import cm
 
-from doa_utils.caf_test import fft_caf
+from doa_utils.caf import fft_caf
 
 def main():
 
@@ -26,7 +28,20 @@ def main():
     print("Median Mag: ", median_mag)
     print("Variance: ", max_mag / median_mag)
 
-    plt.imshow(np.abs(caf_out), aspect='auto')
+    # plt.imshow(np.abs(caf_out), aspect='auto')
+    # plt.show()
+
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+    X, Y = np.linspace(-6, 6, caf_out.shape[1]), np.linspace(-800, 800, caf_out.shape[0])
+    X, Y = np.meshgrid(X, Y)
+
+    Z = np.abs(caf_out)
+    ls = LightSource(270, 45)
+    rgb = ls.shade(Z, cmap=cm.gist_earth, vert_exag=0.1, blend_mode='soft')
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=rgb,
+                       linewidth=0, antialiased=False, shade=False)
+    
+    plt.imshow(np.abs(caf_out), aspect='auto', extent=[-6, 6, -800, 800])
     plt.show()
 
 if __name__ == "__main__":
