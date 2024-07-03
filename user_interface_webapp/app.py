@@ -40,7 +40,7 @@ def what():
 
 @app.route('/who', methods=['GET'])
 def who():
-    return render_template('what.html')
+    return render_template('who.html')
 
 @app.route('/why', methods=['GET'])
 def why():
