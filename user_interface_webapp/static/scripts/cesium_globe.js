@@ -91,21 +91,21 @@ document.getElementById('dayNightToggle').addEventListener('change', function ()
 
 
 // BUTTON & DOUBLE LEFT CLICK TO ADD AIRCRAFT (emitter) once 4 collectors have been placed
-// function renderAirplane() {
-// const airplaneButton = document.createElement('button');
-// airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
-// airplaneButton.textContent = 'Render Airplane';
-// airplaneButton.disabled = true; // Start disabled
-// airplaneButton.addEventListener('click', function() {
-//   createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
-// });
+function renderAirplane() {
+const airplaneButton = document.createElement('button');
+airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
+airplaneButton.textContent = 'Render Airplane';
+airplaneButton.disabled = true; // Start disabled
+airplaneButton.addEventListener('click', function() {
+  createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
+});
 
-// // Append the button to the beginning of the Cesium viewer toolbar in top right corner of ion container
-// const toolbar = document.querySelector('.cesium-viewer-toolbar');
-// toolbar.insertBefore(airplaneButton, toolbar.firstChild);
+// Append the button to the beginning of the Cesium viewer toolbar in top right corner of ion container
+const toolbar = document.querySelector('.cesium-viewer-toolbar');
+toolbar.insertBefore(airplaneButton, toolbar.firstChild);
 
-// viewer.screenSpaceEventHandler.setInputAction(renderAirplane, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-// }
+viewer.screenSpaceEventHandler.setInputAction(renderAirplane, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+}
 
 
 
@@ -271,9 +271,7 @@ instructionWindow.appendChild(toggleButton);
 document.getElementById('cesiumContainer').appendChild(instructionWindow);
 
 
-
 //AIRPLANE MODEL CODE
-// Function to create and show a model
 let emitterButton; // moved outside of function because bug otherwise
 
 function initializeEmitterControls(emitter) {
@@ -310,6 +308,7 @@ function initializeEmitterControls(emitter) {
     emitterButton.addEventListener('mouseout', function() {
       this.style.backgroundColor = '#474772';
     });
+
 
     // Add emitterButton into the Cesium toolbar
     const toolbar = document.querySelector('.cesium-viewer-toolbar');
@@ -389,7 +388,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEmitterControls() {
   initializeEmitterControls(viewer); // view is defined at beginning
 }
-
 
 
 
