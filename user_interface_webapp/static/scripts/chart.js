@@ -132,6 +132,30 @@ document.querySelectorAll('input[name="plotMode"]').forEach((radio) => {
     });
 });
 
+document.getElementById('velocity').addEventListener('input', function() {
+    var selectedMode = document.querySelector('input[name="plotMode"]:checked').value;
+    if (selectedMode == 'FDOA') {
+        var chart = Highcharts.charts[0];
+        var contourSeries = chart.series.find(s => s.name === 'TDOA Contours');
+        var receiverSeries = chart.series.find(s => s.name === 'Receivers');
+        var emitterSeries = chart.series.find(s => s.name === 'Emitter');
+        clearAndRedrawContours(chart);
+        plotFDOA(contourSeries, receiverSeries, emitterSeries);
+    }
+});
+
+document.getElementById('direction').addEventListener('input', function() {
+    var selectedMode = document.querySelector('input[name="plotMode"]:checked').value;
+    if (selectedMode == 'FDOA') {
+        var chart = Highcharts.charts[0];
+        var contourSeries = chart.series.find(s => s.name === 'TDOA Contours');
+        var receiverSeries = chart.series.find(s => s.name === 'Receivers');
+        var emitterSeries = chart.series.find(s => s.name === 'Emitter');
+        clearAndRedrawContours(chart);
+        plotFDOA(contourSeries, receiverSeries, emitterSeries);
+    }
+});
+
 Highcharts.chart('container', {
     chart: {
         type: 'scatter',
@@ -152,7 +176,7 @@ Highcharts.chart('container', {
                         emitterSeries.addPoint({
                             x: x,
                             y: y,
-                            color: 'blue',
+                            color: '#ff00ff',
                             symbol: 'circle'
                         });
                     }
@@ -163,7 +187,7 @@ Highcharts.chart('container', {
                         receiverSeries.addPoint({
                             x: x,
                             y: y,
-                            color: 'orange'
+                            color: '#00ff00'
                         });
                     }
                 }
@@ -272,7 +296,7 @@ Highcharts.chart('container', {
         data: [],
         zindex: 2,
         type: 'scatter',
-        color: 'orange',
+        color: '#00ff00',
         marker: {
             lineWidth: 2,
             radius: 6
@@ -282,7 +306,7 @@ Highcharts.chart('container', {
         data: [],
         zindex: 3,
         type: 'scatter',
-        color: 'blue',
+        color: '#ff00ff',
         marker: {
             lineWidth: 2,
             radius: 6,
