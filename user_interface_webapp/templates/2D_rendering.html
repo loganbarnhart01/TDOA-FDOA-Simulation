@@ -33,33 +33,50 @@
             <hr style="border-color: #474772;">
         </span>
 
-        <h2 style="margin-top: 40px;">Curve Rendering</h2>    <!--text on screen starts here-->
-    
-        
-        <!-- <div class="content">
-            <h2>Contact Us</h2>
-             <a href="/live" class="button">Track a Flight</a> 
-        </div> -->
-
         <video autoplay loop muted plays-inline id="video-bg">
             <source src="{{ url_for('static', filename='video/airplane-color.mp4') }}" type="video/mp4">
         </video>
-        <main>
-           
-        </main>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-    <figure class="highcharts-figure">
-        <div id="container"></div>
-        <p class="highcharts-description">
-            Chart allowing users to update the data by clicking in the chart area.
-            Clicking an existing point will remove it.
-        </p>
-    </figure>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <div id="toggle-switch" style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
+            <input type="radio" id="tdoa-mode" name="plotMode" value="TDOA" checked>
+            <label for="tdoa-mode" style="margin-right: 10px;">TDOA</label>
+            <input type="radio" id="fdoa-mode" name="plotMode" value="FDOA">
+            <label for="fdoa-mode">FDOA</label>
+        </div>
+        <div style="display: flex; justify-content: center;"> <!-- Modified for horizontal layout -->
+            <div style="text-align: center; margin-right: 40px;"> <!-- Container for the velocity slider and its label/output -->
+                <label for="velocity" style="display: block; margin-bottom: 5px;">Emitter Velocity</label>
+                <input type="range" id="velocity" min="0" max="1000" value="500" style="width: 200px;">
+                <output id="velocity-output" style="display: block; margin-top: 5px;">500</output>
+            </div>
+            <div style="text-align: center;"> <!-- Container for the direction slider and its label/output -->
+                <label for="direction" style="display: block; margin-bottom: 5px;">Emitter Direction</label>
+                <input type="range" id="direction" min="0" max="360" value="180" style="width: 200px;">
+                <output id="direction-output" style="display: block; margin-top: 5px;">180 degrees</output>
+            </div>
+        </div>
+        <div id="chart-container" style="width: 80%;"> <!-- Container for the chart -->
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+            </figure>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('velocity').oninput = function() {
+            document.getElementById('velocity-output').innerHTML = this.value + " units/sec";  // Update the output next to the slider
+        }
+        
+        document.getElementById('direction').oninput = function() {
+            document.getElementById('direction-output').innerHTML = this.value + " degrees";  // Update the output next to the slider
+        }
+    </script>
 
     <script src="{{ url_for('static', filename='scripts/chart.js') }}"></script>
 

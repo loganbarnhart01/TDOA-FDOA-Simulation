@@ -256,3 +256,41 @@ footer {
 .highcharts-data-table tr:hover {
     background: #f1f7ff;
 }
+
+button {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Active button styling */
+.active {
+    background-color: #007BFF;
+    color: white;
+    border-color: #0056b3;
+}
+
+#toggle-switch {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 5px;
+    border-radius: 20px;
+    background-color: #f9f9f9;
+}
+
+#toggle-switch input[type="radio"] {
+    display: none;
+}
+
+#toggle-switch label {
+    padding: 5px 10px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#toggle-switch input[type="radio"]:checked + label {
+    background-color: #007bff;
+    color: white;
+}
