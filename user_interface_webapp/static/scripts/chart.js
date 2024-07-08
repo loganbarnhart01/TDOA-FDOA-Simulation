@@ -24,6 +24,22 @@ Highcharts.addEvent(Highcharts.Series, 'addPoint', e => {
     }, 1);
 });
 
+function getTDOA(x, y, x1, y1, x2, y2, trued1, trued2) {
+    const d1 = Math.sqrt(Math.pow(x1 - x, 2) + Math.pow(y1 - y, 2)),
+        d2 = Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+    return d1 - d2 - (trued1 - trued2);
+}
+
+function generateTDOAData(x1, y1, x2, y2, trued1, trued2) {
+    let data = [];
+    for (let x = 0; x <= 100; x++) {
+        for (let y = 0; y < 100; y++) {
+            data.push([x, y, getTDOA(x, y, x1, y1, x2, y2, trued1, trued2)]);
+        }
+    }
+    return data
+}
+
 Highcharts.chart('container', {
     chart: {
         type: 'scatter',
@@ -32,15 +48,16 @@ Highcharts.chart('container', {
             click: function (e) {
                 const x = Math.round(e.xAxis[0].value),
                     y = Math.round(e.yAxis[0].value),
-                    series = this.series[0];
+                    receiverSeries = this.series.find(s => s.name === 'Receivers');
+                    emitterSeries = this.series.find(s => s.name === 'Emitter');
                 
+                var orangeCount = receiverSeries.data.length;
+                var blueCount = emitterSeries.data.length;
+
                 if (e.shiftKey){
-                    var bluePointIndex = this.series[0].data.findIndex(function(point) {
-                        return point.color === 'blue';
-                    });
-                    if (bluePointIndex < 0) {
+                    if (blueCount < 1) {
                         // Add it
-                        series.addPoint({
+                        emitterSeries.addPoint({
                             x: x,
                             y: y,
                             color: 'blue'
@@ -48,27 +65,53 @@ Highcharts.chart('container', {
                     }
                 }
                 else {
-                    var orangeCount = this.series[0].data.filter(point => point.color === 'orange').length;
-                    if (orangeCount < 4) {
+                    if (orangeCount < 2) {
                         // Add it
-                        series.addPoint({
+                        receiverSeries.addPoint({
                             x: x,
                             y: y,
                             color: 'orange'
                         });
                     }
                 }
-            
+
+                var orangeCount = receiverSeries.data.length;
+                var blueCount = emitterSeries.data.length;
+
+                if (orangeCount >= 2 && blueCount >= 1) {
+                    var orangePoints = receiverSeries.data;
+                    var bluePoints = emitterSeries.data;
+                    td1 = Math.sqrt( Math.pow(orangePoints[0].x - bluePoints[0].x, 2) + Math.pow(orangePoints[0].y - bluePoints[0].y, 2) );
+                    td2 = Math.sqrt( Math.pow(orangePoints[1].x - bluePoints[0].x, 2) + Math.pow(orangePoints[1].y - bluePoints[0].y, 2) );
+                    x1 = orangePoints[0].x;
+                    y1 = orangePoints[0].y;
+                    x2 = orangePoints[1].x;
+                    y2 = orangePoints[1].y; 
+                    tdoaData = generateTDOAData(x1, y1, x2, y2, td1, td2);
+                    var contourSeries = this.series.find(s => s.name === 'TDOA Contours');
+                    if (contourSeries) {
+                        contourSeries.setData(tdoaData, true); // true to redraw
+                    } else {
+                        // If it doesn't exist yet, add it
+                        this.addSeries({
+                            name: 'TDOA Contours',
+                            type: 'heatmap',  // Can be replaced with 'line' or custom type
+                            data: tdoaData,
+                            turboThreshold: 0
+                        });
+                    }
+
+                }
             }
         }
     },
     title: {
         text: 'TDOA and FDOA lines',
-        align: 'left'
+        align: 'center'
     },
     subtitle: {
         text: 'Left click the plot area to add a receiver. Shift + left click to add the emitter. Left click an existing point to remove it.',
-        align: 'left'
+        align: 'center'
     },
     accessibility: {
         announceNewData: {
@@ -109,25 +152,63 @@ Highcharts.chart('container', {
     },
     plotOptions: {
         series: {
-            stickyTracking: false,
+            stickyTracking: true,
             lineWidth: 0,
             point: {
                 events: {
                     click: function () {
                         if (this.series.data.length > 0) {
+                            var contourSeries = this.series.chart.series.find(s => s.name === 'TDOA Contours');
+                            if (contourSeries) {
+                                contourSeries.setData([], false); // true to redraw
+                            }
                             this.remove();
+                            contourSeries.chart.redraw();
                         }
                     }
                 }
             }
         }
     },
+    colorAxis: {
+        min: -40,
+        max: 40,
+        stops: [
+            [0, '#3060cf'],
+            [0.5, '#fffbbc'],
+            [1, '#c4463a'],
+            [1, '#c4463a']
+        ]
+    },
     series: [{
+        name: 'TDOA Contours',
+        type: 'heatmap',
         data: [],
-        color: Highcharts.getOptions().colors[3],
+        zindex: 1,
+        colsize: 1,
+        tooltip: {
+            pointFormat: '{point.x}, {point.y}: {point.value}'
+        }
+    },{
+        name: 'Receivers',
+        data: [],
+        zindex: 2,
+        type: 'scatter',
+        color: 'orange',
         marker: {
             lineWidth: 2,
             radius: 6
         }
-    }]
+    },{
+        name: 'Emitter',
+        data: [],
+        zindex: 3,
+        type: 'scatter',
+        color: 'blue',
+        marker: {
+            lineWidth: 2,
+            radius: 6
+        }
+    }
+    ]
 });
