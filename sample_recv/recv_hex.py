@@ -29,33 +29,32 @@ def update_flight(data, cursor, timestamp):
                 SET last_odd = %s, odd_timestamp = %s
                 WHERE icao = %s
                 ''', (data, timestamp, pms.icao(data)))
-            if cursor.execute('''
+            cursor.execute('''
                 SELECT last_even, even_timestamp FROM data WHERE icao = %s
-                ''', (pms.icao(data),)):
-                result = cursor.fetchone()
-                if result is not None:
-                    last_even, even_timestamp = result
-                    lati, longi = pms.decoder.adsb.position(last_even, data, even_timestamp, timestamp)[:2]
-
-                    cursor.execute('''
-                    UPDATE data
-                    SET latitude = %s, longitude = %s
-                    WHERE icao = %s
-                    ''', (lati, longi, pms.icao(data)))
+                ''', (pms.icao(data),))
+            result = cursor.fetchone()
+            if result != (None, None):
+                last_even, even_timestamp = result
+                lati, longi = pms.decoder.bds.bds05.airborne_position(last_even, data, even_timestamp, timestamp)[:2]
+                print("Latitude: " + str(lati) + ", Longitude: " + str(longi))
+                cursor.execute('''
+                UPDATE data
+                SET latitude = %s, longitude = %s
+                WHERE icao = %s
+                ''', (lati, longi, pms.icao(data)))
         else:                                                   ## data is even
             cursor.execute('''
                 UPDATE data
                 SET last_even = %s, even_timestamp = %s
                 WHERE icao = %s
                 ''', (data, timestamp, pms.icao(data)))
-
             cursor.execute('''
                 SELECT last_odd, odd_timestamp FROM data WHERE icao = %s
                 ''', (pms.icao(data),))
             result = cursor.fetchone()
-            if result is not None:
+            if result != (None, None):
                 last_odd, odd_timestamp = result
-                lati, longi = pms.decoder.adsb.position(data, last_odd, timestamp, odd_timestamp)[:2]
+                lati, longi = pms.decoder.bds.bds05.airborne_position(data, last_odd, timestamp, odd_timestamp)[:2]
                 print("Latitude: " + str(lati) + ", Longitude: " + str(longi))
                 cursor.execute('''
                 UPDATE data
@@ -104,7 +103,7 @@ def main():
                     msg, timestamp = thing.split(',')
                     print(msg)
                     if ((pms.df(msg) == 17 or pms.df(msg) == 18) and pms.typecode(msg) > 5 and pms.typecode(msg) < 23 and pms.typecode(msg) != 19):
-                        process_data(msg, cursor, timestamp) 
+                        process_data(msg, cursor, int(timestamp)) 
                     conn.commit()
             conn.close()
         except FileNotFoundError:
