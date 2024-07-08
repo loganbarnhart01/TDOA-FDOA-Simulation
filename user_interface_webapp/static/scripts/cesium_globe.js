@@ -271,125 +271,90 @@ instructionWindow.appendChild(toggleButton);
 document.getElementById('cesiumContainer').appendChild(instructionWindow);
 
 
-
 //AIRPLANE MODEL CODE
-// Function to create and show a model
-function setupEmitterControls() {
-  initializeEmitterControls(viewer); //viewer define at beginning
-}
+let emitterButton; // moved outside of function because bug otherwise
 
 function initializeEmitterControls(emitter) {
-  let isEmitterPlacementEnabled = false;
   let emitterEntity = null;
-  let lastPoint = null;
-  let pointCount = 0;
-  const minPoints = 4;
-  const maxDistance = 500000;
+
+  //check if theere is already an emitter button
+  if (!emitterButton) {
+    // create button for rendering the airplane
+    emitterButton = document.createElement('button');
+    emitterButton.id = 'renderEmitterButton';
+    emitterButton.textContent = 'Render Aircraft';
+      let pointCount = 0;
+      const minPoints = 4;
+      const maxDistance = 500000;
+
+    // render aircraft style button
+    emitterButton.style.backgroundColor = '#8e8ebd';
+    emitterButton.style.border = 'none';
+    emitterButton.style.color = 'white';
+    emitterButton.style.padding = '10px 30px';
+    emitterButton.style.textAlign = 'center';
+    emitterButton.style.textDecoration = 'none';
+    emitterButton.style.display = 'inline-block';
+    emitterButton.style.fontSize = '21px';
+    emitterButton.style.fontFamily = 'Times New Roman';
+    emitterButton.style.margin = '4px 2px';
+    emitterButton.style.cursor = 'pointer';
+    emitterButton.style.borderRadius = '4px';
+
+    // hover effect for render aircraft button
+    emitterButton.addEventListener('mouseover', function() {
+      this.style.backgroundColor = '#8e8ebd';
+    });
+    emitterButton.addEventListener('mouseout', function() {
+      this.style.backgroundColor = '#474772';
+    });
 
 
-  // button for rendering the emitter
-  const emitterButton = document.createElement('button');
-  emitterButton.id = 'renderEmitterButton';
-  emitterButton.textContent = 'Render Aircraft';
-  emitterButton.disabled = true;
-  emitterButton.addEventListener('click', enableEmitterPlacement);
-  //style for the button that is render (check Cesium toolbar)
-  emitterButton.style.backgroundColor = '#8e8ebd';
-  emitterButton.style.border = 'none';
-  emitterButton.style.color = 'white';
-  emitterButton.style.padding = '10px 20px';
-  emitterButton.style.textAlign = 'center';
-  emitterButton.style.textDecoration = 'none';
-  emitterButton.style.display = 'inline-block';
-  emitterButton.style.fontSize = '16px';
-  emitterButton.style.fontFamily = 'Times New Roman';
-  emitterButton.style.margin = '4px 2px';
-  emitterButton.style.cursor = 'pointer';
-  emitterButton.style.borderRadius = '4px';
+    // Add emitterButton into the Cesium toolbar
+    const toolbar = document.querySelector('.cesium-viewer-toolbar');
+    toolbar.insertBefore(emitterButton, toolbar.firstChild);
+  }
 
-
-  // hover effect for render aircraft button
-  emitterButton.addEventListener('mouseover', function() {
-    this.style.backgroundColor = '#8e8ebd';
-  });
-  emitterButton.addEventListener('mouseout', function() {
-    this.style.backgroundColor = '#474772';
-  });
-
-  // add emitterButton into the Cesium toolbar
-  const toolbar = document.querySelector('.cesium-viewer-toolbar');
-  toolbar.insertBefore(emitterButton, toolbar.firstChild);
+  // event listener
+  if (!emitterButton.onclick) {
+    emitterButton.onclick = enableEmitterPlacement;
+  }
 
   function enableEmitterPlacement() {
-    isEmitterPlacementEnabled = true;
-    emitterButton.textContent = 'Emitter Placement Enabled';
+    emitterButton.textContent = 'Click on the globe to place an Aircraft';
     emitterButton.disabled = true;
-    emitter.canvas.style.cursor = 'crosshair';
+    emitter.canvas.style.cursor = 'crosshair'; //plus button visualization for the mouse after render airplane is clicked
+
+    // set up a one-time click event to place the aircraft
+    emitter.screenSpaceEventHandler.setInputAction((click) => {
+      const earthPosition = emitter.scene.pickPosition(click.position);
+      if (Cesium.defined(earthPosition)) {
+        const cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
+        const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+        const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+        const height = cartographic.height;
+
+        // clean up previous entity, if any
+        if (emitterEntity) {
+          emitterEntity = undefined; // Or dispose of the entity properly
+        }
+
+        // Use the renderAirplane function from airplane.js
+        emitterEntity = renderAirplane(longitude, latitude, height);
+
+        emitter.canvas.style.cursor = 'default';
+        emitterButton.textContent = 'Render Aircraft';
+        emitterButton.disabled = false;
+
+        // remove click event (like deallocation in c++?)
+        emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        //dragging functionality
+        emitter.screenSpaceEventHandler.setInputAction(dragEmitter, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        emitter.screenSpaceEventHandler.setInputAction(dropEmitter, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
-
-  function renderEmitter(event) {
-    if (!isEmitterPlacementEnabled) return;
-
-    const earthPosition = emitter.scene.pickPosition(event.position);
-    if (Cesium.defined(earthPosition)) {
-      emitterEntity = createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", earthPosition);
-      isEmitterPlacementEnabled = false;
-      emitter.canvas.style.cursor = 'move';
-
-      emitter.screenSpaceEventHandler.setInputAction(dragEmitter, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-      emitter.screenSpaceEventHandler.setInputAction(dropEmitter, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    }
-  }
-
-  // function createModel(url, position) {
-  //   const existingEmitter = emitter.entities.getById('emitter');
-  //   if (existingEmitter) {
-  //     emitter.entities.remove(existingEmitter);
-  //   }
-
-  //   const heading = Cesium.Math.toRadians(135);
-  //   const pitch = 0;
-  //   const roll = 0;
-  //   const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-  //   const orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
-
-  //   return emitter.entities.add({
-  //     id: 'emitter',
-  //     name: url,
-  //     position: position,
-  //     orientation: orientation,
-  //     model: {
-  //       uri: url,
-  //       minimumPixelSize: 128,
-  //       maximumScale: 20000,
-  //     },
-  //   });
-  // }
-function createModel(url, position) {
-  emitter.entities.removeAll();
-
-  const heading = Cesium.Math.toRadians(135);
-  const pitch = 0;
-  const roll = 0;
-  const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-  const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-    position,
-    hpr
-  );
-
-  const entity = emitter.entities.add({
-    name: url,
-    position: position,
-    orientation: orientation,
-    model: {
-      uri: url,
-      minimumPixelSize: 128,
-      maximumScale: 20000,
-    },
-  });
-  emitter.trackedEntity = entity;
-  return entity;
-}
 
   function dragEmitter(movement) {
     if (emitterEntity) {
@@ -411,48 +376,18 @@ function createModel(url, position) {
       emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       emitter.canvas.style.cursor = 'default';
-      emitterButton.textContent = 'Enable Emitter Placement';
-      emitterButton.disabled = false;
-      isEmitterPlacementEnabled = false;
-      emitterEntity = null;
     }
   }
-
-  emitter.screenSpaceEventHandler.setInputAction((click) => {
-    const cartesian = emitter.scene.pickPosition(click.position);
-    if (Cesium.defined(cartesian)) {
-      if (lastPoint && Cesium.Cartesian3.distance(lastPoint, cartesian) > maxDistance) {
-        alert("Points must be within 500km of each other.");
-        return;
-      }
-
-      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      const lon = Cesium.Math.toDegrees(cartographic.longitude);
-      const lat = Cesium.Math.toDegrees(cartographic.latitude);
-      const height = cartographic.height;
-
-      emitter.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-        point: {
-          pixelSize: 15,
-          color: Cesium.Color.RED
-        }
-      });
-
-      lastPoint = cartesian;
-      pointCount++;
-      if (pointCount >= minPoints) {
-        emitterButton.disabled = false;
-      }
-    }
-  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-
-  emitter.screenSpaceEventHandler.setInputAction(renderEmitter, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 }
 
 // Call this function after the page has loaded and viewer is initialized
-// You can do this by adding an event listener for DOMContentLoaded
-document.addEventListener('DOMContentLoaded', setupEmitterControls);
+document.addEventListener('DOMContentLoaded', () => {
+  setupEmitterControls();
+});
+
+function setupEmitterControls() {
+  initializeEmitterControls(viewer); // view is defined at beginning
+}
 
 
 
