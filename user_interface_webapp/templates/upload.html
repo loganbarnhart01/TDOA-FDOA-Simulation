@@ -52,11 +52,13 @@
                 <h2>Upload ADS-B Data</h2>
             </div>
             <h3>Accepted file types:</h3>
-            <h4 style="margin-top: 0;">.csv</h4>
-            <br/><br/>
+            <h4 style="margin-top: 0;">.txt</h4>
+            <h5>Instructions: Upload a .txt file with each line formatted as 
+                <br/>"ICAO, LAT, LON, TIMESTAMP" 
+            </h5>
             <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
                 <label for="fileUpload" class="upload-button">Upload File</label>
-                <input type="file" id="fileUpload" name="fileUpload" accept=".csv" style="display: none;">
+                <input type="file" id="fileUpload" name="fileUpload" accept=".txt" style="display: none;">
                 <button type="submit" class="submit-button">Submit</button>
                 <br/>
                 <span id="fileUploadName"></span>
