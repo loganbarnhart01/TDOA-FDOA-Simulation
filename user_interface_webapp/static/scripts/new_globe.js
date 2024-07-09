@@ -227,22 +227,23 @@ document.getElementById('cesiumContainer').appendChild(instructionWindow);
 
 
 // BUTTON & DOUBLE LEFT CLICK TO ADD AIRCRAFT (emitter) once 4 collectors have been placed
-function renderAirplane() {
+// function renderAirplane() {
   const airplaneButton = document.createElement('button');
-  airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
-  airplaneButton.textContent = 'Render Airplane';
-  airplaneButton.disabled = true; // Start disabled
-  airplaneButton.addEventListener('click', function() {
-  //   createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
-  });
+  // airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styling
+  // airplaneButton.textContent = 'Render Airplane';
+  // airplaneButton.disabled = true; // Start disabled
+  // airplaneButton.addEventListener('click', function() {
+
+    // createModel("user_interface_webapp/static/models/cirrus_sr22.glb", 5000.0);
+  // });
   
-  // DO NOT UNCOMMENT NEXT THREE LINES - they add an additional button
+  // DO NOT UNCOMMENT NEXT THREE LINES - they add an additional button - code above also is tied to 
   //Append the button to the beginning of the Cesium viewer toolbar in top right corner of ion container
   // const toolbar = document.querySelector('.cesium-viewer-toolbar');
   // toolbar.insertBefore(airplaneButton, toolbar.firstChild);
   
-  viewer.screenSpaceEventHandler.setInputAction(renderAirplane, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-  }
+  // viewer.screenSpaceEventHandler.setInputAction(renderAirplane, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  // }
 
 
   
@@ -257,6 +258,7 @@ function renderAirplane() {
 
 // USER INTERACTIVITY TO DROP POINTS ON MAP (THIS IS DONE BY RIGHT CLICKING)
 //bettereer as a function for implementation purposes? 
+function placeScalingReceivers(viewer){
 let pointCount = 0;
 const minPoints = 4; //4 points need to be placed
 const maxDistance = 500000; // 500km in meters
@@ -284,13 +286,14 @@ viewer.screenSpaceEventHandler.setInputAction((click) => {
     //   }
     // });
 
+    //collectors as antenna image - manually placed by user
     viewer.entities.add({
       position: cartesian,
       billboard: {
-          image: 'static/images/.jpg',
-          width: 320,
-          height: 400,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+          image: 'static/images/antenna.png',
+          width: 32,
+          height: 40,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
       }
   });
     
@@ -302,9 +305,9 @@ viewer.screenSpaceEventHandler.setInputAction((click) => {
   }
 }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
+}
 
-
-
+placeScalingReceivers(viewer); //function call so user can place collectors - if commented no receivers can be dropped
 
 
 
@@ -388,7 +391,14 @@ function initializeEmitterControls(emitter) {
         const cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
         const longitude = Cesium.Math.toDegrees(cartographic.longitude);
         const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-        const height = cartographic.height;
+        // const height = cartographic.height; //prompt user for altitude instead of this line for now
+
+        let altitudeStr = window.prompt('Enter altitude (meters):'); //prompt user for altitude 
+        let altitude = parseFloat(altitudeStr);// parse user input
+        if (isNaN(altitude)) { //alert if user does not enter valid altitude
+          alert('Invalid input. Please enter a valid number for altitude.');
+          return;
+        }
 
         // clean up previous entity, if any
         if (emitterEntity) {
@@ -411,30 +421,31 @@ function initializeEmitterControls(emitter) {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
-
-  function dragEmitter(movement) {
-    if (emitterEntity) {
-      const newPosition = emitter.scene.pickPosition(movement.endPosition);
-      if (Cesium.defined(newPosition)) {
-        emitterEntity.position = newPosition;
-      }
-    }
-  }
-
-  function dropEmitter(event) {
-    if (emitterEntity) {
-      const finalPosition = emitter.scene.pickPosition(event.position);
-      if (Cesium.defined(finalPosition)) {
-        emitterEntity.position = finalPosition;
-      }
-
-      emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-      emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-      emitter.canvas.style.cursor = 'default';
-    }
-  }
 }
+
+//   function dragEmitter(movement) {
+//     if (emitterEntity) {
+//       const newPosition = emitter.scene.pickPosition(movement.endPosition);
+//       if (Cesium.defined(newPosition)) {
+//         emitterEntity.position = newPosition;
+//       }
+//     }
+//   }
+
+//   function dropEmitter(event) {
+//     if (emitterEntity) {
+//       const finalPosition = emitter.scene.pickPosition(event.position);
+//       if (Cesium.defined(finalPosition)) {
+//         emitterEntity.position = finalPosition;
+//       }
+
+//       emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+//       emitter.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+//       emitter.canvas.style.cursor = 'default';
+//     }
+//   }
+// }
 
 // Call this function after the page has loaded and viewer is initialized
 document.addEventListener('DOMContentLoaded', () => {
