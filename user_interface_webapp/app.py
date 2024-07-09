@@ -1,3 +1,4 @@
+
 import logging
 import os
 import requests
@@ -8,7 +9,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
 
-from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot
+from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot #defined in globe rendering utils.py - called in appy.py
+#take dictionary with relevant info an imports it , 
+#TODO create TOGGLE to switch between plotly and non plotly globe rendering
 
 from data_stuff.crud import read_flights
 from data_stuff.database_utils import create_url
@@ -20,20 +23,44 @@ engine = create_engine(url)
 Session = sessionmaker(bind=engine)
 db = Session()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
 
+@app.route('/home', methods=['GET'])
+def go_home():
+    return render_template('index.html')
+
+@app.route('/what', methods=['GET'])
+def what():
+    return render_template('what.html')
+
+@app.route('/who', methods=['GET'])
+def who():
+    return render_template('who.html')
+
+@app.route('/why', methods=['GET'])
+def why():
+    return render_template('why.html')
+
+@app.route('/contact', methods=['GET'])
+def contact():
+    return render_template('contact.html')
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     return render_template('upload.html')
 
+# @app.route('/live', methods=['GET'])
+# def live():
+#     return render_template('live_threejs.html')
+
 @app.route('/live', methods=['GET'])
 def live():
-    return render_template('live.html')
+    return render_template('cesium_globe.html')
 
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
@@ -41,15 +68,15 @@ def live_data():
     globe_json = render_live_plot( data )
     return globe_json
 
-@app.route('/tdoa-sim', methods=['GET'])
-def tdoa_sim():
-    return render_template('tdoa_sim.html')
+@app.route('/2D-curve-rendering', methods=['GET'])
+def curve_sim():
+    return render_template('2D_rendering.html')
 
-@app.route('/tdoa-data', methods=['GET', 'POST'])
-def tdoa_data():
-    input_data = request.json
-    globe_json = render_tdoa_plot(input_data)
-    return globe_json
+# @app.route('/2D-curve-rendering', methods=['GET', 'POST'])
+# def curve_data():
+#     input_data = request.json
+#     globe_json = render_tdoa_plot(input_data)
+#     return globe_json
 
 @app.route('/get-elevation', methods=["POST"])
 def get_elevation():
