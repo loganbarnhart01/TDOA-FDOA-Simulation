@@ -1,14 +1,4 @@
-// This example showcases the ability to overlay labels
-// on top of unlabeled imagery.
-//
-// On the left side is Bing Maps Aerial With Labels + unlabeled high
-// resolution Washington DC imagery. The labels are obscured by the
-// DC imagery and can not be turned on or off independently.
-//
-// On the right side is Bing Maps Aerial + unlabeled high resolution
-// Washington DC imagery + Bing Maps Labels Only. The labels
-// are now on top of all imagery in the scene and can be independently
-// shown or hidden based on app configuration and/or camera zoom level.
+// This file is a coopy of cesium_globe.js but modified to render flight tracking from an upload of batch data from a .csv file that is uploaded from the upload page
 
 
 // RENDERING OF CESIUM ION CONTAINER in GLOBE page. 
@@ -48,7 +38,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   layers.add(bingMapsLabelsOnly);
   
   
-  // DARK MODE IMPLEMENTATION - note that the map renders in night mode but the city & road features are no longer visible. 
+// DARK MODE IMPLEMENTATION - note that the map renders in night mode but the city & road features are no longer visible. 
   
 let blackMarbleLayer = null;  // Initialize the layer variable but do not load until needed.
 
@@ -57,6 +47,11 @@ async function ensureBlackMarbleLayer() {
         blackMarbleLayer = await Cesium.ImageryLayer.fromProviderAsync(
             Cesium.IonImageryProvider.fromAssetId(3812)
         );
+
+    //lighten dark mode slightly so bing maps overlay is visible?
+    blackMarbleLayer.brightness = 3.0; // > 1.0 increases brightness.  < 1.0 decreases
+    blackMarbleLayer.alpha = 0.75;
+ 
     }
 }
 

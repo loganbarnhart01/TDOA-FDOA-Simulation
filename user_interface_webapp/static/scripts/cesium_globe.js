@@ -503,7 +503,12 @@ airplaneButton.id = 'renderAirplaneButton';  // Add an ID to the button for styl
 airplaneButton.textContent = 'Render Airplane';
 airplaneButton.disabled = true; // Start disabled
 airplaneButton.addEventListener('click', function() {
-  createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
+//   createModel("../SampleData/models/CesiumAir/Cesium_Air.glb", 5000.0);
+});
+
+const resource = await Cesium.IonResource.fromAssetId(2655285);
+const entity = viewer.entities.add({
+  model: { uri: resource },
 });
 
 // Append the button to the beginning of the Cesium viewer toolbar in top right corner of ion container
@@ -512,6 +517,7 @@ toolbar.insertBefore(airplaneButton, toolbar.firstChild);
 
 viewer.screenSpaceEventHandler.setInputAction(renderAirplane, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 }
+
 
 
 
