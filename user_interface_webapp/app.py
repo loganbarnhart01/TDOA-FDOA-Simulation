@@ -3,11 +3,13 @@ import logging
 import os
 import requests
 from dotenv import load_dotenv
+from io import StringIO
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
+import pandas as pd
 
 from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot #defined in globe rendering utils.py - called in appy.py
 #take dictionary with relevant info an imports it , 
@@ -52,11 +54,22 @@ def contact():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    if request.method == 'POST':
+        file = request.files['fileUpload']
+        if file:
+            content = file.read().decode( 'utf-8' )
+            data = StringIO(content)
+            df = pd.read_csv(data, names=["ICAO", "LAT", "LON", "TIME"], skipinitialspace=True)
+            df.sort_values(by="TIME", inplace=True)
+            df.to_csv( 'data.csv', index=False )
+            return redirect(url_for('batch'))
     return render_template('upload.html')
 
-# @app.route('/live', methods=['GET'])
-# def live():
-#     return render_template('live_threejs.html')
+@app.route('/batch', methods=['GET'])
+def batch():
+    df = pd.read_csv('data.csv')
+    data = df.to_json(orient='records')
+    return render_template('batch_render.html', data=data)
 
 @app.route('/live', methods=['GET'])
 def live():
