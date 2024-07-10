@@ -281,7 +281,7 @@ let lastPoint = null;
 
 viewer.screenSpaceEventHandler.setInputAction((click) => {
   const cartesian = viewer.scene.pickPosition(click.position);
-  if (Cesium.defined(cartesian) && pointCount ) {
+  if (Cesium.defined(cartesian) && pointCount < minPoints ) {
     if (lastPoint && Cesium.Cartesian3.distance(lastPoint, cartesian) > maxDistance) {
       alert("Points must be within 500km of each other. Please try again.");
       return;
