@@ -273,67 +273,58 @@ const receivers = [];
 
 // USER INTERACTIVITY TO DROP POINTS ON MAP (THIS IS DONE BY RIGHT CLICKING)
 //bettereer as a function for implementation purposes? 
-function placeScalingReceivers(viewer){
-let pointCount = 0;
-const minPoints = 4; //4 points need to be placed
-const maxDistance = 500000; // 500km in meters
-let lastPoint = null;
+function placeScalingReceivers(viewer) {
+  let pointCount = 0;
+  const minPoints = 4; // 4 points need to be placed
+  const maxDistance = 500000; // 500 km in meters
+  let lastPoint = null;
 
-viewer.screenSpaceEventHandler.setInputAction((click) => {
-  const cartesian = viewer.scene.pickPosition(click.position);
-  if (Cesium.defined(cartesian) && pointCount < minPoints ) {
-    if (lastPoint && Cesium.Cartesian3.distance(lastPoint, cartesian) > maxDistance) {
-      alert("Points must be within 500km of each other. Please try again.");
-      return;
-    }
-
-    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-    const lon = Cesium.Math.toDegrees(cartographic.longitude);
-    const lat = Cesium.Math.toDegrees(cartographic.latitude);
-    const height = 0; //cartographic.height;
-    const elevation = getElevation(lat, lon); // Use await to ensure this completes
-    receivers.push({
-        latitude: lat,
-        longitude: lon,
-        altitude: elevation
-    });
-    
-    console.log('Receiver Added:', {latitude: lat, longitude: lon, altitude: elevation});
-    console.log('All Receivers:', receivers); // Optional: log the current state of the receivers array
-    
-    //collectors as red circles
-    // viewer.entities.add({
-    //   position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-    //   point: {
-    //     pixelSize: 15,
-    //     color: Cesium.Color.RED //color of collector points being dropped on map
-    //   }
-    // });
-
-    //collectors as antenna image - manually placed by user
-    viewer.entities.add({
-      position: cartesian,
-      billboard: {
-          image: 'static/images/antenna.png',
-          width: 32,
-          height: 40,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+  viewer.screenSpaceEventHandler.setInputAction(async (click) => {  // Make this function async
+    const cartesian = viewer.scene.pickPosition(click.position);
+    if (Cesium.defined(cartesian) && pointCount < minPoints) {
+      if (lastPoint && Cesium.Cartesian3.distance(lastPoint, cartesian) > maxDistance) {
+        alert("Points must be within 500km of each to each other. Please try again.");
+        return;
       }
-  });
-    
-    lastPoint = cartesian;
-    pointCount++;
-    if (pointCount >= minPoints) {
-      airplaneButton.disabled = false;
-    }
-  }
-}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
+      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+      const lon = Cesium.Math.toDegrees(cartographic.longitude);
+      const lat = Cesium.Math.toDegrees(cartographic.latitude);
+      
+      try {
+          const elevation = await getElevation(lat, lon);  // Await the elevation from the API
+          receivers.push({
+              latitude: lat,
+              longitude: lon,
+              altitude: elevation  // Use the actual elevation
+          });
+
+          console.log('Receiver Added:', {latitude: lat, longitude: lon, altitude: elevation});
+          console.log('All Receivers:', receivers);  // Optional: log the current state of the receivers array
+          
+          viewer.entities.add({
+            position: cartesian,
+            billboard: {
+                image: 'static/images/antenna.png',
+                width: 32,
+                height: 40,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            }
+          });
+
+          lastPoint = cartesian;
+          pointCount++;
+          if (pointCount >= minPoints) {
+            airplaneButton.disabled = false;
+          }
+      } catch (error) {
+          console.error('Error fetching elevation:', error);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 }
 
-placeScalingReceivers(viewer); //function call so user can place collectors - if commented no receivers can be dropped
-
-
+placeScalingReceivers(viewer);
 
 
 
@@ -380,6 +371,36 @@ function createModel(url, height, longitude, latitude) {
 
   return entity;
 }
+
+function createLabel(longitude, latitude, height, labelText) {
+  const position = Cesium.Cartesian3.fromDegrees(longitude, latitude, height + 50); // Adjust height to place the label above the plane
+  
+  const labelEntity = viewer.entities.add({
+    position: position,
+    label: {
+      text: labelText,
+      font: '14pt monospace',
+      fillColor: Cesium.Color.WHITE,
+      outlineColor: Cesium.Color.BLACK,
+      outlineWidth: 2,
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      pixelOffset: new Cesium.Cartesian2(0, -50) // Pixel offset to adjust label's vertical position
+    }
+  });
+
+  return labelEntity;
+}
+
+// Export the createModel function if needed
+// (This is optional and depends on your project structure)
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = {
+    createModel: createModel
+
+  };
+}
+
 
 
 // RENDER AIRPLANE BUTTON
@@ -459,6 +480,16 @@ function initializeEmitterControls(emitter) {
         let northVelocity = parseFloat(inputs[1]);
         let eastVelocity = parseFloat(inputs[2]);
 
+        let emitterInfo = {
+          latitude: latitude,
+          longitude: longitude,
+          altitude: altitude,
+          northVelocity: northVelocity,
+          eastVelocity: eastVelocity
+        };
+
+        console.log("Emitter added:", emitterInfo);
+
         // Check if inputs are valid numbers
         if (!isNaN(altitude) && !isNaN(northVelocity) && !isNaN(eastVelocity)) {
           // Process altitude, northVelocity, and eastVelocity here
@@ -479,14 +510,69 @@ function initializeEmitterControls(emitter) {
           latitude
         );
 
+        
         // Reset cursor style and button text after placement
         viewer.scene.canvas.style.cursor = 'default';
         emitterButton.textContent = 'Render Aircraft';
         // emitterButton.disabled = false;
+        runSimulation(emitterInfo);
       }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    }, 
+    
+    Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    viewer.scene.canvas.style.cursor = 'default';
+    emitterButton.textContent = 'Render Aircraft';
+    
+
   });
 }
+
+
+
+function runSimulation(emitterInfo) {
+  console.log("Running simulation...")
+  fetch('/run-simulation', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          emitter: emitterInfo,
+          receivers: receivers
+      })
+  })
+  .then(response => response.json())
+  .then(data => {
+      console.log('Simulation result:', data);
+      // Extract the estimated position and other data from the response
+      const estEmmitterPos = data.emitter;
+      const latitude = estEmmitterPos.latitude;
+      const longitude = estEmmitterPos.longitude;
+      const altitude = estEmmitterPos.altitude;
+      
+      // Optionally, handle position and velocity errors
+      // const posError = data.posError;
+      // const velError = data.velError;
+      // console.log('Position Error:', posError);
+      // console.log('Velocity Error:', velError);
+
+      // Plot the aircraft model using the returned estimated position
+      const modelEntity = createModel(
+          "static/models/cirrus_sr22.glb",
+          altitude,
+          longitude,
+          latitude
+      );
+
+      const textEntity = createLabel(longitude, latitude, altitude, 'Estimated Position');
+
+      // Optional - manage or display the entity as needed
+      // For instance, center the viewer on the newly created entity, or store it for later removal, etc.
+      // viewer.zoomTo(entity);
+  })
+  .catch(error => console.error('Error during simulation or plotting:', error));
+}
+
 
 
 // // not in use currently

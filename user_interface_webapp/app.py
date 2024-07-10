@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import URL
 import pandas as pd
+import numpy as np
 
 from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot #defined in globe rendering utils.py - called in appy.py
 #take dictionary with relevant info an imports it , 
@@ -17,6 +18,8 @@ from user_interface_webapp.globe_rendering_utils import render_live_plot, render
 
 from data_stuff.crud import read_flights
 from data_stuff.database_utils import create_url
+
+from doa_utils.simulator import simulate_doa
 
 load_dotenv()
 
@@ -103,6 +106,18 @@ def get_elevation():
     elevation = response.json()['results'][0]['elevation']
 
     return jsonify({'elevation' : elevation})
+
+@app.route('/run-simulation', methods=['POST'])
+def simulate():
+    data = request.get_json()
+    emitter_pos = np.array([data['emitter']['latitude'], data['emitter']['longitude'], data['emitter']['altitude']])
+    emitter_vel = np.array([data['emitter']['northVelocity'], data['emitter']['eastVelocity'], 0])
+    receiver_positions = np.array([ [r['latitude'], r['longitude'], r['altitude']] for r in data['receivers']])
+
+    est_pos, est_vel = simulate_doa(emitter_pos, emitter_vel, receiver_positions, cartesian=False)
+
+    result = { 'emitter' : { 'latitude' : est_pos[0], 'longitude' : est_pos[1], 'altitude' : est_pos[2], 'northVelocity' : est_vel[0], 'eastVelocity' : est_vel[1] }}#, 'posError' : pos_error, 'velError' : vel_error }
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(debug=True)
