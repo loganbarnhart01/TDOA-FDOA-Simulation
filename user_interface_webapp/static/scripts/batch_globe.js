@@ -1,9 +1,6 @@
-// This file is a coopy of cesium_globe.js but modified to render flight tracking from an upload of batch data from a .csv file that is uploaded from the upload page
 
-
-// RENDERING OF CESIUM ION CONTAINER in GLOBE page. 
+// RENDERING OF CESIUM ION CONTAINER in GLOBE page.
 const viewer = new Cesium.Viewer("cesiumContainer", {
-    baseLayer: false,
     baseLayerPicker: false,
     infoBox: false,
   });
@@ -37,130 +34,164 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   bingMapsLabelsOnly.splitDirection = Cesium.SplitDirection.RIGHT; // Only show to the left of the slider.
   layers.add(bingMapsLabelsOnly);
   
+  // DARK MODE IMPLEMENTATION - note that the map renders in night mode but the city & road features are no longer visible.
+  let blackMarbleLayer = null; // Initialize the layer variable but do not load until needed.
   
-// DARK MODE IMPLEMENTATION - note that the map renders in night mode but the city & road features are no longer visible. 
-  
-let blackMarbleLayer = null;  // Initialize the layer variable but do not load until needed.
-
-async function ensureBlackMarbleLayer() {
-    if (!blackMarbleLayer) {  // Only load if not already loaded.
-        blackMarbleLayer = await Cesium.ImageryLayer.fromProviderAsync(
-            Cesium.IonImageryProvider.fromAssetId(3812)
-        );
-
-    //lighten dark mode slightly so bing maps overlay is visible?
-    blackMarbleLayer.brightness = 3.0; // > 1.0 increases brightness.  < 1.0 decreases
-    blackMarbleLayer.alpha = 0.75;
- 
+  async function ensureBlackMarbleLayer() {
+    if (!blackMarbleLayer) {
+      // Only load if not already loaded.
+      blackMarbleLayer = await Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.IonImageryProvider.fromAssetId(3812)
+      );
     }
-}
-
-document.getElementById('dayNightToggle').addEventListener('change', async function () {
-    const label = document.getElementById('toggleLabel');
-    await ensureBlackMarbleLayer();  // Ensure layer is loaded before toggling.
-    
-    if (this.checked) {
+  }
+  
+  document
+    .getElementById("dayNightToggle")
+    .addEventListener("change", async function () {
+      const label = document.getElementById("toggleLabel");
+      await ensureBlackMarbleLayer(); // Ensure layer is loaded before toggling.
+  
+      if (this.checked) {
         viewer.scene.skyAtmosphere.hueShift = -0.8;
         viewer.scene.skyAtmosphere.saturationShift = -0.7;
         viewer.scene.skyAtmosphere.brightnessShift = -0.33;
         viewer.scene.globe.enableLighting = false;
-        label.innerText = 'Night Mode';
-
+        label.innerText = "Night Mode";
+  
         // Add the black marble layer for night mode.
         viewer.imageryLayers.add(blackMarbleLayer);
-    } else {
+      } else {
         viewer.scene.skyAtmosphere.hueShift = 0.0;
         viewer.scene.skyAtmosphere.saturationShift = 0.0;
         viewer.scene.skyAtmosphere.brightnessShift = 0.0;
         viewer.scene.globe.enableLighting = false;
-        label.innerText = 'Day Mode';
-
+        label.innerText = "Day Mode";
+  
         // Remove the black marble layer if previously added.
-        viewer.imageryLayers.remove(blackMarbleLayer, true);  // Use `true` for destroy to properly clean up.
-        blackMarbleLayer = null;  // Reset the layer variable.
-    }
-});
-
-console.log("flightData Type:", flightData)
-console.log(Array.isArray(flightData))
-
-// This function uses embedded flight data to plot points
-function addFlightDataToGlobe() {
+        viewer.imageryLayers.remove(blackMarbleLayer, true); // Use `true` for destroy to properly clean up.
+        blackMarbleLayer = null; // Reset the layer variable.
+      }
+    });
+  
+  // This function uses embedded flight data to plot points
+  function addFlightDataToGlobe() {
     if (typeof flightData === "string") {
-        flightData = JSON.parse(flightData);
+      flightData = JSON.parse(flightData);
     }
-
+  
     // Group data by TIME to synchronize all flight updates
-    const groupedByTime = groupBy(flightData, 'TIME');
+    const groupedByTime = groupBy(flightData, "TIME");
     const timestamps = Object.keys(groupedByTime).sort((a, b) => a - b);
-
+  
     let currentTimestampIndex = 0;
     let flightEntities = {};
-
+  
     function updateEntities() {
-        const currentTime = timestamps[currentTimestampIndex];
-        const flightsAtCurrentTime = groupedByTime[currentTime];
-
-        flightsAtCurrentTime.forEach(flight => {
-            const icao = flight.ICAO;
-            const position = Cesium.Cartesian3.fromDegrees(parseFloat(flight.LON), parseFloat(flight.LAT));
-
-            if (!flightEntities[icao]) {
-                // First occurrence of this ICAO; create new entities
-                flightEntities[icao] = {
-                    positions: [position],
-                    polyline: viewer.entities.add({
-                        polyline: {
-                            positions: new Cesium.CallbackProperty(() => flightEntities[icao].positions, false),
-                            width: 3,
-                            material: Cesium.Color.YELLOW.withAlpha(0.75)
-                        }
-                    }),
-                    point: viewer.entities.add({
-                        position: position,
-                        point: {
-                            pixelSize: 10,
-                            color: Cesium.Color.ORANGE,
-                            outlineColor: Cesium.Color.WHITE,
-                            outlineWidth: 2
-                        },
-                        label: {
-                            text: `ICAO: ${icao}`,
-                            font: '14pt monospace',
-                            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                            outlineWidth: 2,
-                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                            pixelOffset: new Cesium.Cartesian2(0, -9)
-                        }
-                    })
-                };
-            } else {
-                // Update existing polyline and point
-                flightEntities[icao].positions.push(position);
-                flightEntities[icao].point.position = position;
-                flightEntities[icao].point.label.text = `ICAO: ${icao}`;
-            }
-        });
-
-        currentTimestampIndex++;
-        if (currentTimestampIndex >= timestamps.length) {
-            currentTimestampIndex = 0;  // Reset for looping
-            Object.keys(flightEntities).forEach(icao => {
-                flightEntities[icao].positions = [];
-            });
+      const currentTime = timestamps[currentTimestampIndex];
+      const flightsAtCurrentTime = groupedByTime[currentTime];
+  
+      flightsAtCurrentTime.forEach((flight) => {
+        const icao = flight.ICAO;
+        const position = Cesium.Cartesian3.fromDegrees(
+          parseFloat(flight.LON),
+          parseFloat(flight.LAT)
+        );
+  
+        if (!flightEntities[icao]) {
+          // First occurrence of this ICAO; create new entities
+          flightEntities[icao] = {
+            positions: [position],
+            polyline: viewer.entities.add({
+              polyline: {
+                positions: new Cesium.CallbackProperty(
+                  () => flightEntities[icao].positions,
+                  false
+                ),
+                width: 3,
+                material: Cesium.Color.MAGENTA.withAlpha(0.75),
+              },
+            }),
+            model: createModel(
+              "static/models/cirrus_sr22.glb",
+              1000,
+              parseFloat(flight.LON),
+              parseFloat(flight.LAT)
+            ),
+            label: viewer.entities.add({
+              position: position,
+              label: {
+                text: `ICAO: ${icao}`,
+                font: "14pt monospace",
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(15, -35),
+                fillColor: Cesium.Color.YELLOW, 
+              },
+            }),
+          };
+        } else {
+          // Updates existing polyline, model, and label
+          flightEntities[icao].positions.push(position);
+          flightEntities[icao].model.position = position;
+          flightEntities[icao].label.position = position;
+          flightEntities[icao].label.label.text = `ICAO: ${icao}`;
         }
-        setTimeout(updateEntities, 1000);  // Adjust timing as necessary
+      });
+  
+      currentTimestampIndex++;
+      if (currentTimestampIndex >= timestamps.length) {
+        currentTimestampIndex = 0; // set to 0 for looping
+        Object.keys(flightEntities).forEach((icao) => {
+          flightEntities[icao].positions = [];
+        });
+      }
+      setTimeout(updateEntities, 1000); // Adjust timing as necessary
     }
-
-    updateEntities();  // Start the update process
-}
-
-// Helper function to group by a key
-function groupBy(array, key) {
+  
+    updateEntities(); // Start the update process
+  }
+  
+  function createModel(url, height, longitude, latitude) {
+    const position = Cesium.Cartesian3.fromDegrees(
+      longitude,
+      latitude,
+      height
+    );
+    const heading = Cesium.Math.toRadians(135);
+    const pitch = 0;
+    const roll = 0;
+    const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+    const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+      position,
+      hpr
+    );
+  
+    const entity = viewer.entities.add({
+      name: url,
+      position: position,
+      orientation: orientation,
+      model: {
+        uri: url,
+        minimumPixelSize: 128,
+        maximumScale: 20000,
+      },
+    });
+  
+    return entity;
+  }
+  
+  // Helper function to group by a key
+  function groupBy(array, key) {
     return array.reduce((result, currentValue) => {
-        (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-        return result;
+      (result[currentValue[key]] = result[currentValue[key]] || []).push(
+        currentValue
+      );
+      return result;
     }, {});
-}
-// Call the function to add data to the globe as part of the page loading process
-document.addEventListener('DOMContentLoaded', addFlightDataToGlobe);
+  }
+  
+  // Call the function to add data to the globe as part of the page loading process
+  document.addEventListener("DOMContentLoaded", addFlightDataToGlobe);
+  
