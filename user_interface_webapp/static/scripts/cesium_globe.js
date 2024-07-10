@@ -249,7 +249,27 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 
 
 
+function getElevation(latitude, longitude) {
+  // Return the fetch promise directly
+  return fetch('/get-elevation', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({latitude: latitude, longitude: longitude})
+  })
+  .then(response => response.json())
+  .then(data => {
+      console.log('Elevation:', data.elevation); // Logging the elevation for debugging
+      return data.elevation; // Return elevation so it can be awaited on
+  })
+  .catch(error => {
+      console.error('Error fetching elevation:', error);
+      return undefined; // Return undefined or throw an error as you see fit
+  });
+}
 
+const receivers = [];
 
 // USER INTERACTIVITY TO DROP POINTS ON MAP (THIS IS DONE BY RIGHT CLICKING)
 //bettereer as a function for implementation purposes? 
@@ -261,7 +281,7 @@ let lastPoint = null;
 
 viewer.screenSpaceEventHandler.setInputAction((click) => {
   const cartesian = viewer.scene.pickPosition(click.position);
-  if (Cesium.defined(cartesian)) {
+  if (Cesium.defined(cartesian) && pointCount ) {
     if (lastPoint && Cesium.Cartesian3.distance(lastPoint, cartesian) > maxDistance) {
       alert("Points must be within 500km of each other. Please try again.");
       return;
@@ -271,6 +291,15 @@ viewer.screenSpaceEventHandler.setInputAction((click) => {
     const lon = Cesium.Math.toDegrees(cartographic.longitude);
     const lat = Cesium.Math.toDegrees(cartographic.latitude);
     const height = 0; //cartographic.height;
+    const elevation = getElevation(lat, lon); // Use await to ensure this completes
+    receivers.push({
+        latitude: lat,
+        longitude: lon,
+        altitude: elevation
+    });
+    
+    console.log('Receiver Added:', {latitude: lat, longitude: lon, altitude: elevation});
+    console.log('All Receivers:', receivers); // Optional: log the current state of the receivers array
     
     //collectors as red circles
     // viewer.entities.add({
