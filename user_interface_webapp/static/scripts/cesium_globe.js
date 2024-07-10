@@ -464,24 +464,24 @@ function initializeEmitterControls(emitter) {
           inputs.push(window.prompt(messages[i]));
         }
 
-        // parse input strings to floats
+        // Parse input strings to floats
         let altitude = parseFloat(inputs[0]);
         let northVelocity = parseFloat(inputs[1]);
         let eastVelocity = parseFloat(inputs[2]);
 
-        //  inputs are valid numbers
+        // Check if inputs are valid numbers
         if (!isNaN(altitude) && !isNaN(northVelocity) && !isNaN(eastVelocity)) {
           // Process altitude, northVelocity, and eastVelocity here
           console.log('Altitude:', altitude);
           console.log('North Velocity:', northVelocity);
           console.log('East Velocity:', eastVelocity);
 
-         
+          // You can perform further calculations or processing with these values
         } else {
           alert('Invalid input. Please enter valid numbers for altitude, north velocity, and east velocity.');
         }
 
-        //  model entity 
+        // Create the model entity (replace with your createModel function)
         const entity = createModel(
           "static/models/cirrus_sr22.glb",
           altitude,
@@ -489,7 +489,7 @@ function initializeEmitterControls(emitter) {
           latitude
         );
 
-        // reset cursor style and button text after placement
+        // Reset cursor style and button text after placement
         viewer.scene.canvas.style.cursor = 'default';
         emitterButton.textContent = 'Render Aircraft';
         // emitterButton.disabled = false;
@@ -526,30 +526,30 @@ function enableEmitterPlacement(viewer) {
         const longitude = Cesium.Math.toDegrees(cartographic.longitude);
         const latitude = Cesium.Math.toDegrees(cartographic.latitude);
 
-        let altitudeStr = window.prompt('Enter altitude (meters):');
-        let altitude = parseFloat(altitudeStr);
-        if (isNaN(altitude)) {
-          alert('Invalid input. Please enter a valid number for altitude.');
-          return;
-        }
+          let altitudeStr = window.prompt('Enter altitude (meters):');
+          let altitude = parseFloat(altitudeStr);
+          if (isNaN(altitude)) {
+            alert('Invalid input. Please enter a valid number for altitude.');
+            return;
+          }
 
-        // clean previous entity
-        if (emitterEntity) {
-          viewer.entities.remove(emitterEntity);
-        }
+          // clean previous entity
+          if (emitterEntity) {
+            viewer.entities.remove(emitterEntity);
+          }
 
-        // model entifity
-        emitterEntity = createModel(
-          "static/models/cirrus_sr22.glb",
-          altitude,
-          longitude,
-          latitude
-        );
+          // model entifity
+          emitterEntity = createModel(
+            "static/models/cirrus_sr22.glb",
+            altitude,
+            longitude,
+            latitude
+          );
 
-        lastPoint = earthPosition;
-        pointCount++;
-        if (pointCount >= minPoints) {
-        }
+          lastPoint = earthPosition;
+          pointCount++;
+          if (pointCount >= minPoints) {
+          }
 
         // mouse movement drag/drop functionality
         viewer.screenSpaceEventHandler.setInputAction(dragEmitter, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -579,30 +579,7 @@ document.addEventListener('DOMContentLoaded', () => { // DOM = Document Object M
 function setupEmitterControls() { //function call
   initializeEmitterControls(viewer); // view is defined at beginning
 }
-let altitudeStr = window.prompt('Enter altitude (meters):');
-let altitude = parseFloat(altitudeStr);
-if (isNaN(altitude)) {
-  alert('Invalid input. Please enter a valid number for altitude.');
-  return;
-}
 
-// clean previous entity
-if (emitterEntity) {
-  viewer.entities.remove(emitterEntity);
-}
-
-// model entifity
-emitterEntity = createModel(
-  "static/models/cirrus_sr22.glb",
-  altitude,
-  longitude,
-  latitude
-);
-
-lastPoint = earthPosition;
-pointCount++;
-if (pointCount >= minPoints) {
-}
 // createModel(
 //   "static/models/cirrus_sr22.glb",
 //   200,   // height
