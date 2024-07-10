@@ -2,7 +2,7 @@ from typing import Optional, List
 import warnings
 import numpy as np
 from scipy.optimize import least_squares
-from signal_generator import Receiver
+from .signal_generator import Receiver
 
 c = 2.99792458e8
 f0 = 1090e6
