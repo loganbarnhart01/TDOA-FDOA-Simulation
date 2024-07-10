@@ -433,7 +433,6 @@ function initializeEmitterControls(emitter) {
   emitterButton.addEventListener('click', () => {
     // Change button text and behavior upon click
     emitterButton.textContent = 'Click on the globe to place an Aircraft';
-    // Optionally disable button during placement (not necessary for functionality)
     // emitterButton.disabled = true;
 
     // Change cursor style to crosshair to indicate placement mode
@@ -448,14 +447,41 @@ function initializeEmitterControls(emitter) {
         const latitude = Cesium.Math.toDegrees(cartographic.latitude);
 
         // Prompt user for altitude
-        let altitudeStr = window.prompt('Enter altitude (meters):');
-        let altitude = parseFloat(altitudeStr);
-        if (isNaN(altitude)) {
-          alert('Invalid input. Please enter a valid number for altitude.');
-          return;
+        // let altitudeStr = window.prompt('Enter altitude (meters):');
+        // let altitude = parseFloat(altitudeStr);
+        // if (isNaN(altitude)) {
+        //   alert('Invalid input. Please enter a valid number for altitude.');
+        //   return;
+        // }
+        let inputs = [];
+        let messages = [
+          'Enter altitude (meters):',
+          'Enter north velocity (meters/second):',
+          'Enter east velocity (meters/second):'
+        ];
+
+        for (let i = 0; i < messages.length; i++) {
+          inputs.push(window.prompt(messages[i]));
         }
 
-        // Create the model entity (replace with your createModel function)
+        // parse input strings to floats
+        let altitude = parseFloat(inputs[0]);
+        let northVelocity = parseFloat(inputs[1]);
+        let eastVelocity = parseFloat(inputs[2]);
+
+        //  inputs are valid numbers
+        if (!isNaN(altitude) && !isNaN(northVelocity) && !isNaN(eastVelocity)) {
+          // Process altitude, northVelocity, and eastVelocity here
+          console.log('Altitude:', altitude);
+          console.log('North Velocity:', northVelocity);
+          console.log('East Velocity:', eastVelocity);
+
+         
+        } else {
+          alert('Invalid input. Please enter valid numbers for altitude, north velocity, and east velocity.');
+        }
+
+        //  model entity 
         const entity = createModel(
           "static/models/cirrus_sr22.glb",
           altitude,
@@ -463,10 +489,9 @@ function initializeEmitterControls(emitter) {
           latitude
         );
 
-        // Reset cursor style and button text after placement
+        // reset cursor style and button text after placement
         viewer.scene.canvas.style.cursor = 'default';
         emitterButton.textContent = 'Render Aircraft';
-        // Optionally enable button again after placement (not necessary for functionality)
         // emitterButton.disabled = false;
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -554,7 +579,30 @@ document.addEventListener('DOMContentLoaded', () => { // DOM = Document Object M
 function setupEmitterControls() { //function call
   initializeEmitterControls(viewer); // view is defined at beginning
 }
+let altitudeStr = window.prompt('Enter altitude (meters):');
+let altitude = parseFloat(altitudeStr);
+if (isNaN(altitude)) {
+  alert('Invalid input. Please enter a valid number for altitude.');
+  return;
+}
 
+// clean previous entity
+if (emitterEntity) {
+  viewer.entities.remove(emitterEntity);
+}
+
+// model entifity
+emitterEntity = createModel(
+  "static/models/cirrus_sr22.glb",
+  altitude,
+  longitude,
+  latitude
+);
+
+lastPoint = earthPosition;
+pointCount++;
+if (pointCount >= minPoints) {
+}
 // createModel(
 //   "static/models/cirrus_sr22.glb",
 //   200,   // height
