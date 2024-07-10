@@ -54,8 +54,18 @@ This file requires the Cesium script imports as well as globe.css & cesium_globe
         </label>
     </div>
 </div>
+<!-- </div>
+<div id="coordinatesWindow">
+    <h3>Mouse Coordinates</h3>
+    <p>Latitude: <span id="latitudeValue"></span></p>
+    <p>Longitude: <span id="longitudeValue"></span></p>
+    <label for="velocityInput">Velocity (kph):</label>
+    <input type="number" id="velocityInput" min="0">
+    <label for="headingInput">Heading (degrees North):</label>
+    <input type="number" id="headingInput" min="0" max="360"> -->
+<!-- </div> -->
 
-<script type="module" src="{{ url_for('static', filename='scripts/new_globe.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='scripts/cesium_globe.js') }}"></script>
 </body>
 </html>
 
