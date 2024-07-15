@@ -41,9 +41,23 @@ class Receiver:
     def sample_signal(self, symbols: List[int]):
         samples_per_bit = int(self.sample_rate * self.bit_duration)
         demodded_signal = np.array([])
-        for sym in symbols:
-            sym_samples = np.ones(samples_per_bit) * sym
-            demodded_signal = np.append(demodded_signal, sym_samples)
+        # manual flag to switch between pulse position modulation and binary phase shift keying 
+        ppm = False 
+        if ppm:
+            half_samples = int(samples_per_bit / 2)
+            for sym in symbols:
+                bit = []
+                if sym == 1:
+                    bit = np.ones(half_samples)
+                    bit = np.append(bit, np.zeros(samples_per_bit - half_samples))
+                else:
+                    bit = np.zeros(half_samples)
+                    bit = np.append(bit, np.ones(samples_per_bit - half_samples))
+                demodded_signal = np.append(demodded_signal, bit)
+        else:
+            for sym in symbols:
+                sym_samples = np.ones(samples_per_bit) * sym
+                demodded_signal = np.append(demodded_signal, sym_samples)
         return demodded_signal
     
     def apply_doppler(self, 
