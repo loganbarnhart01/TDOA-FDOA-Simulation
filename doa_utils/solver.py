@@ -46,7 +46,6 @@ def estimate_emitter(
         raise ValueError("Need at least one type of data to solve for emitter position")
 
     solution = least_squares(obj, x0)
-
     if solution.success:
         return solution.x
     else:

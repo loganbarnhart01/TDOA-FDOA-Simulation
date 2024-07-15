@@ -114,9 +114,11 @@ def simulate():
     emitter_vel = np.array([data['emitter']['northVelocity'], data['emitter']['eastVelocity'], 0])
     receiver_positions = np.array([ [r['latitude'], r['longitude'], r['altitude']] for r in data['receivers']])
 
-    est_pos, est_vel = simulate_doa(emitter_pos, emitter_vel, receiver_positions, cartesian=False)
+    caf_est_pos, caf_est_vel, true_est_pos, true_est_vel = simulate_doa(emitter_pos, emitter_vel, receiver_positions, cartesian=False)
 
-    result = { 'emitter' : { 'latitude' : est_pos[0], 'longitude' : est_pos[1], 'altitude' : est_pos[2], 'northVelocity' : est_vel[0], 'eastVelocity' : est_vel[1] }}#, 'posError' : pos_error, 'velError' : vel_error }
+    result = { 'caf_emitter' : { 'latitude' : caf_est_pos[0], 'longitude' : caf_est_pos[1], 'altitude' : caf_est_pos[2], 'northVelocity' : caf_est_vel[0], 'eastVelocity' : caf_est_vel[1] },
+               'true_emitter' : { 'latitude' : true_est_pos[0], 'longitude' : true_est_pos[1], 'altitude' : true_est_pos[2], 'northVelocity' : true_est_vel[0], 'eastVelocity' : true_est_vel[1] }
+              }#, 'posError' : pos_error, 'velError' : vel_error }
     return jsonify(result)
 
 if __name__ == "__main__":

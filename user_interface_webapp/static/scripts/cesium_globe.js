@@ -545,10 +545,15 @@ function runSimulation(emitterInfo) {
   .then(data => {
       console.log('Simulation result:', data);
       // Extract the estimated position and other data from the response
-      const estEmmitterPos = data.emitter;
-      const latitude = estEmmitterPos.latitude;
-      const longitude = estEmmitterPos.longitude;
-      const altitude = estEmmitterPos.altitude;
+      const cafEmitterPos = data.caf_emitter;
+      const caf_latitude =  cafEmitterPos.latitude;
+      const caf_longitude = cafEmitterPos.longitude;
+      const caf_altitude =  cafEmitterPos.altitude;
+
+      const estEmitterPos = data.true_emitter;
+      const est_latitude = estEmitterPos.latitude;
+      const est_longitude = estEmitterPos.longitude;
+      const est_altitude = estEmitterPos.altitude;
       
       // Optionally, handle position and velocity errors
       // const posError = data.posError;
@@ -557,18 +562,24 @@ function runSimulation(emitterInfo) {
       // console.log('Velocity Error:', velError);
 
       // Plot the aircraft model using the returned estimated position
-      const modelEntity = createModel(
+      const cafModelEntity = createModel(
           "static/models/cirrus_sr22.glb",
-          altitude,
-          longitude,
-          latitude
+          caf_altitude,
+          caf_longitude,
+          caf_latitude
       );
 
-      const textEntity = createLabel(longitude, latitude, altitude, 'Estimated Position');
+      const cafTextEntity = createLabel(caf_longitude, caf_latitude, caf_altitude, 'Estimated Position with CAF');
 
-      // Optional - manage or display the entity as needed
-      // For instance, center the viewer on the newly created entity, or store it for later removal, etc.
-      // viewer.zoomTo(entity);
+      const estModelEntity = createModel(
+        "static/models/cirrus_sr22.glb",
+        est_altitude,
+        est_longitude,
+        est_latitude
+    );
+
+    const estTextEntity = createLabel(est_longitude, est_latitude, est_altitude, 'Estimated Position with True T/FDOA Data');
+
   })
   .catch(error => console.error('Error during simulation or plotting:', error));
 }
