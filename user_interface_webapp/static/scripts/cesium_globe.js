@@ -305,7 +305,7 @@ function placeScalingReceivers(viewer) {
           viewer.entities.add({
             position: cartesian,
             billboard: {
-                image: 'static/images/antenna_large.png',
+                image: 'static/images/marker.png',
                 width: 32,
                 height: 40,
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
@@ -466,7 +466,7 @@ function initializeEmitterControls(emitter) {
         // }
         let inputs = [];
         let messages = [
-          'Enter altitude (meters):',
+          'Enter altitude (meters MSL):',
           'Enter north velocity (meters/second):',
           'Enter east velocity (meters/second):'
         ];
@@ -572,79 +572,6 @@ function runSimulation(emitterInfo) {
   })
   .catch(error => console.error('Error during simulation or plotting:', error));
 }
-
-
-
-// // not in use currently
-// function enableEmitterPlacement(viewer) {
-//   let pointCount = 0;
-//   const minPoints = 4;  // min Points
-//   const maxDistance = 500000; // 500km in meters
-//   let lastPoint = null;
-//   let emitterEntity = null;
-
-//   //nested function to manage user click
-//   function handleButtonClick() {
-//     emitterButton.textContent = 'Click on the globe to place an Aircraft';
-//     emitterButton.disabled = true;
-//     viewer.scene.canvas.style.cursor = 'crosshair';
-
-//     // click action on globe to place aircraft, constraint of placing arcraft within 500km
-//     viewer.screenSpaceEventHandler.setInputAction((click) => {
-//       const earthPosition = viewer.scene.pickPosition(click.position);
-//       if (Cesium.defined(earthPosition)) {
-//         if (lastPoint && Cesium.Cartesian3.distance(lastPoint, earthPosition) > maxDistance) {
-//           alert("Aircraft must be placed within 500km of the last point. Please try again.");
-//           return;
-//         }
-
-//         const cartographic = Cesium.Cartographic.fromCartesian(earthPosition);
-//         const longitude = Cesium.Math.toDegrees(cartographic.longitude);
-//         const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-
-//           let altitudeStr = window.prompt('Enter altitude (meters):');
-//           let altitude = parseFloat(altitudeStr);
-//           if (isNaN(altitude)) {
-//             alert('Invalid input. Please enter a valid number for altitude.');
-//             return;
-//           }
-
-//           // clean previous entity
-//           if (emitterEntity) {
-//             viewer.entities.remove(emitterEntity);
-//           }
-
-//           // model entifity
-//           emitterEntity = createModel(
-//             "static/models/cirrus_sr22.glb",
-//             altitude,
-//             longitude,
-//             latitude
-//           );
-
-//           lastPoint = earthPosition;
-//           pointCount++;
-//           if (pointCount >= minPoints) {
-//           }
-
-//         // mouse movement drag/drop functionality
-//         viewer.screenSpaceEventHandler.setInputAction(dragEmitter, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-//         viewer.screenSpaceEventHandler.setInputAction(dropEmitter, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-//         // reset UI and button
-//         // viewer.scene.canvas.style.cursor = 'default';
-//         emitterButton.textContent = 'Render Aircraft';
-//         emitterButton.disabled = false;
-//       }
-//     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-//   }
-
-//   // Attach the handleButtonClick function to the button click event
-//   emitterButton.addEventListener('click', handleButtonClick);
-
-//   // return handleButtonClick function for external use if needed
-//   return handleButtonClick;
-// }
 
 
 // Call this function after the page has loaded and viewer is initialized
