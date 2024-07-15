@@ -74,6 +74,16 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
       }
     });
   
+  function calculateHeading(previousPosition, currentPosition) {
+    // Use Cesium's API to calculate the surface distance and initial heading
+    const startCartographic = Cesium.Cartographic.fromCartesian(previousPosition);
+    const endCartographic = Cesium.Cartographic.fromCartesian(currentPosition);
+    const ellipsoidGeodesic = new Cesium.EllipsoidGeodesic(startCartographic, endCartographic);
+  
+    // Return the initial heading in radians
+    return ellipsoidGeodesic.startHeading;
+  }
+
   // This function uses embedded flight data to plot points
   function addFlightDataToGlobe() {
     if (typeof flightData === "string") {
@@ -106,7 +116,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
             polyline: viewer.entities.add({
               polyline: {
                 positions: new Cesium.CallbackProperty(
-                  () => flczmlightEntities[icao].positions,
+                  () => flightEntities[icao].positions,
                   false
                 ),
                 width: 3,
@@ -117,7 +127,8 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
               "static/models/cirrus_sr22.glb",
               1000,
               parseFloat(flight.LON),
-              parseFloat(flight.LAT)
+              parseFloat(flight.LAT),
+              0
             ),
             label: viewer.entities.add({
               position: position,
@@ -131,14 +142,44 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
                 fillColor: Cesium.Color.YELLOW, 
               },
             }),
+            lastHeading: null
           };
         } else {
-          // Updates existing polyline, model, and label
-          flightEntities[icao].positions.push(position);
-          flightEntities[icao].model.position = position;
-          flightEntities[icao].label.position = position;
-          flightEntities[icao].label.label.text = `ICAO: ${icao}`;
-        }
+          const previousPosition = flightEntities[icao].positions[flightEntities[icao].positions.length - 1];
+          const currentPosition = position;
+          if (!Cesium.Cartesian3.equals(previousPosition, currentPosition)) {
+            const heading = calculateHeading(previousPosition, currentPosition) * 360 / (2 * Math.PI) ;
+            // Updates existing polyline, model, and label
+            console.log(heading, flightEntities[icao].lastHeading)
+            if (flightEntities[icao].lastHeading !== null && Math.abs(heading - flightEntities[icao].lastHeading) < 90) {
+              if (icao === 'a121c0'){
+                console.log(icao, previousPosition, currentPosition, heading)
+              }
+              flightEntities[icao].positions.push(position);
+              flightEntities[icao].model.position = position;
+              flightEntities[icao].label.position = position;
+              flightEntities[icao].model.orientation = Cesium.Transforms.headingPitchRollQuaternion(
+                currentPosition,
+                new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
+              );
+              flightEntities[icao].label.label.text = `ICAO: ${icao}`;
+              flightEntities[icao].lastHeading = heading;
+            }
+            else if (flightEntities[icao].lastHeading === null) {
+              flightEntities[icao].positions.push(position);
+              flightEntities[icao].model.position = position;
+              flightEntities[icao].label.position = position;
+              flightEntities[icao].model.orientation = Cesium.Transforms.headingPitchRollQuaternion(
+                currentPosition,
+                new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
+              );
+              flightEntities[icao].label.label.text = `ICAO: ${icao}`;
+              flightEntities[icao].lastHeading = heading;
+            }
+
+          }
+
+          }
       });
   
       currentTimestampIndex++;
@@ -154,13 +195,12 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
     updateEntities(); // Start the update process
   }
   
-  function createModel(url, height, longitude, latitude) {
+  function createModel(url, height, longitude, latitude, heading) {
     const position = Cesium.Cartesian3.fromDegrees(
       longitude,
       latitude,
       height
     );
-    const heading = Cesium.Math.toRadians(135);
     const pitch = 0;
     const roll = 0;
     const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
