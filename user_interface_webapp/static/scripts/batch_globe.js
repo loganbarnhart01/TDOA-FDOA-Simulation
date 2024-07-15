@@ -102,10 +102,11 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
           // First occurrence of this ICAO; create new entities
           flightEntities[icao] = {
             positions: [position],
+            // attitude: [attitude],
             polyline: viewer.entities.add({
               polyline: {
                 positions: new Cesium.CallbackProperty(
-                  () => flightEntities[icao].positions,
+                  () => flczmlightEntities[icao].positions,
                   false
                 ),
                 width: 3,

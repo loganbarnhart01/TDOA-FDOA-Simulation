@@ -225,16 +225,16 @@ document.getElementById('cesiumContainer').appendChild(instructionWindow);
 // let viewer = new Cesium.Viewer('cesiumContainer');
 
 // // Add event handler for mouse move to display coordinates
-viewer.screenSpaceEventHandler.setInputAction(function(movement) {
-    var cartesian = viewer.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
-    if (cartesian) {
-        var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-        var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
-        var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
-        document.getElementById('latitudeValue').textContent = latitudeString;
-        document.getElementById('longitudeValue').textContent = longitudeString;
-    }
-}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+// viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+//     var cartesian = viewer.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
+//     if (cartesian) {
+//         var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+//         var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
+//         var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
+//         document.getElementById('latitudeValue').textContent = latitudeString;
+//         document.getElementById('longitudeValue').textContent = longitudeString;
+//     }
+// }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 
 
@@ -305,7 +305,7 @@ function placeScalingReceivers(viewer) {
           viewer.entities.add({
             position: cartesian,
             billboard: {
-                image: 'static/images/antenna.png',
+                image: 'static/images/antenna_large.png',
                 width: 32,
                 height: 40,
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,

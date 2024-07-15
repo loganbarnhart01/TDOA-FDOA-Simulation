@@ -8,6 +8,17 @@
     <meta name="description" content="tdoa and fdoa for real time aircraft location mapping">
     <title>geoleek</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+    <style>
+        .interns-poem {
+            padding-top: 5px;
+            max-width: 800px; 
+            margin: 0 auto; 
+            text-align: center; 
+            padding: 10px; 
+            line-height: 2.0; 
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -34,11 +45,36 @@
             <hr style="border-color: #474772;">
         </span>
 
-        <div class="content">
-            <!-- <hr> -->
-            <h2>Who is Geoleek?</h2>
-            <!-- <a href="/live" class="button">Track a Flight</a> -->
-        </div>
+        <h2 style="margin-top: 40px;">Journey of Geolocated : A Summer of Signals and Sushi</h2> 
+            <!-- <h3> </h3> -->
+            <div class="interns-poem">
+                <p>In a convergence from far and wide,<br>
+                    Four interns united, a geolocation stride,<br>
+                    Their journeys began with a shared ambition,<br>
+                    A quest for precision, fueled by their mission.</p>
+    
+                <p>Signals and processing feats they'd face,<br>
+                    Python and Javascript, tackling space,<br>
+                    From peaks they scaled to depths they dived,<br>
+                    Algorithms learned, striving side by side.</p>
+    
+                <p>Ten-hour days, immersed in their task,<br>
+                    Questions asked, dedication unmasked,<br>
+                    Their commitment burned bright and strong,<br>
+                    Fueling their drive, all day long.</p>
+    
+                <p>Sushi dinners marked milestones won,<br>
+                    Lab breaks when the day was done,<br>
+                    Bonded by teamwork, spirits aligned.</p>
+    
+                <p>Eight weeks swiftly passed, a whirlwind so fleet,<br>
+                    From interns to colleagues, their bond complete,</p>
+    
+                <p>To interns who reached for stars and thrived,<br>
+                    Scaling new heights with humor to thrive,<br>
+                    Their journey marked by passion, side by side,<br>
+                    A testament to teamwork, where joy and challenges abide.</p>
+            </div>
 
         <video autoplay loop muted plays-inline id="video-bg">
             <source src="{{ url_for('static', filename='video/airplane-color.mp4') }}" type="video/mp4">
