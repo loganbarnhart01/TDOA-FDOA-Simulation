@@ -84,7 +84,7 @@ def tdoa_solver_3d():
     best_est = []
     for i in range(num_trials):
         curr_points = []
-        noisy_tdoas = tdoas + np.random.normal(0, 5e-9, tdoas.shape)
+        noisy_tdoas = tdoas + np.random.normal(0, 0.00636, tdoas.shape)
         noisy_tdoas = noisy_tdoas*c
         def noisy_equations(p):
             x, y, z = p
