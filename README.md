@@ -1,6 +1,9 @@
-# Flight Tracker Simulator
-Rincon 2024 Intern Project
+# TDOA and FDOA Geolocation Simulator
 Kelly Fisher, Elsa Heidrich, Elizabeth Hong & Logan Barnhart
+
+This repository contains necessary files for a webapp which visualizes and simulates geolocation of aircrafts using TDOA and FDOA. 
+
+This was made with the support of Rincon Research Corporation in 2024
 
 # Installing requirements
 
@@ -19,17 +22,19 @@ data_stuff/ # contains database logic for storing live data from opensky api if 
 ├── models.py           # table declaration
 ├── settings.py         # database connection information
 doa_utils/              # contains necessary files for simulating + solving T/FDOA
+├── tests/              # test scripts
 ├── caf.py              # CAF implementations
 ├── signal_generator.py # signal generator
 ├── simulator.py        # uses all tools to simulate T/FDOA
 ├── solver.py           # solver logic to change solution method
 sample_recv/            # contains necessary files for receiving and decoding ADS-B signals
 ├── bladeRF_adsb.c      # C file that receives hex demodulated ads-b signals and either writes to file or sends in socket through port 30001 **requires ADS-B FPGA image to be flashed onto BladeRF
+├── tests/              # test scripts
 ├── Makefile            # Makes the above C file
 ├── positions.txt       # Test batch file to use on the /upload endpoint 
 ├── recv_hex.py         # ADS-B decoder that takes in either file input or receives in port 30001
 user_interface_webapp/  # contains all frontend, server, and backend logic 
-├──static
+├── static/
 │   ├── images          # necessary images
 │   ├── json            # json files for globe details
 │   ├── models          # 3d models for globe
@@ -37,6 +42,7 @@ user_interface_webapp/  # contains all frontend, server, and backend logic
 │   ├── styles          # css stylings
 │   ├── video           # video files
 ├── templates           # html templates
+├── tests/              # test scripts
 ├── app.py              # main file to run the web application  
 ```
 
