@@ -13,25 +13,25 @@ def process_data(data, cursor, timestamp):
     
 
 def update_flight(data, cursor, timestamp):
-    
+    icao = pms.icao(data)
     cursor.execute('''
         SELECT 1 FROM data WHERE icao = %s
-    ''', (pms.icao(data),))
+    ''', (icao,))
     if cursor.fetchone() is None:                               ## flight does not exist yet
         if (pms.decoder.adsb.oe_flag(data) == 0):                   ## 54th bit denotes whether a bit is even or odd (0 and 1, respectively)       
-            create_flight(cursor, pms.icao(data), data, None, None, None, timestamp, None)
+            create_flight(cursor, icao, data, None, None, None, timestamp, None)
         else:                                                   ## data must be odd
-            create_flight(cursor, pms.icao(data), None, data, None, None, None, timestamp)
+            create_flight(cursor, icao, None, data, None, None, None, timestamp)
     else:
         if (pms.decoder.adsb.oe_flag(data) == 1):                    ## data is odd
             cursor.execute('''
                 UPDATE data
                 SET last_odd = %s, odd_timestamp = %s
                 WHERE icao = %s
-                ''', (data, timestamp, pms.icao(data)))
+                ''', (data, timestamp, icao))
             cursor.execute('''
                 SELECT last_even, even_timestamp FROM data WHERE icao = %s
-                ''', (pms.icao(data),))
+                ''', (icao,))
             result = cursor.fetchone()
             if result != (None, None):
                 last_even, even_timestamp = result
@@ -41,16 +41,17 @@ def update_flight(data, cursor, timestamp):
                 UPDATE data
                 SET latitude = %s, longitude = %s
                 WHERE icao = %s
-                ''', (lati, longi, pms.icao(data)))
+                ''', (lati, longi, icao))
+                write_to_file(icao, lati, longi, timestamp)
         else:                                                   ## data is even
             cursor.execute('''
                 UPDATE data
                 SET last_even = %s, even_timestamp = %s
                 WHERE icao = %s
-                ''', (data, timestamp, pms.icao(data)))
+                ''', (data, timestamp, icao))
             cursor.execute('''
                 SELECT last_odd, odd_timestamp FROM data WHERE icao = %s
-                ''', (pms.icao(data),))
+                ''', (icao,))
             result = cursor.fetchone()
             if result != (None, None):
                 last_odd, odd_timestamp = result
@@ -60,8 +61,12 @@ def update_flight(data, cursor, timestamp):
                 UPDATE data
                 SET latitude = %s, longitude = %s
                 WHERE icao = %s
-                ''', (lati, longi, pms.icao(data)))
-            
+                ''', (lati, longi, icao))
+                write_to_file(icao, lati, longi, timestamp)
+
+def write_to_file(icao, latitude, longitude, timestamp):
+    with open('positions.txt', 'a') as file:
+        file.write(f"{icao},{latitude},{longitude},{timestamp}\n")
 
 def create_flight(cursor, icao, last_even, last_odd, latitude, longitude, even_timestamp, odd_timestamp):
     cursor.execute('''
