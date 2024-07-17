@@ -12,10 +12,6 @@ from sqlalchemy.engine import URL
 import pandas as pd
 import numpy as np
 
-from user_interface_webapp.globe_rendering_utils import render_live_plot, render_tdoa_plot #defined in globe rendering utils.py - called in appy.py
-#take dictionary with relevant info an imports it , 
-#TODO create TOGGLE to switch between plotly and non plotly globe rendering
-
 from data_stuff.crud import read_flights
 from data_stuff.database_utils import create_url
 
@@ -81,8 +77,7 @@ def live():
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
     data = read_flights()
-    globe_json = render_live_plot( data )
-    return globe_json
+    return jsonify(globe_json)
 
 @app.route('/2D-curve-rendering', methods=['GET'])
 def curve_sim():
