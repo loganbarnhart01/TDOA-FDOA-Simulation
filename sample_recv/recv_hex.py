@@ -83,7 +83,7 @@ def main():
     args = parser.parse_args()
 
 
-    conn = psycopg2.connect(database="planes", user="ehong", password="Elanlofr0gs!", host="/var/run/postgresql", port="5432")
+    conn = psycopg2.connect(database="planes", user="", password="", host="/var/run/postgresql", port="5432")
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS data (
