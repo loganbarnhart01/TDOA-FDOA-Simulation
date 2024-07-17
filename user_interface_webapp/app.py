@@ -77,7 +77,7 @@ def live():
 @app.route('/live-data', methods=['GET', 'POST'])
 def live_data():
     data = read_flights()
-    return jsonify(globe_json)
+    return jsonify(data)
 
 @app.route('/2D-curve-rendering', methods=['GET'])
 def curve_sim():
